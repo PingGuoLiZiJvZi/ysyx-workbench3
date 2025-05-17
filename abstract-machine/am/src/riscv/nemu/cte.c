@@ -16,7 +16,7 @@ Context *__am_irq_handle(Context *c)
 		{
 		case 11:
 			ev.event = EVENT_YIELD;
-
+			c->mepc += 4; // skip ecall
 			break;
 		default:
 			ev.event = EVENT_ERROR;
