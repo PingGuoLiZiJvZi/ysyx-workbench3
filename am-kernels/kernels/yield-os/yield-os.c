@@ -27,6 +27,7 @@ static Context *schedule(Event ev, Context *prev)
 {
 	current->cp = prev;
 	current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+	current->cp->mepc += 4;
 	return current->cp;
 }
 
