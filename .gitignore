@@ -1,0 +1,16 @@
+*.*
+*
+!*/
+!/nemu/*
+!/nexus-am/*
+!/nanos-lite/*
+!/navy-apps/*
+!/npc/*
+!Makefile
+!README.md
+!.gitignore
+!init.sh
+!/fceux-am
+.vscode/nvboard
+!/am-kernels
+!打字游戏是如何工作的
