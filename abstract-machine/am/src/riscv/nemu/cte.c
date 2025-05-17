@@ -9,6 +9,7 @@ Context *__am_irq_handle(Context *c)
 	// printf("irq %d\n", c->mcause);
 	// printf("pc %x\n", c->mepc);
 	// printf("mstatus %x\n", c->mstatus);
+	printf("called from %x\n", c->mepc);
 	if (user_handler)
 	{
 		Event ev = {0};
