@@ -19,15 +19,8 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
 {
 	IFDEF(CONFIG_ETRACE, printf("error %d at %x\n", NO, epc));
 	cpu.mepc = epc;
-	if (NO == 11)
-	{
-		if (cpu.priv == 0)
-			cpu.mcause = 11;
-		else
-			cpu.mcause = 8;
-	}
-	else
-		cpu.mcause = NO;
+
+	cpu.mcause = NO;
 
 	return cpu.mtvec;
 }

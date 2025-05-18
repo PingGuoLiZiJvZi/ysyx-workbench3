@@ -190,7 +190,6 @@ static int decode_exec(Decode *s)
 	INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb, I, R(rd) = SEXT((int8_t)Mr(src1 + imm, 1), 8));
 	INSTPAT("0011000 00010 00000 000 00000 11100 11", mret, I, {
 		s->dnpc = cpu.mepc;
-		cpu.priv = 0;
 		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", 11, s->dnpc));
 	});
 	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, s->dnpc = isa_raise_intr(11, s->pc));
