@@ -23,8 +23,17 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	wire [2:0] funct3;
 	wire [6:0] opcode;
 	wire [31:0] jump_target;
+	wire [31:0] mepc;
+	wire [31:0] mtvec;
 	wire is_branch;
 	wire reg_write;
+	wire mret;
+	wire ecall;
+	wire ebreak;
+	wire csr_write;
+	wire csr_read;
+	wire [31:0] csr_data;
+
 	wire [31:0] read_data;
 	ysyx_25040129_REG u_ysyx_25040129_REG (
 		.clk(clk),
@@ -49,6 +58,10 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.pc(pc),
 		.inst(inst),
 		.next_pc(next_pc),
+		.mret(mret),
+		.ecall(ecall),
+		.mepc(mepc),
+		.mtvec(mtvec),
 		.is_branch(is_branch),
 		.jump_target(jump_target)
 	);
@@ -62,7 +75,12 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.funct7(funct7),
 		.funct3(funct3),
 		.opcode(opcode),
-		.reg_write(reg_write)
+		.reg_write(reg_write),
+		.ecall(ecall),
+		.ebreak(ebreak),
+		.mret(mret),
+		.csr_write(csr_write),
+		.csr_read(csr_read)
 	);
 
 	ysyx_25040129_EXU u_ysyx_25040129_EXU (
@@ -74,7 +92,10 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.opcode(opcode),
 		.result(result),
 		.pc(pc),
-		.read_data(read_data)
+		.read_data(read_data),
+		.ebreak(ebreak),
+		.csr_read(csr_read),
+		.csr_data(csr_data)
 	);
 
 	ysyx_25040129_BRC u_ysyx_25040129_BRC (
@@ -97,6 +118,20 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.read_data(read_data)
 	);
 
+	ysyx_25040129_CSR u_ysyx_25040129_CSR (
+		.clk(clk),
+		.csr_write(csr_write),
+		.csr_read(csr_read),
+		.csr_addr(imm[11:0]),
+		.csr_data(csr_data),
+		.csr_out(csr_data),
+		.ecall(ecall),
+		.mepc_data(pc),
+		.mstate_data(32'h1800),
+		.mcause_data(32'd11),
+		.mtvec(mtvec),
+		.mepc(mepc)
+	);
 endmodule/*verilator lint_on DECLFILENAME*/
 
 module ysyx_25040129_REG (
@@ -121,6 +156,60 @@ module ysyx_25040129_REG (
 			if (rd != 5'b00000 && reg_write) begin
 				regs[rd*32 +:32] <=result;
 			end
+		end
+	end
+endmodule
+
+module ysyx_25040129_CSR (
+	input clk,
+	input csr_write,
+	input csr_read,
+	input [11:0] csr_addr,
+	input [31:0] csr_data,
+	output reg [31:0] csr_out,
+	input ecall,
+	input [31:0] mepc_data,
+	input [31:0] mstate_data,
+	input [31:0] mcause_data,
+	output reg [31:0] mtvec,
+	output reg [31:0] mepc
+);
+	reg [31:0] mstatus;
+	reg [31:0] mcause;
+	
+	always @(posedge clk) begin
+		if(ecall)begin
+			mepc <= mepc_data + 4;
+			mstatus <= mstate_data;
+			mcause <= mcause_data;
+		end
+		else begin
+			// if(mret)csr_out <= mepc+4;
+			// else begin
+				if (csr_write) begin
+					case (csr_addr)
+						12'h300: mstatus <= csr_data; // MSTATUS
+						12'h305: mtvec <= csr_data; // MTVEC
+						12'h341: mepc <= csr_data; // MEPC
+						12'h342: mcause <= csr_data; // MCAUSE
+					default: unknown_inst({20'b0,csr_addr}); // Unknown CSR instruction
+					
+					endcase
+				end
+				else begin
+					if(csr_read)begin
+					case (csr_addr)
+						12'h300: csr_out <= mstatus; // MSTATUS
+						12'h305: csr_out <= mtvec; // MTVEC
+						12'h341: csr_out <= mepc; // MEPC
+						12'h342: csr_out <= mcause; // MCAUSE
+						default: csr_out <= 32'b0;
+					endcase
+					end
+					else begin
+						csr_out <= 32'b0;
+					end
+				end
 		end
 	end
 endmodule
@@ -225,13 +314,23 @@ endmodule
 
 module ysyx_25040129_IFU (
 	input [31:0] pc,
-	output [31:0] next_pc,
+	output reg[31:0] next_pc,
 	input is_branch,
+	input mret,
+	input ecall,
 	input [31:0] jump_target,
+	input [31:0] mepc,
+	input [31:0] mtvec,
 	output reg[31:0] inst
 );
 assign inst = (pc==32'h0)?paddr_read(32'h80000000,4,1,1):paddr_read(pc, 4,1,1);
-assign next_pc = (is_branch) ? jump_target : pc + 4;
+always @(*) begin
+	if(ecall)next_pc = mtvec;
+	else if(mret)next_pc = mepc;
+	else if(is_branch)next_pc = jump_target;
+	else if(pc == 32'h0)next_pc = 32'h80000000;
+	else next_pc = pc + 4;
+end
 endmodule
 
 //解码指令，准备好数据以及给EXU的控制信号
@@ -244,7 +343,12 @@ module ysyx_25040129_IDU (
 	output [6:0] funct7,
 	output [2:0] funct3,
 	output [6:0] opcode,
-	output reg reg_write
+	output reg reg_write,
+	output reg ecall,
+	output reg ebreak,
+	output reg mret,
+	output reg csr_write,
+	output reg csr_read
 );
 	assign funct7 = inst[31:25];
 	assign funct3 = inst[14:12];
@@ -281,6 +385,35 @@ module ysyx_25040129_IDU (
 			7'b1110011: begin
 				imm = {{20{inst[31]}},inst[31:20]}; // I-type system
 				reg_write = 1'b0;
+				case (funct3)
+					3'b000: begin
+						case(inst[31:20])
+							12'b000000000001:begin
+								ebreak = 1'b1;
+							end
+							12'b001100000010:begin
+								mret = 1'b1;
+							end
+							default: begin
+								ecall = 1'b1;
+							end
+							
+						endcase
+						reg_write = 1'b0;
+					end
+					3'b001:begin
+						csr_write = 1'b1;
+						reg_write = 1'b0;
+					end
+					3'b010:begin
+						csr_read = 1'b1;
+						reg_write = 1'b1;
+					end
+					default: begin
+						mret = 1'b0;
+						reg_write = 1'b0;
+					end
+				endcase
 			end
 			7'b0110011: begin 
 				imm = 32'b0; // R-type
@@ -315,8 +448,11 @@ module ysyx_25040129_EXU (
 	input [2:0] funct3,
 	input [6:0] opcode,
 	output reg [31:0] result,
-	input [31:0] read_data
-);
+	input [31:0] read_data,
+	input ebreak,
+	input csr_read,
+	input [31:0] csr_data
+);	
 	always @(*) begin
 		case (opcode)
 			7'b0000011: begin
@@ -331,8 +467,11 @@ module ysyx_25040129_EXU (
 			end
 			7'b0110111: result = imm;
 			7'b0010111: result = imm + pc; // AUIPC
-			7'b1110011:	if (funct3 == 0 && imm == 32'h1)begin result=32'b0; ebreak_trigger();end // EBREAK
-			else result = 32'b0; // SYSTEM
+			7'b1110011: begin // ECALL/EBREAK
+				if(ebreak)ebreak_trigger();
+				if(csr_read)result = csr_data;
+				else result = 32'b0;
+			end
 			7'b1101111: // JAL
 				result = pc + 4;
 			7'b1100111:  // JALRR

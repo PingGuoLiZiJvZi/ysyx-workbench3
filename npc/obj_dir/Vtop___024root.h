@@ -20,6 +20,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     VL_IN8(clk,0,0);
     VL_IN8(rst,0,0);
     CData/*0:0*/ ysyx_25040129_top__DOT__reg_write;
+    CData/*0:0*/ ysyx_25040129_top__DOT__mret;
+    CData/*0:0*/ ysyx_25040129_top__DOT__ecall;
+    CData/*0:0*/ ysyx_25040129_top__DOT__ebreak;
+    CData/*0:0*/ ysyx_25040129_top__DOT__csr_write;
+    CData/*0:0*/ ysyx_25040129_top__DOT__csr_read;
     CData/*2:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_MEM__DOT__write_len;
     CData/*0:0*/ __VstlFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
@@ -32,10 +37,15 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     IData/*31:0*/ ysyx_25040129_top__DOT__imm;
     IData/*31:0*/ ysyx_25040129_top__DOT__result;
     IData/*31:0*/ ysyx_25040129_top__DOT__next_pc;
+    IData/*31:0*/ ysyx_25040129_top__DOT__mepc;
+    IData/*31:0*/ ysyx_25040129_top__DOT__mtvec;
+    IData/*31:0*/ ysyx_25040129_top__DOT__csr_data;
     IData/*31:0*/ ysyx_25040129_top__DOT__read_data;
     VlWide<16>/*511:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_REG__DOT__regs;
     IData/*31:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_MEM__DOT__addr;
     IData/*31:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_MEM__DOT____VdfgExtracted_haa08dfc0__0;
+    IData/*31:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_CSR__DOT__mstatus;
+    IData/*31:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_CSR__DOT__mcause;
     IData/*31:0*/ __Vfunc_paddr_read__0__Vfuncout;
     IData/*31:0*/ __Vfunc_paddr_read__1__Vfuncout;
     IData/*31:0*/ __Vfunc_paddr_read__35__Vfuncout;
