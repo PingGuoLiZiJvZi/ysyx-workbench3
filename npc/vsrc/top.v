@@ -33,7 +33,6 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	wire csr_write;
 	wire csr_read;
 	wire [31:0] csr_data;
-
 	wire [31:0] read_data;
 	ysyx_25040129_REG u_ysyx_25040129_REG (
 		.clk(clk),
@@ -121,13 +120,12 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	ysyx_25040129_CSR u_ysyx_25040129_CSR (
 		.clk(clk),
 		.csr_write(csr_write),
-		.csr_read(csr_read),
 		.csr_addr(imm[11:0]),
-		.csr_data(csr_data),
+		.csr_data(src1),
 		.csr_out(csr_data),
 		.ecall(ecall),
 		.mepc_data(pc),
-		.mstate_data(32'h1800),
+		.mstate_data(32'b0),
 		.mcause_data(32'd11),
 		.mtvec(mtvec),
 		.mepc(mepc)
@@ -163,7 +161,6 @@ endmodule
 module ysyx_25040129_CSR (
 	input clk,
 	input csr_write,
-	input csr_read,
 	input [11:0] csr_addr,
 	input [31:0] csr_data,
 	output reg [31:0] csr_out,
@@ -176,39 +173,31 @@ module ysyx_25040129_CSR (
 );
 	reg [31:0] mstatus;
 	reg [31:0] mcause;
-	
+	always @(*) begin
+		case (csr_addr)
+			12'h300: csr_out = mstatus; // MSTATUS
+			12'h305: csr_out = mtvec; // MTVEC
+			12'h341: csr_out = mepc; // MEPC
+			12'h342: csr_out = mcause; // MCAUSE
+			default: csr_out = 32'b0;
+		endcase
+	end
 	always @(posedge clk) begin
 		if(ecall)begin
-			mepc <= mepc_data + 4;
+			mepc <= mepc_data;
 			mstatus <= mstate_data;
 			mcause <= mcause_data;
 		end
 		else begin
-			// if(mret)csr_out <= mepc+4;
-			// else begin
 				if (csr_write) begin
 					case (csr_addr)
 						12'h300: mstatus <= csr_data; // MSTATUS
 						12'h305: mtvec <= csr_data; // MTVEC
 						12'h341: mepc <= csr_data; // MEPC
 						12'h342: mcause <= csr_data; // MCAUSE
-					default: unknown_inst({20'b0,csr_addr}); // Unknown CSR instruction
+					default: mstatus <= mstatus;
 					
 					endcase
-				end
-				else begin
-					if(csr_read)begin
-					case (csr_addr)
-						12'h300: csr_out <= mstatus; // MSTATUS
-						12'h305: csr_out <= mtvec; // MTVEC
-						12'h341: csr_out <= mepc; // MEPC
-						12'h342: csr_out <= mcause; // MCAUSE
-						default: csr_out <= 32'b0;
-					endcase
-					end
-					else begin
-						csr_out <= 32'b0;
-					end
 				end
 		end
 	end
@@ -357,6 +346,12 @@ module ysyx_25040129_IDU (
 	assign src1_id = inst[19:15];
 	assign src2_id = inst[24:20];
 	always @(*) begin
+		reg_write = 1'b0;
+		ecall = 1'b0;
+		ebreak = 1'b0;
+		mret = 1'b0;
+		csr_write = 1'b0;
+		csr_read = 1'b0;
 		case (opcode)
 			7'b0010011:begin
 				 imm = {{20{inst[31]}},inst[31:20]};

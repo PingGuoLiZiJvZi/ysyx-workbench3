@@ -19,4 +19,7 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_EXU___ctor_var_reset(Vtop_ysyx_25040129_EXU
     vlSelf->__PVT__opcode = VL_RAND_RESET_I(7);
     vlSelf->__PVT__result = VL_RAND_RESET_I(32);
     vlSelf->__PVT__read_data = VL_RAND_RESET_I(32);
+    vlSelf->__PVT__ebreak = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__csr_read = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__csr_data = VL_RAND_RESET_I(32);
 }

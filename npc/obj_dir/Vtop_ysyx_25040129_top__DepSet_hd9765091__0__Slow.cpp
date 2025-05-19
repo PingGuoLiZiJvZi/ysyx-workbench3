@@ -6,11 +6,23 @@
 #include "Vtop__Syms.h"
 #include "Vtop_ysyx_25040129_top.h"
 
+VL_ATTR_COLD void Vtop_ysyx_25040129_top___eval_initial__TOP__ysyx_25040129_top(Vtop_ysyx_25040129_top* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+      Vtop_ysyx_25040129_top___eval_initial__TOP__ysyx_25040129_top\n"); );
+    Vtop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__mcause_data = 0xbU;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__mstate_data = 0x1800U;
+}
+
 VL_ATTR_COLD void Vtop_ysyx_25040129_top___stl_sequent__TOP__ysyx_25040129_top__0(Vtop_ysyx_25040129_top* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+      Vtop_ysyx_25040129_top___stl_sequent__TOP__ysyx_25040129_top__0\n"); );
     Vtop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
+    vlSelfRef.__PVT__mepc = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__mepc;
+    vlSelfRef.__PVT__mtvec = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__mtvec;
+    vlSelfRef.__PVT__csr_data = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__csr_out;
     vlSelfRef.pc = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_PC.__PVT__pc;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__rst 
         = vlSelfRef.rst;
@@ -20,7 +32,19 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_top___stl_sequent__TOP__ysyx_25040129_top__
         = vlSelfRef.clk;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_PC.__PVT__clk 
         = vlSelfRef.clk;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__clk 
+        = vlSelfRef.clk;
     VL_ASSIGN_W(512,vlSelfRef.__Vcellout__u_ysyx_25040129_REG__regs_out, vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__regs_out);
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IFU.__PVT__mepc 
+        = vlSelfRef.__PVT__mepc;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IFU.__PVT__mtvec 
+        = vlSelfRef.__PVT__mtvec;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__csr_data 
+        = vlSelfRef.__PVT__csr_data;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__csr_data 
+        = vlSelfRef.__PVT__csr_data;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__mepc_data 
+        = vlSelfRef.pc;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__pc 
         = vlSelfRef.pc;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_BRC.__PVT__pc 
@@ -47,26 +71,31 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_top___stl_sequent__TOP__ysyx_25040129_top__
     // Body
     vlSelfRef.__PVT__rd = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__rd;
     vlSelfRef.__PVT__funct7 = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__funct7;
-    vlSelfRef.__PVT__funct3 = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__funct3;
     vlSelfRef.__PVT__src2_id = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__src2_id;
     vlSelfRef.__PVT__src1_id = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__src1_id;
+    vlSelfRef.__PVT__funct3 = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__funct3;
     vlSelfRef.__PVT__opcode = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__opcode;
     vlSelfRef.__PVT__reg_write = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__reg_write;
+    vlSelfRef.__PVT__csr_write = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__csr_write;
+    vlSelfRef.__PVT__mret = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__mret;
+    vlSelfRef.__PVT__ecall = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__ecall;
+    vlSelfRef.__PVT__ebreak = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__ebreak;
+    vlSelfRef.__PVT__csr_read = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__csr_read;
     vlSelfRef.__PVT__imm = vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IDU.__PVT__imm;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__rd 
         = vlSelfRef.__PVT__rd;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__funct7 
         = vlSelfRef.__PVT__funct7;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__src2_id 
+        = vlSelfRef.__PVT__src2_id;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__src1_id 
+        = vlSelfRef.__PVT__src1_id;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__funct3 
         = vlSelfRef.__PVT__funct3;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_MEM.__PVT__funct3 
         = vlSelfRef.__PVT__funct3;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_BRC.__PVT__funct3 
         = vlSelfRef.__PVT__funct3;
-    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__src2_id 
-        = vlSelfRef.__PVT__src2_id;
-    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__src1_id 
-        = vlSelfRef.__PVT__src1_id;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__opcode 
         = vlSelfRef.__PVT__opcode;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_BRC.__PVT__opcode 
@@ -75,12 +104,30 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_top___stl_sequent__TOP__ysyx_25040129_top__
         = vlSelfRef.__PVT__opcode;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_REG.__PVT__reg_write 
         = vlSelfRef.__PVT__reg_write;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__csr_write 
+        = vlSelfRef.__PVT__csr_write;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IFU.__PVT__mret 
+        = vlSelfRef.__PVT__mret;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__ecall 
+        = vlSelfRef.__PVT__ecall;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_IFU.__PVT__ecall 
+        = vlSelfRef.__PVT__ecall;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__ebreak 
+        = vlSelfRef.__PVT__ebreak;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__csr_read 
+        = vlSelfRef.__PVT__csr_read;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__csr_read 
+        = vlSelfRef.__PVT__csr_read;
+    vlSelfRef.__Vcellinp__u_ysyx_25040129_CSR__csr_addr 
+        = (0xfffU & VL_SEL_IIII(32, vlSelfRef.__PVT__imm, 0U, 0xcU));
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_EXU.__PVT__imm 
         = vlSelfRef.__PVT__imm;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_MEM.__PVT__imm 
         = vlSelfRef.__PVT__imm;
     vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_BRC.__PVT__imm 
         = vlSelfRef.__PVT__imm;
+    vlSymsp->TOP__ysyx_25040129_top__u_ysyx_25040129_CSR.__PVT__csr_addr 
+        = vlSelfRef.__Vcellinp__u_ysyx_25040129_CSR__csr_addr;
 }
 
 VL_ATTR_COLD void Vtop_ysyx_25040129_top___stl_sequent__TOP__ysyx_25040129_top__3(Vtop_ysyx_25040129_top* vlSelf) {

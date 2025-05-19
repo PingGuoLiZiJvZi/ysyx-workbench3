@@ -10,7 +10,14 @@ VL_INLINE_OPT void Vtop_ysyx_25040129_IFU___nba_comb__TOP__ysyx_25040129_top__u_
     Vtop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    vlSelfRef.__PVT__next_pc = ((IData)(vlSelfRef.__PVT__is_branch)
-                                 ? vlSelfRef.__PVT__jump_target
-                                 : ((IData)(4U) + vlSelfRef.__PVT__pc));
+    vlSelfRef.__PVT__next_pc = ((IData)(vlSelfRef.__PVT__ecall)
+                                 ? vlSelfRef.__PVT__mtvec
+                                 : ((IData)(vlSelfRef.__PVT__mret)
+                                     ? vlSelfRef.__PVT__mepc
+                                     : ((IData)(vlSelfRef.__PVT__is_branch)
+                                         ? vlSelfRef.__PVT__jump_target
+                                         : ((0U == vlSelfRef.__PVT__pc)
+                                             ? 0x80000000U
+                                             : ((IData)(4U) 
+                                                + vlSelfRef.__PVT__pc)))));
 }

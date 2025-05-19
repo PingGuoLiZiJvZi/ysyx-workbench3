@@ -7,6 +7,7 @@
 
 #include "verilated.h"
 class Vtop_ysyx_25040129_BRC;
+class Vtop_ysyx_25040129_CSR;
 class Vtop_ysyx_25040129_EXU;
 class Vtop_ysyx_25040129_IDU;
 class Vtop_ysyx_25040129_IFU;
@@ -27,6 +28,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop_ysyx_25040129_top final : public Verilat
     Vtop_ysyx_25040129_EXU* __PVT__u_ysyx_25040129_EXU;
     Vtop_ysyx_25040129_BRC* __PVT__u_ysyx_25040129_BRC;
     Vtop_ysyx_25040129_MEM* __PVT__u_ysyx_25040129_MEM;
+    Vtop_ysyx_25040129_CSR* __PVT__u_ysyx_25040129_CSR;
 
     // DESIGN SPECIFIC STATE
     VL_IN8(clk,0,0);
@@ -39,7 +41,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop_ysyx_25040129_top final : public Verilat
     CData/*6:0*/ __PVT__opcode;
     CData/*0:0*/ __PVT__is_branch;
     CData/*0:0*/ __PVT__reg_write;
+    CData/*0:0*/ __PVT__mret;
+    CData/*0:0*/ __PVT__ecall;
+    CData/*0:0*/ __PVT__ebreak;
+    CData/*0:0*/ __PVT__csr_write;
+    CData/*0:0*/ __PVT__csr_read;
     VL_OUTW(regs,511,0,16);
+    SData/*11:0*/ __Vcellinp__u_ysyx_25040129_CSR__csr_addr;
     VL_OUT(pc,31,0);
     VL_OUT(inst,31,0);
     IData/*31:0*/ __PVT__src1;
@@ -48,6 +56,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop_ysyx_25040129_top final : public Verilat
     IData/*31:0*/ __PVT__result;
     IData/*31:0*/ __PVT__next_pc;
     IData/*31:0*/ __PVT__jump_target;
+    IData/*31:0*/ __PVT__mepc;
+    IData/*31:0*/ __PVT__mtvec;
+    IData/*31:0*/ __PVT__csr_data;
     IData/*31:0*/ __PVT__read_data;
     VlWide<16>/*511:0*/ __Vcellout__u_ysyx_25040129_REG__regs_out;
 

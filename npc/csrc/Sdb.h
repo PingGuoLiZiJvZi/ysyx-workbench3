@@ -2,7 +2,6 @@
 #include "Npc.h"
 #include "paddr_simple.h"
 #include "Wpool.h"
-#include "Iringbuf.h"
 #include "Elf.h"
 #include <getopt.h>
 #include "Expr.h"
@@ -41,6 +40,7 @@ public:
 		init_serial();
 #ifdef DIFFTEST
 		npc.init_difftest(img_size);
+		npc.irbuf = &iringbuf;
 #endif
 	}
 	~Sdb() {};

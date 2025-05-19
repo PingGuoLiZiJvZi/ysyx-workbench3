@@ -27,8 +27,17 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_top___ctor_var_reset(Vtop_ysyx_25040129_top
     vlSelf->__PVT__funct3 = VL_RAND_RESET_I(3);
     vlSelf->__PVT__opcode = VL_RAND_RESET_I(7);
     vlSelf->__PVT__jump_target = VL_RAND_RESET_I(32);
+    vlSelf->__PVT__mepc = VL_RAND_RESET_I(32);
+    vlSelf->__PVT__mtvec = VL_RAND_RESET_I(32);
     vlSelf->__PVT__is_branch = VL_RAND_RESET_I(1);
     vlSelf->__PVT__reg_write = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__mret = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__ecall = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__ebreak = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__csr_write = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__csr_read = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__csr_data = VL_RAND_RESET_I(32);
     vlSelf->__PVT__read_data = VL_RAND_RESET_I(32);
     VL_RAND_RESET_W(512, vlSelf->__Vcellout__u_ysyx_25040129_REG__regs_out);
+    vlSelf->__Vcellinp__u_ysyx_25040129_CSR__csr_addr = VL_RAND_RESET_I(12);
 }

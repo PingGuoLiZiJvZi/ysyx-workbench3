@@ -17,12 +17,15 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop_ysyx_25040129_EXU final : public Verilat
     VL_IN8(__PVT__funct7,6,0);
     VL_IN8(__PVT__funct3,2,0);
     VL_IN8(__PVT__opcode,6,0);
+    VL_IN8(__PVT__ebreak,0,0);
+    VL_IN8(__PVT__csr_read,0,0);
     VL_IN(__PVT__pc,31,0);
     VL_IN(__PVT__src1,31,0);
     VL_IN(__PVT__src2,31,0);
     VL_IN(__PVT__imm,31,0);
     VL_OUT(__PVT__result,31,0);
     VL_IN(__PVT__read_data,31,0);
+    VL_IN(__PVT__csr_data,31,0);
 
     // INTERNAL VARIABLES
     Vtop__Syms* const vlSymsp;

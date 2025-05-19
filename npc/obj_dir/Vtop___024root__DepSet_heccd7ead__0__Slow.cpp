@@ -154,7 +154,6 @@ VL_ATTR_COLD void Vtop___024root___ctor_var_reset(Vtop___024root* vlSelf) {
     vlSelf->ysyx_25040129_top__DOT__ebreak = VL_RAND_RESET_I(1);
     vlSelf->ysyx_25040129_top__DOT__csr_write = VL_RAND_RESET_I(1);
     vlSelf->ysyx_25040129_top__DOT__csr_read = VL_RAND_RESET_I(1);
-    vlSelf->ysyx_25040129_top__DOT__csr_data = VL_RAND_RESET_I(32);
     vlSelf->ysyx_25040129_top__DOT__read_data = VL_RAND_RESET_I(32);
     VL_RAND_RESET_W(512, vlSelf->ysyx_25040129_top__DOT__u_ysyx_25040129_REG__DOT__regs);
     vlSelf->ysyx_25040129_top__DOT__u_ysyx_25040129_MEM__DOT__addr = VL_RAND_RESET_I(32);

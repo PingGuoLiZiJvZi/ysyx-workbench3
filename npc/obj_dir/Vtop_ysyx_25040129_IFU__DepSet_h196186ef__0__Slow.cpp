@@ -10,9 +10,16 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_IFU___stl_sequent__TOP__ysyx_25040129_top__
     Vtop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    vlSelfRef.__PVT__next_pc = ((IData)(vlSelfRef.__PVT__is_branch)
-                                 ? vlSelfRef.__PVT__jump_target
-                                 : ((IData)(4U) + vlSelfRef.__PVT__pc));
+    vlSelfRef.__PVT__next_pc = ((IData)(vlSelfRef.__PVT__ecall)
+                                 ? vlSelfRef.__PVT__mtvec
+                                 : ((IData)(vlSelfRef.__PVT__mret)
+                                     ? vlSelfRef.__PVT__mepc
+                                     : ((IData)(vlSelfRef.__PVT__is_branch)
+                                         ? vlSelfRef.__PVT__jump_target
+                                         : ((0U == vlSelfRef.__PVT__pc)
+                                             ? 0x80000000U
+                                             : ((IData)(4U) 
+                                                + vlSelfRef.__PVT__pc)))));
 }
 
 VL_ATTR_COLD void Vtop_ysyx_25040129_IFU___ctor_var_reset(Vtop_ysyx_25040129_IFU* vlSelf) {
@@ -23,7 +30,11 @@ VL_ATTR_COLD void Vtop_ysyx_25040129_IFU___ctor_var_reset(Vtop_ysyx_25040129_IFU
     vlSelf->__PVT__pc = VL_RAND_RESET_I(32);
     vlSelf->__PVT__next_pc = VL_RAND_RESET_I(32);
     vlSelf->__PVT__is_branch = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__mret = VL_RAND_RESET_I(1);
+    vlSelf->__PVT__ecall = VL_RAND_RESET_I(1);
     vlSelf->__PVT__jump_target = VL_RAND_RESET_I(32);
+    vlSelf->__PVT__mepc = VL_RAND_RESET_I(32);
+    vlSelf->__PVT__mtvec = VL_RAND_RESET_I(32);
     vlSelf->__PVT__inst = VL_RAND_RESET_I(32);
     vlSelf->__Vfunc_paddr_read__0__Vfuncout = 0;
     vlSelf->__Vfunc_paddr_read__1__Vfuncout = 0;

@@ -3,6 +3,7 @@
 #include "verilated.h"
 #include "paddr_simple.h"
 #include "disasm.h"
+#include "Iringbuf.h"
 #include "Difftest.h"
 #include <stdio.h>
 #define DIFFTEST_TO_REF 1
@@ -98,14 +99,18 @@ public:
 			ref_difftest_regcpy(ref_regs, DIFFTEST_TO_DUT);
 			if (top->pc != ref_regs[0])
 			{
-				printf("pc is different, ref %x, dut %x", ref_regs[0], top->pc);
+				printf("pc is different, ref %x, dut %x\n", ref_regs[0], top->pc);
+				irbuf->print_iringbuf();
+				printf("\n");
 				assert(0);
 			}
 			for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
 			{
 				if (top->regs[i] != ref_regs[i + 1])
 				{
-					printf("reg %s is different, ref %u, dut %u", regs[i], ref_regs[i + 1], top->regs[i]);
+					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], top->regs[i], top->pc);
+					irbuf->print_iringbuf();
+					printf("\n");
 					assert(0);
 				}
 			}
@@ -151,6 +156,7 @@ public:
 	void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 	void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 	void (*ref_difftest_exec)(uint64_t n) = NULL;
+	Iringbuf *irbuf = NULL;
 	char ref_so_file[256] = "/home/pglzjz/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so";
 	int port = 0;
 	char message[64];

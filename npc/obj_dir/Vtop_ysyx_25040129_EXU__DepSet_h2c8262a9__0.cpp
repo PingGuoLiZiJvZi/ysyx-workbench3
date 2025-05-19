@@ -62,13 +62,12 @@ VL_INLINE_OPT void Vtop_ysyx_25040129_EXU___nba_comb__TOP__ysyx_25040129_top__u_
             vlSelfRef.__PVT__result = (vlSelfRef.__PVT__imm 
                                        + vlSelfRef.__PVT__pc);
         } else if ((0x73U == (IData)(vlSelfRef.__PVT__opcode))) {
-            if (((0U == (IData)(vlSelfRef.__PVT__funct3)) 
-                 & (1U == vlSelfRef.__PVT__imm))) {
-                vlSelfRef.__PVT__result = 0U;
+            if (vlSelfRef.__PVT__ebreak) {
                 Vtop___024unit____Vdpiimwrap_ebreak_trigger_TOP____024unit();
-            } else {
-                vlSelfRef.__PVT__result = 0U;
             }
+            vlSelfRef.__PVT__result = ((IData)(vlSelfRef.__PVT__csr_read)
+                                        ? vlSelfRef.__PVT__csr_data
+                                        : 0U);
         } else if ((0x6fU == (IData)(vlSelfRef.__PVT__opcode))) {
             vlSelfRef.__PVT__result = ((IData)(4U) 
                                        + vlSelfRef.__PVT__pc);

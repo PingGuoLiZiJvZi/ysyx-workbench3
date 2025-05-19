@@ -133,6 +133,12 @@ VL_ATTR_COLD void Vtop___024root___stl_sequent__TOP__0(Vtop___024root* vlSelf) {
                                                                   (0x1fU 
                                                                    & (vlSelfRef.inst 
                                                                       >> 0xfU)), 5U))));
+    vlSelfRef.ysyx_25040129_top__DOT__reg_write = 0U;
+    vlSelfRef.ysyx_25040129_top__DOT__ecall = 0U;
+    vlSelfRef.ysyx_25040129_top__DOT__ebreak = 0U;
+    vlSelfRef.ysyx_25040129_top__DOT__mret = 0U;
+    vlSelfRef.ysyx_25040129_top__DOT__csr_write = 0U;
+    vlSelfRef.ysyx_25040129_top__DOT__csr_read = 0U;
     if ((0x40U & vlSelfRef.inst)) {
         if ((0x20U & vlSelfRef.inst)) {
             if ((0x10U & vlSelfRef.inst)) {
@@ -521,7 +527,22 @@ VL_ATTR_COLD void Vtop___024root___stl_sequent__TOP__0(Vtop___024root* vlSelf) {
                         }
                         vlSelfRef.ysyx_25040129_top__DOT__result 
                             = ((IData)(vlSelfRef.ysyx_25040129_top__DOT__csr_read)
-                                ? vlSelfRef.ysyx_25040129_top__DOT__csr_data
+                                ? ((0x300U == (0xfffU 
+                                               & vlSelfRef.ysyx_25040129_top__DOT__imm))
+                                    ? vlSelfRef.ysyx_25040129_top__DOT__u_ysyx_25040129_CSR__DOT__mstatus
+                                    : ((0x305U == (0xfffU 
+                                                   & vlSelfRef.ysyx_25040129_top__DOT__imm))
+                                        ? vlSelfRef.ysyx_25040129_top__DOT__mtvec
+                                        : ((0x341U 
+                                            == (0xfffU 
+                                                & vlSelfRef.ysyx_25040129_top__DOT__imm))
+                                            ? vlSelfRef.ysyx_25040129_top__DOT__mepc
+                                            : ((0x342U 
+                                                == 
+                                                (0xfffU 
+                                                 & vlSelfRef.ysyx_25040129_top__DOT__imm))
+                                                ? vlSelfRef.ysyx_25040129_top__DOT__u_ysyx_25040129_CSR__DOT__mcause
+                                                : 0U))))
                                 : 0U);
                     } else {
                         vlSelfRef.ysyx_25040129_top__DOT__result = 0U;

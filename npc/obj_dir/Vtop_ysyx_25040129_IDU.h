@@ -21,6 +21,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop_ysyx_25040129_IDU final : public Verilat
     VL_OUT8(__PVT__funct3,2,0);
     VL_OUT8(__PVT__opcode,6,0);
     VL_OUT8(__PVT__reg_write,0,0);
+    VL_OUT8(__PVT__ecall,0,0);
+    VL_OUT8(__PVT__ebreak,0,0);
+    VL_OUT8(__PVT__mret,0,0);
+    VL_OUT8(__PVT__csr_write,0,0);
+    VL_OUT8(__PVT__csr_read,0,0);
     VL_IN(__PVT__inst,31,0);
     VL_OUT(__PVT__imm,31,0);
 

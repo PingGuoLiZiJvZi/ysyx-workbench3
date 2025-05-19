@@ -15,9 +15,9 @@ VL_INLINE_OPT void Vtop_ysyx_25040129_IDU___nba_sequent__TOP__ysyx_25040129_top_
     // Body
     vlSelfRef.__PVT__rd = (0x1fU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 7U, 5U));
     vlSelfRef.__PVT__funct7 = (0x7fU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0x19U, 7U));
-    vlSelfRef.__PVT__funct3 = (7U & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0xcU, 3U));
     vlSelfRef.__PVT__src2_id = (0x1fU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0x14U, 5U));
     vlSelfRef.__PVT__src1_id = (0x1fU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0xfU, 5U));
+    vlSelfRef.__PVT__funct3 = (7U & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0xcU, 3U));
     vlSelfRef.__PVT__opcode = (0x7fU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0U, 7U));
     if (((((((((0x13U == (IData)(vlSelfRef.__PVT__opcode)) 
                | (0x63U == (IData)(vlSelfRef.__PVT__opcode))) 
@@ -107,6 +107,25 @@ VL_INLINE_OPT void Vtop_ysyx_25040129_IDU___nba_sequent__TOP__ysyx_25040129_top_
                                                  (0xfffU 
                                                   & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0x14U, 0xcU)));
             vlSelfRef.__PVT__reg_write = 0U;
+            if ((0U == (IData)(vlSelfRef.__PVT__funct3))) {
+                if ((1U == (0xfffU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0x14U, 0xcU)))) {
+                    vlSelfRef.__PVT__ebreak = 1U;
+                } else if ((0x302U == (0xfffU & VL_SEL_IIII(32, vlSelfRef.__PVT__inst, 0x14U, 0xcU)))) {
+                    vlSelfRef.__PVT__mret = 1U;
+                } else {
+                    vlSelfRef.__PVT__ecall = 1U;
+                }
+                vlSelfRef.__PVT__reg_write = 0U;
+            } else if ((1U == (IData)(vlSelfRef.__PVT__funct3))) {
+                vlSelfRef.__PVT__csr_write = 1U;
+                vlSelfRef.__PVT__reg_write = 0U;
+            } else if ((2U == (IData)(vlSelfRef.__PVT__funct3))) {
+                vlSelfRef.__PVT__csr_read = 1U;
+                vlSelfRef.__PVT__reg_write = 1U;
+            } else {
+                vlSelfRef.__PVT__mret = 0U;
+                vlSelfRef.__PVT__reg_write = 0U;
+            }
         } else {
             vlSelfRef.__PVT__imm = 0U;
             vlSelfRef.__PVT__reg_write = 1U;

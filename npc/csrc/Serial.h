@@ -9,7 +9,7 @@ static uint8_t serial_base[8] = {0};
 
 static void serial_putc(char ch)
 {
-	putc(ch, stdout);
+	putc(ch, stderr);
 }
 
 static void serial_io_handler(uint32_t offset, int len, bool is_write)

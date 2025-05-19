@@ -39,7 +39,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop___024root final : public VerilatedModule
     IData/*31:0*/ ysyx_25040129_top__DOT__next_pc;
     IData/*31:0*/ ysyx_25040129_top__DOT__mepc;
     IData/*31:0*/ ysyx_25040129_top__DOT__mtvec;
-    IData/*31:0*/ ysyx_25040129_top__DOT__csr_data;
     IData/*31:0*/ ysyx_25040129_top__DOT__read_data;
     VlWide<16>/*511:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_REG__DOT__regs;
     IData/*31:0*/ ysyx_25040129_top__DOT__u_ysyx_25040129_MEM__DOT__addr;

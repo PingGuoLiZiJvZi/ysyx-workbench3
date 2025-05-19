@@ -15,9 +15,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtop_ysyx_25040129_IFU final : public Verilat
 
     // DESIGN SPECIFIC STATE
     VL_IN8(__PVT__is_branch,0,0);
+    VL_IN8(__PVT__mret,0,0);
+    VL_IN8(__PVT__ecall,0,0);
     VL_IN(__PVT__pc,31,0);
     VL_OUT(__PVT__next_pc,31,0);
     VL_IN(__PVT__jump_target,31,0);
+    VL_IN(__PVT__mepc,31,0);
+    VL_IN(__PVT__mtvec,31,0);
     VL_OUT(__PVT__inst,31,0);
     IData/*31:0*/ __Vfunc_paddr_read__0__Vfuncout;
     IData/*31:0*/ __Vfunc_paddr_read__1__Vfuncout;
