@@ -105,6 +105,8 @@ public:
 				{
 					if (prev_addr >= sym[i].st_value && prev_addr < sym[i].st_value + sym[i].st_size)
 					{
+						if (strcmp(strtab_buf + sym[i].st_name, "_start") == 0 || strcmp(strtab_buf + sym[i].st_name, "_trm_init") == 0 || strcmp(strtab_buf + sym[i].st_name, "putch") == 0)
+							return;
 						depth--;
 						for (int j = 0; j < depth; j++)
 							printf(" ");
@@ -123,7 +125,7 @@ public:
 			{
 				if (addr == sym[i].st_value)
 				{
-					if (strcmp(strtab_buf + sym[i].st_name, "_start") == 0 || strcmp(strtab_buf + sym[i].st_name, "_trm_init") == 0)
+					if (strcmp(strtab_buf + sym[i].st_name, "_start") == 0 || strcmp(strtab_buf + sym[i].st_name, "_trm_init") == 0 || strcmp(strtab_buf + sym[i].st_name, "putch") == 0)
 						break;
 
 					for (int j = 0; j < depth; j++)
