@@ -125,7 +125,7 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.csr_out(csr_data),
 		.ecall(ecall),
 		.mepc_data(pc),
-		.mstate_data(32'b0),
+		// .mstate_data(32'b0),
 		.mcause_data(32'd11),
 		.mtvec(mtvec),
 		.mepc(mepc)
@@ -166,7 +166,6 @@ module ysyx_25040129_CSR (
 	output reg [31:0] csr_out,
 	input ecall,
 	input [31:0] mepc_data,
-	input [31:0] mstate_data,
 	input [31:0] mcause_data,
 	output reg [31:0] mtvec,
 	output reg [31:0] mepc
@@ -185,7 +184,6 @@ module ysyx_25040129_CSR (
 	always @(posedge clk) begin
 		if(ecall)begin
 			mepc <= mepc_data;
-			mstatus <= mstate_data;
 			mcause <= mcause_data;
 		end
 		else begin
@@ -195,8 +193,7 @@ module ysyx_25040129_CSR (
 						12'h305: mtvec <= csr_data; // MTVEC
 						12'h341: mepc <= csr_data; // MEPC
 						12'h342: mcause <= csr_data; // MCAUSE
-					default: mstatus <= mstatus;
-					
+					default: begin end
 					endcase
 				end
 		end
