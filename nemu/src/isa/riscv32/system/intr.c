@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <stdio.h>
+int rec = 0;
 word_t isa_raise_intr(word_t NO, vaddr_t epc)
 {
 
@@ -23,6 +24,10 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
 	// 	cpu.mcause = 11;
 	// if (cpu.priv == 0)
 	// 	cpu.mcause = 8;
+	if (rec)
+		NO = 8;
+	else
+		rec = 1;
 	cpu.mcause = NO;
 	IFDEF(CONFIG_ETRACE, printf("error %d at %x\n", cpu.mcause, epc));
 	return cpu.mtvec;
