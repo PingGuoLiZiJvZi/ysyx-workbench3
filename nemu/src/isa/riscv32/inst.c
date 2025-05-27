@@ -20,7 +20,6 @@
 word_t csrr(word_t csr)
 {
 	csr = csr & 0xFFF;
-	printf("csrr csr = 0x%x\n", csr);
 	switch (csr)
 	{
 	case 0x300:
@@ -43,7 +42,6 @@ word_t csrr(word_t csr)
 void csrw(word_t csr, word_t val)
 {
 	csr = csr & 0xFFF;
-	printf("csrw csr = 0x%x, val = 0x%x\n", csr, val);
 	switch (csr)
 	{
 	case 0x300:
