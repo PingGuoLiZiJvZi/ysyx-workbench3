@@ -3,7 +3,7 @@
 #include <klib-macros.h>
 
 #define FPS 30
-#define CPS 5
+#define CPS 1
 #define CHAR_W 8
 #define CHAR_H 16
 #define NCHAR 128
@@ -48,7 +48,7 @@ void new_char()
 			c->ch = 'A' + randint(0, 25);
 			c->x = randint(0, screen_w - CHAR_W);
 			c->y = 0;
-			c->v = (screen_h - CHAR_H + 1) / randint(FPS * 6, FPS * 4);
+			c->v = (screen_h - CHAR_H + 1) / randint(FPS * 3 / 2, FPS * 2);
 			c->t = 0;
 			return;
 		}
