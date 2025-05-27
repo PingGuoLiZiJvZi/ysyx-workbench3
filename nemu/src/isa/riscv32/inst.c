@@ -45,7 +45,6 @@ void csrw(word_t csr, word_t val)
 	switch (csr)
 	{
 	case 0x300:
-		printf("mstatus = %u\n", val);
 		cpu.mstatus = val;
 		break;
 	case 0x305:
