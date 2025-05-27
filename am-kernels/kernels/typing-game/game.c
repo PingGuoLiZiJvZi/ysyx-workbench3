@@ -48,7 +48,7 @@ void new_char()
 			c->ch = 'A' + randint(0, 25);
 			c->x = randint(0, screen_w - CHAR_W);
 			c->y = 0;
-			c->v = (screen_h - CHAR_H + 1) / randint(FPS / 2, FPS);
+			c->v = (screen_h - CHAR_H + 1) / randint(FPS * 6, FPS * 4);
 			c->t = 0;
 			return;
 		}
