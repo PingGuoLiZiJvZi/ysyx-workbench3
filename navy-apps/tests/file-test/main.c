@@ -5,6 +5,10 @@ int main()
 {
 	FILE *fp = fopen("/share/files/num", "r+");
 	assert(fp);
+	FILE *fp2 = fopen("/bin/dummy", "r+");
+	fseek(fp2, 0, SEEK_END);
+	size_t size2 = ftell(fp2);
+	printf("File size of /bin/dummy: %u bytes\n", size2);
 
 	fseek(fp, 0, SEEK_END);
 	long size = ftell(fp);
