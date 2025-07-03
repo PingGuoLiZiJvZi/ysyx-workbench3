@@ -35,8 +35,8 @@ static Context *do_event(Event e, Context *c)
 		{
 		case SYS_exit:
 			Log("Exit syscall called with status %d", c->GPR1);
-			c->GPRx = 0; // Set return value to 0
-			return c;	 // Terminate the process
+			halt(c->GPR2); // Terminate the process
+			return c;	   // Terminate the process
 		case SYS_yield:
 			Log("Yield syscall called");
 			yield();
