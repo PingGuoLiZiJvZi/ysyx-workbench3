@@ -27,7 +27,7 @@ static Context *do_event(Event e, Context *c)
 	switch (e.event)
 	{
 
-	case EVENT_NULL:
+	case EVENT_YIELD:
 	{
 		Log("Syscall event triggered");
 		int syscall_id = c->GPR1;
@@ -72,10 +72,7 @@ static Context *do_event(Event e, Context *c)
 			c->GPRx = -1; // Simulate failure for unhandled syscalls
 			return c;
 		}
-	case EVENT_YIELD:
-	{
-		Log("Yield event triggered");
-	}
+
 	default:
 		panic("Unhandled event ID = %d", e.event);
 	}
