@@ -10,17 +10,15 @@
 #endif
 #define EXPECTED_TYPE EM_RISCV
 static char program_buf[0x100000];
-extern size_t get_ramdisk_size(void);
-extern size_t ramdisk_read(void *buf, size_t offset, size_t len);
+extern int fs_open(const char *pathname, int flags, int mode);
+extern size_t fs_read(int fd, void *buf, size_t len);
+extern int fs_close(int fd);
 static uintptr_t loader(PCB *pcb, const char *filename)
 {
 	Log("Loading program '%s'...", filename);
-	uint32_t size = get_ramdisk_size();
-	if (size >= sizeof(program_buf))
-	{
-		panic("Program size exceeds buffer size");
-	}
-	ramdisk_read(program_buf, 0, size);
+	int fd = fs_open(filename, 0, 0);
+	fs_read(fd, program_buf, sizeof(program_buf)); // Read the program into buffer
+	fs_close(fd);
 	Elf_Ehdr *ehdr = (Elf_Ehdr *)program_buf;
 	assert(ehdr->e_ident[0] == ELFMAG0 &&
 		   ehdr->e_ident[1] == ELFMAG1 &&

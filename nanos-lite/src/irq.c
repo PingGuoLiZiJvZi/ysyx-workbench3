@@ -1,61 +1,6 @@
-#include <common.h>
-#define STRACE
-#ifdef STRACE
-#define CASE_LOG(fmt, ...)       \
-	do                           \
-	{                            \
-		Log(fmt, ##__VA_ARGS__); \
-	} while (0)
-#else
-#define CASE_LOG(fmt, ...) ((void)0)
-#endif
-enum
-{
-	SYS_exit,
-	SYS_yield,
-	SYS_open,
-	SYS_read,
-	SYS_write,
-	SYS_kill,
-	SYS_getpid,
-	SYS_close,
-	SYS_lseek,
-	SYS_brk,
-	SYS_fstat,
-	SYS_time,
-	SYS_signal,
-	SYS_execve,
-	SYS_fork,
-	SYS_link,
-	SYS_unlink,
-	SYS_wait,
-	SYS_times,
-	SYS_gettimeofday
-};
-size_t sys_write(int fd, const char *buf, size_t count)
-{
-	if (fd != 1 && fd != 2)
-	{
-		Log("Invalid file descriptor %d for write syscall", fd);
-		return -1; // Invalid file descriptor
-	}
-	for (size_t i = 0; i < count; i++)
-		putch(buf[i]);
-	return count; // Return the number of bytes written
-}
-size_t sys_brk(size_t new_end)
-{
-	extern char end;
-	static size_t heap_end = (size_t)&end;
-	if (new_end < heap_end)
-	{
-		Log("Cannot shrink heap");
-		return -1; // Cannot shrink the heap
-	}
-	size_t old_end = heap_end;
-	heap_end = new_end;
-	return old_end; // Return the old end of the heap
-}
+
+#include "do_syscall.h"
+
 static Context *do_event(Event e, Context *c)
 {
 	switch (e.event)
@@ -89,7 +34,7 @@ static Context *do_event(Event e, Context *c)
 		case SYS_write:
 			CASE_LOG("Write syscall called with fd %d, buf %p, len %d",
 					 c->GPR2, (void *)c->GPR3, c->GPR4);
-			c->GPRx = sys_write(c->GPR2, (const char *)c->GPR3, c->GPR4);
+			c->GPRx = fs_write(c->GPR2, (const char *)c->GPR3, c->GPR4);
 			return c;
 		case SYS_kill:
 			CASE_LOG("Kill syscall called with pid %d, sig %d",

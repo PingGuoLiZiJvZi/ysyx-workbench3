@@ -1,36 +1,115 @@
 #include <fs.h>
 
-typedef size_t (*ReadFn) (void *buf, size_t offset, size_t len);
-typedef size_t (*WriteFn) (const void *buf, size_t offset, size_t len);
-
-typedef struct {
-  char *name;
-  size_t size;
-  size_t disk_offset;
-  ReadFn read;
-  WriteFn write;
+typedef size_t (*ReadFn)(void *buf, size_t offset, size_t len);
+typedef size_t (*WriteFn)(const void *buf, size_t offset, size_t len);
+extern size_t ramdisk_read(void *buf, size_t offset, size_t len);
+extern size_t ramdisk_write(const void *buf, size_t offset, size_t len);
+typedef struct
+{
+	char *name;
+	size_t size;
+	size_t disk_offset;
+	ReadFn read;
+	WriteFn write;
 } Finfo;
 
-enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
-
-size_t invalid_read(void *buf, size_t offset, size_t len) {
-  panic("should not reach here");
-  return 0;
+enum
+{
+	FD_STDIN,
+	FD_STDOUT,
+	FD_STDERR,
+	FD_FB
+};
+size_t invalid_read(void *buf, size_t offset, size_t len)
+{
+	panic("should not reach here");
+	return 0;
 }
 
-size_t invalid_write(const void *buf, size_t offset, size_t len) {
-  panic("should not reach here");
-  return 0;
+size_t invalid_write(const void *buf, size_t offset, size_t len)
+{
+	panic("should not reach here");
+	return 0;
 }
 
+size_t output_write(const void *buf, size_t offset, size_t len)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		putch(((const char *)buf)[i]);
+	}
+	return len;
+}
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
-  [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
-  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, invalid_write},
-  [FD_STDERR] = {"stderr", 0, 0, invalid_read, invalid_write},
+	[FD_STDIN] = {"stdin", 0, 0, invalid_read, invalid_write},
+	[FD_STDOUT] = {"stdout", 0, 0, invalid_read, output_write},
+	[FD_STDERR] = {"stderr", 0, 0, invalid_read, output_write},
 #include "files.h"
 };
 
-void init_fs() {
-  // TODO: initialize the size of /dev/fb
+int fs_open(const char *pathname, int flags, int mode)
+{
+	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
+	{
+		if (strcmp(pathname, file_table[i].name) == 0)
+		{
+			return i; // Return the index as the file descriptor
+		}
+	}
+	panic("open: file not found");
+	return -1; // File not found
+}
+size_t fs_read(int fd, void *buf, size_t len)
+{
+	if (fd < 0 || fd >= sizeof(file_table) / sizeof(Finfo))
+	{
+		panic("read: invalid file descriptor");
+	}
+	if (file_table[fd].read == invalid_read)
+	{
+		return 0;
+	}
+	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset, len);
+	return bytes_read; // Return the number of bytes read
+}
+size_t fs_write(int fd, const void *buf, size_t len)
+{
+	if (fd < 0 || fd >= sizeof(file_table) / sizeof(Finfo))
+	{
+		panic("write: invalid file descriptor");
+	}
+	if (file_table[fd].write == invalid_write)
+	{
+		return 0;
+	}
+	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset, len);
+	return bytes_written; // Return the number of bytes written
+}
+size_t fs_lseek(int fd, size_t offset, int whence)
+{
+	if (fd < 0 || fd >= sizeof(file_table) / sizeof(Finfo))
+	{
+		panic("lseek: invalid file descriptor");
+	}
+	return 0; // For simplicity, we do not support seeking in this implementation
+}
+int fs_close(int fd)
+{
+	return 0;
+}
+void init_fs()
+{
+	// TODO: initialize the size of /dev/fb
+	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
+	{
+		if (file_table[i].read == NULL)
+		{
+			file_table[i].read = ramdisk_read;
+		}
+		if (file_table[i].write == NULL)
+		{
+			file_table[i].write = ramdisk_write;
+		}
+	}
 }
