@@ -121,6 +121,7 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 		return file_table[fd].cursor;	 // Return the new position
 		break;
 	case SEEK_END:
+		printf("lseek: SEEK_END called, current size = %d, offset = %d\n", file_table[fd].size, offset);
 		file_table[fd].cursor = file_table[fd].size + offset; // Set cursor to the end plus offset
 		return file_table[fd].cursor;						  // Return the new position
 		break;
