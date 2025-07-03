@@ -22,6 +22,17 @@ enum
 	SYS_times,
 	SYS_gettimeofday
 };
+size_t sys_write(int fd, const char *buf, size_t count)
+{
+	if (fd != 1 && fd != 2)
+	{
+		Log("Invalid file descriptor %d for write syscall", fd);
+		return -1; // Invalid file descriptor
+	}
+	for (size_t i = 0; i < count; i++)
+		putch(buf[i]);
+	return count; // Return the number of bytes written
+}
 static Context *do_event(Event e, Context *c)
 {
 #ifdef CONFIG_STARCE
@@ -59,7 +70,7 @@ static Context *do_event(Event e, Context *c)
 		case SYS_write:
 			Log("Write syscall called with fd %d, buf %p, len %d",
 				c->GPR2, (void *)c->GPR3, c->GPR4);
-			c->GPRx = -1; // Simulate failure for now
+			c->GPRx = sys_write(c->GPR2, (const char *)c->GPR3, c->GPR4);
 			return c;
 		case SYS_kill:
 			Log("Kill syscall called with pid %d", c->GPR2);
