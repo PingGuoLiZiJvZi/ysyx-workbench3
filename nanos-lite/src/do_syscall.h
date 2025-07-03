@@ -2,15 +2,7 @@
 #define DO_SYSCALL_H__
 #include <common.h>
 // #define STRACE
-#ifdef STRACE
-#define CASE_LOG(fmt, ...)       \
-	do                           \
-	{                            \
-		Log(fmt, ##__VA_ARGS__); \
-	} while (0)
-#else
-#define CASE_LOG(fmt, ...) ((void)0)
-#endif
+#include "strace.h"
 #ifndef size_t
 #define size_t unsigned int
 #endif

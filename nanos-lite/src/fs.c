@@ -1,5 +1,5 @@
 #include <fs.h>
-
+#include "strace.h"
 typedef size_t (*ReadFn)(void *buf, size_t offset, size_t len);
 typedef size_t (*WriteFn)(const void *buf, size_t offset, size_t len);
 extern size_t ramdisk_read(void *buf, size_t offset, size_t len);
@@ -56,6 +56,7 @@ int fs_open(const char *pathname, int flags, int mode)
 	{
 		if (strcmp(pathname, file_table[i].name) == 0)
 		{
+			CASE_LOG("open: found file '%s' at index %d", pathname, i);
 			return i; // Return the index as the file descriptor
 		}
 	}
@@ -72,6 +73,7 @@ size_t fs_read(int fd, void *buf, size_t len)
 	{
 		return 0;
 	}
+	CASE_LOG("read: reading %u bytes from file descriptor %d", len, fd);
 	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset + file_table[fd].cursor, len);
 	file_table[fd].cursor += len; // Update cursor position
 	return bytes_read;			  // Return the number of bytes read
@@ -86,6 +88,7 @@ size_t fs_write(int fd, const void *buf, size_t len)
 	{
 		return 0;
 	}
+	CASE_LOG("write: writing %u bytes to file descriptor %d", len, fd);
 	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset + file_table[fd].cursor, len);
 	file_table[fd].cursor += len;
 	return bytes_written; // Return the number of bytes written
@@ -101,6 +104,7 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 	{
 		return 0; // No seek for stdin/stdout/stderr
 	}
+	CASE_LOG("lseek: seeking in file descriptor %d with offset %u and whence %d", fd, offset, whence);
 	switch (whence)
 	{
 	case SEEK_SET:
@@ -123,6 +127,7 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 }
 int fs_close(int fd)
 {
+	CASE_LOG("close: closing file descriptor %d", fd);
 	if (fd < 0 || fd >= sizeof(file_table) / sizeof(Finfo))
 	{
 		panic("close: invalid file descriptor");

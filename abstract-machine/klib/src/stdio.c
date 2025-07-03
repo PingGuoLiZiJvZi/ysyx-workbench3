@@ -147,6 +147,13 @@ int vsprintf(char *out, const char *fmt, va_list ap)
 			out += strlen(out);
 			break;
 		}
+		case 'u':
+		{
+			unsigned int num = va_arg(ap, unsigned int);
+			written += unsigned_number_to_string(out, num, 10);
+			out += strlen(out);
+			break;
+		}
 		case '%':
 		{
 			*out++ = '%';
