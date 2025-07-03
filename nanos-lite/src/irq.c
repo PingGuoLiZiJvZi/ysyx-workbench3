@@ -38,7 +38,7 @@ static Context *do_event(Event e, Context *c)
 		switch (syscall_id)
 		{
 		case SYS_exit:
-			Log("Exit syscall called with status %d", c->GPR1);
+			Log("Exit syscall called with status %d", c->GPR2);
 			halt(c->GPR2); // Terminate the process
 			return c;	   // Terminate the process
 		case SYS_yield:
