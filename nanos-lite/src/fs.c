@@ -9,10 +9,10 @@ typedef struct
 	char *name;
 	size_t size;
 	size_t disk_offset;
-	// Current position in the file
 	ReadFn read;
 	WriteFn write;
 	size_t cursor;
+	// Current position in the file
 } Finfo;
 
 enum
@@ -72,12 +72,13 @@ size_t fs_read(int fd, void *buf, size_t len)
 	{
 		return 0;
 	}
+
+	file_table[fd].cursor += len; // Update cursor position
+	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset, len);
 	if (len + file_table[fd].cursor > file_table[fd].size)
 	{
 		panic("read: read exceeds file size");
 	}
-	file_table[fd].cursor += len; // Update cursor position
-	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset, len);
 	return bytes_read; // Return the number of bytes read
 }
 size_t fs_write(int fd, const void *buf, size_t len)
@@ -90,13 +91,13 @@ size_t fs_write(int fd, const void *buf, size_t len)
 	{
 		return 0;
 	}
+
+	file_table[fd].cursor += len;
+	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset, len);
 	if (len + file_table[fd].cursor > file_table[fd].size)
 	{
 		panic("write: write exceeds file size");
 	}
-	file_table[fd].cursor += len;
-	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset, len);
-
 	return bytes_written; // Return the number of bytes written
 }
 size_t fs_lseek(int fd, size_t offset, int whence)
