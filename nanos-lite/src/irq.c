@@ -57,7 +57,6 @@ static Context *do_event(Event e, Context *c)
 			CASE_LOG("Lseek syscall called with fd %d, offset %u, whence %d",
 					 c->GPR2, c->GPR3, c->GPR4);
 			c->GPRx = fs_lseek(c->GPR2, c->GPR3, c->GPR4);
-			printf("Lseek result: %d\n", c->GPRx);
 			return c;
 		default:
 			CASE_LOG("Unhandled syscall ID %d", syscall_id);
