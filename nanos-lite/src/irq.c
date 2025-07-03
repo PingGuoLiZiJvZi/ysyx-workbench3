@@ -24,6 +24,10 @@ enum
 };
 static Context *do_event(Event e, Context *c)
 {
+#ifdef CONFIG_STARCE
+	printf("Syscall event triggered: %d,call_id = %d,arg1 = %d, arg2 = %d, arg3 = %d, arg4 = %d\n",
+		   e.event, c->GPR1, c->GPR2, c->GPR3, c->GPR4);
+#endif
 	switch (e.event)
 	{
 
