@@ -101,6 +101,7 @@ int fs_close(int fd)
 void init_fs()
 {
 	// TODO: initialize the size of /dev/fb
+	Log("Initializing file system...");
 	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
 	{
 		if (file_table[i].read == NULL)
