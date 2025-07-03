@@ -39,6 +39,7 @@ static Context *do_event(Event e, Context *c)
 			return c;	 // Terminate the process
 		case SYS_yield:
 			Log("Yield syscall called");
+			yield();
 			return c;
 		case SYS_open:
 			Log("Open syscall called with path %s, flags %d, mode %d",
