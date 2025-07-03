@@ -1,7 +1,7 @@
 #ifndef DO_SYSCALL_H__
 #define DO_SYSCALL_H__
 #include <common.h>
-#define STRACE
+// #define STRACE
 #ifdef STRACE
 #define CASE_LOG(fmt, ...)       \
 	do                           \
