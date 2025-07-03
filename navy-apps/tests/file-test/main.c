@@ -14,7 +14,9 @@ int main()
 	int i, n;
 	for (i = 500; i < 1000; i++)
 	{
+
 		fscanf(fp, "%d", &n);
+		printf("n = %d, i = %d\n", n, i);
 		assert(n == i + 1);
 	}
 
