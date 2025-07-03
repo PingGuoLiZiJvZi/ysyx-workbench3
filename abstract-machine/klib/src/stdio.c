@@ -87,9 +87,6 @@ static int unsigned_number_to_string(char *buf, unsigned int num, int base)
 }
 int printf(const char *fmt, ...)
 {
-	putch('\n'); // 在输出前添加换行符
-	putch('?');
-	putch('\n');
 	char buf[10240];
 	va_list args;
 	va_start(args, fmt);
@@ -143,6 +140,7 @@ int vsprintf(char *out, const char *fmt, va_list ap)
 			break;
 		}
 		case 'x':
+		case 'p':
 		{
 			unsigned int num = va_arg(ap, unsigned int);
 			written += unsigned_number_to_string(out, num, 16);
