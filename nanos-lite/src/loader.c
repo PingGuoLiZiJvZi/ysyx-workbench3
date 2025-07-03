@@ -21,8 +21,29 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 	}
 	ramdisk_read(program_buf, 0, size);
 	Elf_Ehdr *ehdr = (Elf_Ehdr *)program_buf;
-	assert(*(uint32_t *)ehdr->e_ident == 0x464c457f); // Check ELF magic number
-	return ehdr->e_entry;							  // Return the entry point address
+	assert(ehdr->e_ident[0] == ELFMAG0 &&
+		   ehdr->e_ident[1] == ELFMAG1 &&
+		   ehdr->e_ident[2] == ELFMAG2 &&
+		   ehdr->e_ident[3] == ELFMAG3);		// Check ELF magic number
+	uint32_t program_off = ehdr->e_phoff;		// Program header offset
+	uint32_t program_num = ehdr->e_phnum;		// Number of program headers
+	assert(program_off > 0 && program_num > 0); // Ensure valid program header
+	for (uint32_t i = 0; i < program_num; i++)
+	{
+		Elf_Phdr *phdr = (Elf_Phdr *)(program_buf + program_off + i * sizeof(Elf_Phdr));
+		if (phdr->p_type == PT_LOAD) // Loadable segment
+		{
+			uintptr_t vaddr = phdr->p_vaddr;							 // Virtual address
+			uintptr_t paddr = vaddr;									 // Physical address (for simplicity)
+			uint32_t memsz = phdr->p_memsz;								 // Memory size
+			uint32_t filesz = phdr->p_filesz;							 // File size
+			assert(memsz >= filesz);									 // Ensure memory size is at least file size
+			memcpy((void *)paddr, program_buf + phdr->p_offset, filesz); // Load segment into memory
+			memset((void *)(paddr + filesz), 0, memsz - filesz);		 // Zero out the rest of the segment
+		}
+	}
+	// Check ELF magic number
+	return ehdr->e_entry; // Return the entry point address
 	return 0;
 }
 
