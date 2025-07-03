@@ -56,6 +56,8 @@ static Context *do_event(Event e, Context *c)
 		case SYS_lseek:
 			CASE_LOG("Lseek syscall called with fd %d, offset %u, whence %d",
 					 c->GPR2, c->GPR3, c->GPR4);
+			printf("Lseek syscall called with fd %d, offset %u, whence %d\n",
+				   c->GPR2, c->GPR3, c->GPR4);
 			c->GPRx = fs_lseek(c->GPR2, c->GPR3, c->GPR4);
 			return c;
 		default:
