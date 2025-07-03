@@ -40,6 +40,7 @@ static Context *do_event(Event e, Context *c)
 		case SYS_yield:
 			Log("Yield syscall called");
 			yield();
+			c->GPRx = 0; // Set return value to 0
 			return c;
 		case SYS_open:
 			Log("Open syscall called with path %s, flags %d, mode %d",
