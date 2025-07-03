@@ -33,7 +33,8 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 		Elf_Phdr *phdr = (Elf_Phdr *)(program_buf + program_off + i * sizeof(Elf_Phdr));
 		if (phdr->p_type == PT_LOAD) // Loadable segment
 		{
-			uintptr_t vaddr = phdr->p_vaddr;							 // Virtual address
+			uintptr_t vaddr = phdr->p_vaddr;
+			printf("vaddr = 0x%08x\n", vaddr);							 // Virtual address
 			uintptr_t paddr = vaddr;									 // Physical address (for simplicity)
 			uint32_t memsz = phdr->p_memsz;								 // Memory size
 			uint32_t filesz = phdr->p_filesz;							 // File size
