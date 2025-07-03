@@ -5,11 +5,9 @@ int main()
 {
 	FILE *fp = fopen("/share/files/num", "r+");
 	assert(fp);
-	printf("Reading file...\n");
+
 	fseek(fp, 0, SEEK_END);
-	printf("Reading file...\n");
 	long size = ftell(fp);
-	printf("File size: %ld bytes\n", size);
 	assert(size == 5000);
 
 	fseek(fp, 500 * 5, SEEK_SET);
