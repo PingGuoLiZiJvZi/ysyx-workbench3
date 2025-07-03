@@ -34,10 +34,11 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 		if (phdr->p_type == PT_LOAD) // Loadable segment
 		{
 			uintptr_t vaddr = phdr->p_vaddr;
-			printf("vaddr = 0x%x\n", vaddr);							 // Virtual address
-			uintptr_t paddr = vaddr;									 // Physical address (for simplicity)
-			uint32_t memsz = phdr->p_memsz;								 // Memory size
-			uint32_t filesz = phdr->p_filesz;							 // File size
+			printf("vaddr = 0x%x\n", vaddr); // Virtual address
+			uintptr_t paddr = vaddr;		 // Physical address (for simplicity)
+			uint32_t memsz = phdr->p_memsz;	 // Memory size
+			uint32_t filesz = phdr->p_filesz;
+			printf("memsz = 0x%x filesz = 0x%x\n", memsz, filesz);		 // File size
 			assert(memsz >= filesz);									 // Ensure memory size is at least file size
 			memcpy((void *)paddr, program_buf + phdr->p_offset, filesz); // Load segment into memory
 			memset((void *)(paddr + filesz), 0, memsz - filesz);		 // Zero out the rest of the segment
