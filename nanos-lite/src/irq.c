@@ -24,12 +24,12 @@ static Context *do_event(Event e, Context *c)
 		case SYS_open:
 			CASE_LOG("Open syscall called with path %s, flags %d, mode %d",
 					 (char *)c->GPR2, c->GPR3, c->GPR4);
-			c->GPRx = -1; // Simulate failure for now
+			c->GPRx = fs_open((const char *)c->GPR2, c->GPR3, c->GPR4);
 			return c;
 		case SYS_read:
 			CASE_LOG("Read syscall called with fd %d, buf %p, len %d",
 					 c->GPR2, (void *)c->GPR3, c->GPR4);
-			c->GPRx = -1; // Simulate failure for now
+			c->GPRx = fs_read(c->GPR2, (void *)c->GPR3, c->GPR4);
 			return c;
 		case SYS_write:
 			CASE_LOG("Write syscall called with fd %d, buf %p, len %d",
@@ -47,11 +47,16 @@ static Context *do_event(Event e, Context *c)
 			return c;
 		case SYS_close:
 			CASE_LOG("Close syscall called with fd %d", c->GPR2);
-			c->GPRx = -1; // Simulate failure for now
+			c->GPRx = fs_close(c->GPR2);
 			return c;
 		case SYS_brk:
-			CASE_LOG("Brk syscall called with new_end %zu", c->GPR2);
+			CASE_LOG("Brk syscall called with new_end %u", c->GPR2);
 			c->GPRx = 0;
+			return c;
+		case SYS_lseek:
+			CASE_LOG("Lseek syscall called with fd %d, offset %u, whence %d",
+					 c->GPR2, c->GPR3, c->GPR4);
+			c->GPRx = fs_lseek(c->GPR2, c->GPR3, c->GPR4);
 			return c;
 		default:
 			CASE_LOG("Unhandled syscall ID %d", syscall_id);
