@@ -9,15 +9,24 @@
 #define Elf_Phdr Elf32_Phdr
 #endif
 #define EXPECTED_TYPE EM_RISCV
+enum
+{
+	SEEK_SET = 0,
+	SEEK_CUR = 1,
+	SEEK_END = 2
+};
 static char program_buf[0x100000];
 extern int fs_open(const char *pathname, int flags, int mode);
 extern size_t fs_read(int fd, void *buf, size_t len);
 extern int fs_close(int fd);
+extern size_t fs_lseek(int fd, size_t offset, int whence);
 static uintptr_t loader(PCB *pcb, const char *filename)
 {
 	Log("Loading program '%s'...", filename);
 	int fd = fs_open(filename, 0, 0);
-	fs_read(fd, program_buf, sizeof(program_buf)); // Read the program into buffer
+	size_t file_size = fs_lseek(fd, 0, SEEK_END); // Get file size
+	fs_lseek(fd, 0, SEEK_SET);					  // Reset file cursor to the beginning
+	fs_read(fd, program_buf, file_size);		  // Read the program into buffer
 	fs_close(fd);
 	Elf_Ehdr *ehdr = (Elf_Ehdr *)program_buf;
 	assert(ehdr->e_ident[0] == ELFMAG0 &&

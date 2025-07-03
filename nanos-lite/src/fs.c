@@ -9,8 +9,10 @@ typedef struct
 	char *name;
 	size_t size;
 	size_t disk_offset;
+	// Current position in the file
 	ReadFn read;
 	WriteFn write;
+	size_t cursor;
 } Finfo;
 
 enum
@@ -70,6 +72,11 @@ size_t fs_read(int fd, void *buf, size_t len)
 	{
 		return 0;
 	}
+	if (len + file_table[fd].cursor > file_table[fd].size)
+	{
+		panic("read: read exceeds file size");
+	}
+	file_table[fd].cursor += len; // Update cursor position
 	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset, len);
 	return bytes_read; // Return the number of bytes read
 }
@@ -83,7 +90,13 @@ size_t fs_write(int fd, const void *buf, size_t len)
 	{
 		return 0;
 	}
+	if (len + file_table[fd].cursor > file_table[fd].size)
+	{
+		panic("write: write exceeds file size");
+	}
+	file_table[fd].cursor += len;
 	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset, len);
+
 	return bytes_written; // Return the number of bytes written
 }
 size_t fs_lseek(int fd, size_t offset, int whence)
@@ -92,10 +105,37 @@ size_t fs_lseek(int fd, size_t offset, int whence)
 	{
 		panic("lseek: invalid file descriptor");
 	}
-	return 0; // For simplicity, we do not support seeking in this implementation
+	if (fd <= 2) // stdin, stdout, stderr
+	{
+		return 0; // No seek for stdin/stdout/stderr
+	}
+	switch (whence)
+	{
+	case SEEK_SET:
+		file_table[fd].cursor = offset; // Set cursor to the specified offset
+		return offset;					// Return the new position
+		break;
+	case SEEK_CUR:
+		file_table[fd].cursor += offset; // Move cursor by the specified offset
+		return file_table[fd].cursor;	 // Return the new position
+		break;
+	case SEEK_END:
+		file_table[fd].cursor = file_table[fd].size + offset; // Set cursor to the end plus offset
+		return file_table[fd].cursor;						  // Return the new position
+		break;
+	default:
+		panic("lseek: invalid whence");
+		return -1;
+		break;
+	}
 }
 int fs_close(int fd)
 {
+	if (fd < 0 || fd >= sizeof(file_table) / sizeof(Finfo))
+	{
+		panic("close: invalid file descriptor");
+	}
+	file_table[fd].cursor = 0; // Reset cursor to 0
 	return 0;
 }
 void init_fs()
@@ -104,6 +144,7 @@ void init_fs()
 	Log("Initializing file system...");
 	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
 	{
+		file_table[i].cursor = 0; // Initialize cursor to 0
 		if (file_table[i].read == NULL)
 		{
 			file_table[i].read = ramdisk_read;
