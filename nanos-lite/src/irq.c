@@ -1,5 +1,5 @@
 #include <common.h>
-// #define STRACE
+#define STRACE
 #ifdef STRACE
 #define CASE_LOG(fmt, ...)       \
 	do                           \
