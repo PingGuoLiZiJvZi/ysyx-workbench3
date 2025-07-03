@@ -24,11 +24,10 @@ enum
 };
 static Context *do_event(Event e, Context *c)
 {
-	printf("EVENTSYSCALL = %d\n", EVENT_SYSCALL);
 	switch (e.event)
 	{
 
-	case EVENT_SYSCALL:
+	case EVENT_NULL:
 	{
 		Log("Syscall event triggered");
 		int syscall_id = c->GPR1;
