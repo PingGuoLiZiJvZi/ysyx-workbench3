@@ -8,6 +8,7 @@
 #define Elf_Ehdr Elf32_Ehdr
 #define Elf_Phdr Elf32_Phdr
 #endif
+#define EXPECTED_TYPE EM_RISCV
 static char program_buf[0x100000];
 extern size_t get_ramdisk_size(void);
 extern size_t ramdisk_read(void *buf, size_t offset, size_t len);
@@ -25,6 +26,7 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 		   ehdr->e_ident[1] == ELFMAG1 &&
 		   ehdr->e_ident[2] == ELFMAG2 &&
 		   ehdr->e_ident[3] == ELFMAG3);		// Check ELF magic number
+	assert(ehdr->e_machine == EXPECTED_TYPE);	// Check machine type
 	uint32_t program_off = ehdr->e_phoff;		// Program header offset
 	uint32_t program_num = ehdr->e_phnum;		// Number of program headers
 	assert(program_off > 0 && program_num > 0); // Ensure valid program header
