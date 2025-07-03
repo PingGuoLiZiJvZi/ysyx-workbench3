@@ -92,17 +92,13 @@ void *_sbrk(intptr_t increment)
 int _read(int fd, void *buf, size_t count)
 {
 	int bytes_read = _syscall_(SYS_read, fd, (intptr_t)buf, count);
-	if (bytes_read < 0)
-	{
-		return -1; // Error occurred
-	}
 	return bytes_read; // Return the number of bytes read
 }
 
 int _close(int fd)
 {
-	_exit(SYS_close);
-	return 0;
+	int ret = _syscall_(SYS_close, fd, 0, 0);
+	return ret;
 }
 
 off_t _lseek(int fd, off_t offset, int whence)
