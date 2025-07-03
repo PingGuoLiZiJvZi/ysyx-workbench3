@@ -72,12 +72,6 @@ size_t fs_read(int fd, void *buf, size_t len)
 	{
 		return 0;
 	}
-	if (fd > 2 && len + file_table[fd].cursor > file_table[fd].size)
-	{
-
-		panic("read: read exceeds file size");
-	}
-
 	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset + file_table[fd].cursor, len);
 	file_table[fd].cursor += len; // Update cursor position
 	return bytes_read;			  // Return the number of bytes read
@@ -92,7 +86,6 @@ size_t fs_write(int fd, const void *buf, size_t len)
 	{
 		return 0;
 	}
-
 	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset + file_table[fd].cursor, len);
 	file_table[fd].cursor += len;
 	return bytes_written; // Return the number of bytes written
