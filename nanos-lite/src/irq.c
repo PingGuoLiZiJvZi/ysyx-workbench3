@@ -43,6 +43,19 @@ size_t sys_write(int fd, const char *buf, size_t count)
 		putch(buf[i]);
 	return count; // Return the number of bytes written
 }
+size_t sys_brk(size_t new_end)
+{
+	extern char end;
+	static size_t heap_end = (size_t)&end;
+	if (new_end < heap_end)
+	{
+		Log("Cannot shrink heap");
+		return -1; // Cannot shrink the heap
+	}
+	size_t old_end = heap_end;
+	heap_end = new_end;
+	return old_end; // Return the old end of the heap
+}
 static Context *do_event(Event e, Context *c)
 {
 	switch (e.event)
@@ -90,6 +103,10 @@ static Context *do_event(Event e, Context *c)
 		case SYS_close:
 			CASE_LOG("Close syscall called with fd %d", c->GPR2);
 			c->GPRx = -1; // Simulate failure for now
+			return c;
+		case SYS_brk:
+			CASE_LOG("Brk syscall called with new_end %zu", c->GPR2);
+			c->GPRx = 0;
 			return c;
 		default:
 			CASE_LOG("Unhandled syscall ID %d", syscall_id);

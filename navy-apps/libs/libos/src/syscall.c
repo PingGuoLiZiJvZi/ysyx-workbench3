@@ -77,6 +77,15 @@ int _write(int fd, void *buf, size_t count)
 
 void *_sbrk(intptr_t increment)
 {
+	extern char end;
+	static intptr_t heap_end = (intptr_t)&end;
+	intptr_t new_heap_end = heap_end + increment;
+	size_t ret = _syscall_(SYS_brk, new_heap_end, 0, 0);
+	if (ret == 0)
+	{
+		heap_end = new_heap_end;
+		return (void *)(heap_end - increment);
+	}
 	return (void *)-1;
 }
 
