@@ -24,8 +24,10 @@ enum
 };
 static Context *do_event(Event e, Context *c)
 {
+	printf("EVENTSYSCALL = %d\n", EVENT_SYSCALL);
 	switch (e.event)
 	{
+
 	case EVENT_SYSCALL:
 	{
 		Log("Syscall event triggered");
