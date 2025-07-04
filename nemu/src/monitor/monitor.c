@@ -58,7 +58,7 @@ static long load_img()
 	Assert(fp, "Can not open '%s'", img_file);
 
 	fseek(fp, 0, SEEK_END);
-	long size = ftell(fp);
+	size_t size = ftell(fp);
 
 	Log("The image is %s, size = %ld", img_file, size);
 
