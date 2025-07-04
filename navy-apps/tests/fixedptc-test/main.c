@@ -59,7 +59,7 @@ int main()
 	assert(fixedpt_mul(e, f) == fixedpt_rconst(0.03125));
 	assert(fixedpt_divi(e, 2) == fixedpt_rconst(0.125)); // 测试divi
 	printf("e = %d, f = %d, e / f = %d\n", e, f, fixedpt_div(e, f));
-	assert(fixedpt_div(e, f) == fixedpt_rconst(4.0));
+	assert(fixedpt_div(e, f) == fixedpt_rconst(2.0));
 	assert(fixedpt_abs(e) == fixedpt_rconst(0.25));
 	assert(fixedpt_abs(-e) == fixedpt_rconst(0.25));   // 测试负数abs
 	assert(fixedpt_floor(e) == fixedpt_rconst(0.0));   // 测试floor
