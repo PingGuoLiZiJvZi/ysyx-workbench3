@@ -68,6 +68,7 @@ int SDL_WaitEvent(SDL_Event *event)
 	do
 	{
 		NDL_PollEvent(buf, sizeof(buf) - 1);
+		printf("SDL_WaitEvent: buf = %s\n", buf);
 	} while (memcmp(buf, buf_cmptarget, 64) == 0); // 直到buf不是空字符串
 
 	return match_key(event, buf); // 尝试匹配事件
