@@ -41,6 +41,17 @@ size_t events_read(void *buf, size_t offset, size_t len)
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len)
 {
+	AM_GPU_CONFIG_T gpu_config = io_read(AM_GPU_CONFIG);
+	uint32_t width = gpu_config.width;
+	uint32_t height = gpu_config.height;
+	char p[256] = {0};
+	sprintf(p, "WIDTH:%u\nHEIGHT:%u\n", width, height);
+	size_t n = strlen(p);
+	if (n + 1 > len)
+	{
+		panic("dispinfo_read: buffer too small");
+	}
+	memcpy(buf, p, n);
 	return 0;
 }
 

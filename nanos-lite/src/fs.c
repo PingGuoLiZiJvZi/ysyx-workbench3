@@ -20,7 +20,9 @@ enum
 	FD_STDIN,
 	FD_STDOUT,
 	FD_STDERR,
-	FD_FB
+	FD_FB,
+	FD_EVENTS,
+	FD_DISPINFO,
 };
 size_t invalid_read(void *buf, size_t offset, size_t len)
 {
@@ -35,12 +37,17 @@ size_t invalid_write(const void *buf, size_t offset, size_t len)
 }
 
 extern size_t serial_write(const void *buf, size_t offset, size_t len);
+extern size_t fb_write(const void *buf, size_t offset, size_t len);
 extern size_t events_read(void *buf, size_t offset, size_t len);
+extern size_t dispinfo_read(void *buf, size_t offset, size_t len);
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
 	[FD_STDIN] = {"stdin", 0, 0, invalid_read, invalid_write},
 	[FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
 	[FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
+	[FD_FB] = {"/dev/fb", 0, 0, invalid_read, fb_write},
+	[FD_EVENTS] = {"/dev/events", 0, 0, events_read, invalid_write},
+	[FD_DISPINFO] = {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write},
 #include "files.h"
 };
 
@@ -129,6 +136,21 @@ int fs_close(int fd)
 	file_table[fd].cursor = 0; // Reset cursor to 0
 	return 0;
 }
+void init_fb()
+{
+	AM_GPU_CONFIG_T gpu_config = io_read(AM_GPU_CONFIG);
+	if (gpu_config.present)
+	{
+		file_table[FD_FB].size = gpu_config.vmemsz; // Set size to virtual memory size
+		file_table[FD_FB].disk_offset = 0;			// No disk offset for /dev/fb
+		file_table[FD_FB].read = invalid_read;		// No read operation for /dev/fb
+		file_table[FD_FB].write = fb_write;			// Use fb_write for writing to /dev/fb
+	}
+	else
+	{
+		panic("Framebuffer not present");
+	}
+}
 void init_fs()
 {
 	// TODO: initialize the size of /dev/fb
@@ -140,12 +162,17 @@ void init_fs()
 		{
 			if (strcmp(file_table[i].name, "/dev/events") == 0)
 				file_table[i].read = events_read; // Special case for /dev/events
+			else if (strcmp(file_table[i].name, "/proc/dispinfo") == 0)
+				file_table[i].read = dispinfo_read; // Special case for /proc/dispinfo
 			else
 				file_table[i].read = ramdisk_read;
 		}
 		if (file_table[i].write == NULL)
 		{
-			file_table[i].write = ramdisk_write;
+			if (strcmp(file_table[i].name, "/dev/fb") == 0)
+				file_table[i].write = fb_write; // Special case for /dev/fb
+			else
+				file_table[i].write = ramdisk_write;
 		}
 	}
 }
