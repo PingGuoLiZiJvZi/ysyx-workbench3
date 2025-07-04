@@ -11,8 +11,8 @@ int main()
 	fixedpt c = fixedpt_rconst(1.0);
 	fixedpt d = fixedpt_rconst(0.5);
 	fixedpt e = fixedpt_rconst(0.25);
-	fixedpt f = fixedpt_rconst(0.1);
-	fixedpt g = fixedpt_rconst(0.01);
+	fixedpt f = fixedpt_rconst(0.125);
+	fixedpt g = fixedpt_rconst(0.0625);
 	assert(fixedpt_muli(a, 2) == fixedpt_rconst(6.28)); // 测试muli
 	assert(fixedpt_mul(a, b) == fixedpt_rconst(6.28));
 	assert(fixedpt_divi(a, 2) == fixedpt_rconst(1.57)); // 测试divi
@@ -54,38 +54,40 @@ int main()
 	assert(fixedpt_ceil(d) == fixedpt_rconst(1.0));		// 测试ceil
 	assert(fixedpt_floor(-d) == fixedpt_rconst(-1.0));	// 测试负数floor
 	assert(fixedpt_ceil(-d) == fixedpt_rconst(0.0));	// 测试负数ceil
+														// e = 0.25, f = 0.125 g = 0.0625
 	assert(fixedpt_muli(e, 16) == fixedpt_rconst(4.0)); // 测试muli
-	assert(fixedpt_mul(e, f) == fixedpt_rconst(0.025));
+	assert(fixedpt_mul(e, f) == fixedpt_rconst(0.03125));
 	assert(fixedpt_divi(e, 2) == fixedpt_rconst(0.125)); // 测试divi
 	printf("e = %d, f = %d, e / f = %d\n", e, f, fixedpt_div(e, f));
 	assert(fixedpt_div(e, f) == fixedpt_rconst(4.0));
-	assert(fixedpt_abs(e) == fixedpt_rconst(0.25));		// 测试abs
-	assert(fixedpt_abs(-e) == fixedpt_rconst(0.25));	// 测试负数abs
-	assert(fixedpt_floor(e) == fixedpt_rconst(0.0));	// 测试floor
-	assert(fixedpt_ceil(e) == fixedpt_rconst(1.0));		// 测试ceil
-	assert(fixedpt_floor(-e) == fixedpt_rconst(-1.0));	// 测试负数floor
-	assert(fixedpt_ceil(-e) == fixedpt_rconst(0.0));	// 测试负数ceil
-	assert(fixedpt_muli(f, 10) == fixedpt_rconst(1.0)); // 测试muli
-	assert(fixedpt_mul(f, g) == fixedpt_rconst(0.001));
-	assert(fixedpt_divi(f, 2) == fixedpt_rconst(0.05)); // 测试divi
-	assert(fixedpt_div(f, g) == fixedpt_rconst(10.0));
-	assert(fixedpt_abs(f) == fixedpt_rconst(0.1));		 // 测试abs
-	assert(fixedpt_abs(-f) == fixedpt_rconst(0.1));		 // 测试负数abs
-	assert(fixedpt_floor(f) == fixedpt_rconst(0.0));	 // 测试floor
-	assert(fixedpt_ceil(f) == fixedpt_rconst(1.0));		 // 测试ceil
-	assert(fixedpt_floor(-f) == fixedpt_rconst(-1.0));	 // 测试负数floor
-	assert(fixedpt_ceil(-f) == fixedpt_rconst(0.0));	 // 测试负数ceil
-	assert(fixedpt_muli(g, 100) == fixedpt_rconst(1.0)); // 测试muli
-	assert(fixedpt_mul(g, fixedpt_rconst(0.1)) == fixedpt_rconst(0.001));
-	assert(fixedpt_divi(g, 2) == fixedpt_rconst(0.005)); // 测试divi
-	assert(fixedpt_div(g, fixedpt_rconst(0.1)) == fixedpt_rconst(10.0));
-	assert(fixedpt_abs(g) == fixedpt_rconst(0.01));	   // 测试abs
-	assert(fixedpt_abs(-g) == fixedpt_rconst(0.01));   // 测试负数abs
+	assert(fixedpt_abs(e) == fixedpt_rconst(0.25));
+	assert(fixedpt_abs(-e) == fixedpt_rconst(0.25));   // 测试负数abs
+	assert(fixedpt_floor(e) == fixedpt_rconst(0.0));   // 测试floor
+	assert(fixedpt_ceil(e) == fixedpt_rconst(1.0));	   // 测试ceil
+	assert(fixedpt_floor(-e) == fixedpt_rconst(-1.0)); // 测试负数floor
+	assert(fixedpt_ceil(-e) == fixedpt_rconst(0.0));   // 测试负数
+	assert(fixedpt_muli(f, 8) == fixedpt_rconst(1.0)); // 测试muli
+	assert(fixedpt_mul(f, g) == fixedpt_rconst(0.0078125));
+	assert(fixedpt_divi(f, 2) == fixedpt_rconst(0.0625)); // 测试divi
+	printf("f = %d, g = %d, f / g = %d\n", f, g, fixedpt_div(f, g));
+	assert(fixedpt_div(f, g) == fixedpt_rconst(2.0));
+	assert(fixedpt_abs(f) == fixedpt_rconst(0.125));	// 测试abs
+	assert(fixedpt_abs(-f) == fixedpt_rconst(0.125));	// 测试负数abs
+	assert(fixedpt_floor(f) == fixedpt_rconst(0.0));	// 测试floor
+	assert(fixedpt_ceil(f) == fixedpt_rconst(1.0));		// 测试ceil
+	assert(fixedpt_floor(-f) == fixedpt_rconst(-1.0));	// 测试负数floor
+	assert(fixedpt_ceil(-f) == fixedpt_rconst(0.0));	// 测试负数ceil
+	assert(fixedpt_muli(g, 16) == fixedpt_rconst(1.0)); // 测试muli
+	assert(fixedpt_mul(g, g) == fixedpt_rconst(0.0009765625));
+	assert(fixedpt_divi(g, 2) == fixedpt_rconst(0.03125)); // 测试divi
+	printf("g = %d, e = %d, g / e = %d\n", g, e, fixedpt_div(g, e));
+	assert(fixedpt_div(g, e) == fixedpt_rconst(0.125));
+	assert(fixedpt_abs(g) == fixedpt_rconst(0.0625));
+	assert(fixedpt_abs(-g) == fixedpt_rconst(0.0625)); // 测试负数abs
 	assert(fixedpt_floor(g) == fixedpt_rconst(0.0));   // 测试floor
 	assert(fixedpt_ceil(g) == fixedpt_rconst(1.0));	   // 测试ceil
 	assert(fixedpt_floor(-g) == fixedpt_rconst(-1.0)); // 测试负数floor
-	assert(fixedpt_ceil(-g) == fixedpt_rconst(0.0));   // 测试负数ceil
-
+	assert(fixedpt_ceil(-g) == fixedpt_rconst(0.0));
 	printf("Test passed!\n");
 	return 0;
 }
