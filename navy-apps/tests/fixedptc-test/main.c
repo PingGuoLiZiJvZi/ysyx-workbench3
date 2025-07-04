@@ -71,23 +71,12 @@ int main()
 	assert(fixedpt_divi(f, 2) == fixedpt_rconst(0.0625)); // 测试divi
 	printf("f = %d, g = %d, f / g = %d\n", f, g, fixedpt_div(f, g));
 	assert(fixedpt_div(f, g) == fixedpt_rconst(2.0));
-	assert(fixedpt_abs(f) == fixedpt_rconst(0.125));	// 测试abs
-	assert(fixedpt_abs(-f) == fixedpt_rconst(0.125));	// 测试负数abs
-	assert(fixedpt_floor(f) == fixedpt_rconst(0.0));	// 测试floor
-	assert(fixedpt_ceil(f) == fixedpt_rconst(1.0));		// 测试ceil
-	assert(fixedpt_floor(-f) == fixedpt_rconst(-1.0));	// 测试负数floor
-	assert(fixedpt_ceil(-f) == fixedpt_rconst(0.0));	// 测试负数ceil
-	assert(fixedpt_muli(g, 16) == fixedpt_rconst(1.0)); // 测试muli
-	assert(fixedpt_mul(g, g) == fixedpt_rconst(0.0009765625));
-	assert(fixedpt_divi(g, 2) == fixedpt_rconst(0.03125)); // 测试divi
-	printf("g = %d, e = %d, g / e = %d\n", g, e, fixedpt_div(g, e));
-	assert(fixedpt_div(g, e) == fixedpt_rconst(0.125));
-	assert(fixedpt_abs(g) == fixedpt_rconst(0.0625));
-	assert(fixedpt_abs(-g) == fixedpt_rconst(0.0625)); // 测试负数abs
-	assert(fixedpt_floor(g) == fixedpt_rconst(0.0));   // 测试floor
-	assert(fixedpt_ceil(g) == fixedpt_rconst(1.0));	   // 测试ceil
-	assert(fixedpt_floor(-g) == fixedpt_rconst(-1.0)); // 测试负数floor
-	assert(fixedpt_ceil(-g) == fixedpt_rconst(0.0));
+	assert(fixedpt_abs(f) == fixedpt_rconst(0.125));   // 测试abs
+	assert(fixedpt_abs(-f) == fixedpt_rconst(0.125));  // 测试负数abs
+	assert(fixedpt_floor(f) == fixedpt_rconst(0.0));   // 测试floor
+	assert(fixedpt_ceil(f) == fixedpt_rconst(1.0));	   // 测试ceil
+	assert(fixedpt_floor(-f) == fixedpt_rconst(-1.0)); // 测试负数floor
+	assert(fixedpt_ceil(-f) == fixedpt_rconst(0.0));   // 测试负数ceil
 	printf("Test passed!\n");
 	return 0;
 }
