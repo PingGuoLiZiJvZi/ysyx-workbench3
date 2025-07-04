@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect)
 {
 	assert(dst && src);
@@ -121,8 +121,30 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 		return; // 无效的矩形
 	}
 	assert(dst->pixels);
-	assert(dst->format->BitsPerPixel == 32);
+	assert(dst->format->BitsPerPixel == 32 || dst->format->BitsPerPixel == 8);
 	uint32_t *pixels = (uint32_t *)dst->pixels;
+	if (dst->format->BitsPerPixel == 8)
+	{
+		SDL_Palette *palette = dst->format->palette;
+		if (palette == NULL || palette->ncolors == 0)
+		{
+			printf("SDL_FillRect: No palette available for 8-bit surface.\n");
+			return; // 没有调色板
+		}
+		uint8_t index = 0;
+		for (int i = 0; i < palette->ncolors; i++)
+		{
+			if (palette->colors[i].val == color)
+			{
+				index = i;
+				break;
+			}
+		}
+		color = index;					 // 使用索引填充
+		pixels = (uint8_t *)dst->pixels; // 转换为8位像素
+		assert(pixels);					 // 确保像素数据存在
+	}
+
 	for (int y = rect.y; y < rect.y + rect.h; y++)
 		for (int x = rect.x; x < rect.x + rect.w; x++)
 			pixels[y * dst->w + x] = color; // 填充颜色
@@ -132,7 +154,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 {
 	assert(s);
 	assert(s->pixels);
-	assert(s->format->BitsPerPixel == 32);
+	assert(s->format->BitsPerPixel == 32 || s->format->BitsPerPixel == 8);
 	if (w == 0 || h == 0)
 	{
 		// If w or h is 0, we assume the whole surface needs to be updated.
@@ -142,7 +164,27 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 		h = s->h;
 	}
 	printf("SDL_UpdateRect: x=%d, y=%d, w=%d, h=%d\n", x, y, w, h);
-	NDL_DrawRect(s->pixels, x, y, w, h);
+	if (s->format->BitsPerPixel == 32)
+		NDL_DrawRect(s->pixels, x, y, w, h);
+	else
+	{
+		// For 8-bit surfaces, we need to convert the pixel data to a format
+		// that NDL can understand. Assuming the palette is set up correctly.
+		uint8_t *pixels = (uint8_t *)s->pixels;
+		uint32_t *converted_pixels = malloc(w * h * sizeof(uint32_t));
+		assert(converted_pixels);
+		SDL_Palette *palette = s->format->palette;
+		for (int j = 0; j < h; j++)
+		{
+			for (int i = 0; i < w; i++)
+			{
+				uint8_t index = pixels[(y + j) * s->w + (x + i)];
+				converted_pixels[j * w + i] = palette->colors[index].val;
+			}
+		}
+		NDL_DrawRect(converted_pixels, x, y, w, h);
+		free(converted_pixels);
+	}
 }
 
 // APIs below are already implemented.
