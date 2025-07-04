@@ -136,21 +136,6 @@ int fs_close(int fd)
 	file_table[fd].cursor = 0; // Reset cursor to 0
 	return 0;
 }
-void init_fb()
-{
-	AM_GPU_CONFIG_T gpu_config = io_read(AM_GPU_CONFIG);
-	if (gpu_config.present)
-	{
-		file_table[FD_FB].size = gpu_config.vmemsz; // Set size to virtual memory size
-		file_table[FD_FB].disk_offset = 0;			// No disk offset for /dev/fb
-		file_table[FD_FB].read = invalid_read;		// No read operation for /dev/fb
-		file_table[FD_FB].write = fb_write;			// Use fb_write for writing to /dev/fb
-	}
-	else
-	{
-		panic("Framebuffer not present");
-	}
-}
 void init_fs()
 {
 	// TODO: initialize the size of /dev/fb
