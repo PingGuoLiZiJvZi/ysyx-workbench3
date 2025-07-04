@@ -91,7 +91,9 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
 	uint8_t *src_pixels = (uint8_t *)src->pixels;
 	uint8_t *dst_pixels = (uint8_t *)dst->pixels;
-
+	printf("Blitting from src_rect=(%d, %d, %d, %d) to dst_rect=(%d, %d, %d, %d)\n",
+		   src_rect.x, src_rect.y, src_rect.w, src_rect.h,
+		   dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h);
 	for (int y = 0; y < src_rect.h; y++)
 	{
 		uint8_t *src_row = src_pixels +
