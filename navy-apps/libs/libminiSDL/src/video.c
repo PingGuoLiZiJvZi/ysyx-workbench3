@@ -9,6 +9,11 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 	assert(dst && src);
 	assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 	// 步骤 1: 计算实际复制的源区域和目标位置
+	printf("SDL_BlitSurface: src=(%d, %d, %d, %d), dst=(%d, %d, %d, %d)\n",
+		   srcrect ? srcrect->x : 0, srcrect ? srcrect->y : 0,
+		   srcrect ? srcrect->w : src->w, srcrect ? srcrect->h : src->h,
+		   dstrect ? dstrect->x : 0, dstrect ? dstrect->y : 0,
+		   dstrect ? dstrect->w : src->w, dstrect ? dstrect->h : src->h);
 	SDL_Rect src_rect, dst_rect;
 	if (srcrect)
 	{
