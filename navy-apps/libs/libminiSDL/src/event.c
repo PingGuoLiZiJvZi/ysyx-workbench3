@@ -52,7 +52,7 @@ int SDL_PollEvent(SDL_Event *ev)
 	NDL_PollEvent(buf, sizeof(buf) - 1);
 	if (memcmp(buf, buf_cmptarget, 64) == 0)
 	{
-		ev->type = SDL_KEYDOWN;			// 如果buf是空字符串，返回一个空事件
+		ev->type = SDL_KEYUP;			// 如果buf是空字符串，返回一个空事件
 		ev->key.keysym.sym = SDLK_NONE; // 设置为无效键
 		return 1;						// 返回一个空事件
 	}
