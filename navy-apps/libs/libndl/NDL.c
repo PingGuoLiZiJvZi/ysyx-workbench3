@@ -35,6 +35,13 @@ int NDL_PollEvent(char *buf, int len)
 
 void NDL_OpenCanvas(int *w, int *h)
 {
+
+	int fd = open("/proc/dispinfo", O_RDONLY);
+	char buf[256] = {0};
+	read(fd, buf, sizeof(buf) - 1);
+	close(fd);
+	sscanf(buf, "WIDTH:%d\nHEIGHT:%d\n", w, h);
+
 	if (getenv("NWM_APP"))
 	{
 		int fbctl = 4;
@@ -56,14 +63,6 @@ void NDL_OpenCanvas(int *w, int *h)
 				break;
 		}
 		close(fbctl);
-	}
-	else
-	{
-		int fd = open("/proc/dispinfo", O_RDONLY);
-		char buf[256] = {0};
-		read(fd, buf, sizeof(buf) - 1);
-		close(fd);
-		sscanf(buf, "WIDTH:%d\nHEIGHT:%d\n", &screen_w, &screen_h);
 	}
 }
 

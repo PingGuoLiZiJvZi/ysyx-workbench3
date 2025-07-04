@@ -51,7 +51,6 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len)
 	{
 		panic("dispinfo_read: buffer too small");
 	}
-	printf("dispinfo_read: %s\n", p);
 	memcpy(buf, p, n);
 	return 0;
 }
