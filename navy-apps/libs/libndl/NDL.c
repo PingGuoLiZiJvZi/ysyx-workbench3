@@ -85,6 +85,9 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h)
 	read(fd, buf, sizeof(buf) - 1);
 	close(fd);
 	sscanf(buf, "WIDTH:%d\nHEIGHT:%d\n", &whole_w, &whole_h);
+	// 转换xy，使得图像绘制在主屏幕坐标系中心
+	x += (whole_w - screen_w) / 2;
+	y += (whole_h - screen_h) / 2;
 	int offset = (y * whole_w + x) * 4; // 每个像素4字节
 	// 循环写入，一次一行
 	fd = open("/dev/fb", O_WRONLY);
