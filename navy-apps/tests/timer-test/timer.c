@@ -1,19 +1,19 @@
 // output hello per 0.5 seconds
 // by gettimeofday
 #include <stdio.h>
-#include <sys/time.h>
+#include <NDL.h>
 void sleep_for(double seconds)
 {
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
+	uint32_t start = NDL_GetTicks();
+	uint32_t end;
 	do
 	{
-		gettimeofday(&end, NULL);
-	} while ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec) < seconds * 1000000);
+		end = NDL_GetTicks();
+	} while (end - start < seconds * 1000);
 }
 int main()
 {
-	struct timeval tv;
+	NDL_Init(0);
 	while (1)
 	{
 		printf("Hello World from Navy-apps!\n");
