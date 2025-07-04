@@ -2,7 +2,7 @@
 // by gettimeofday
 #include <stdio.h>
 #include <sys/time.h>
-sleep_for(double seconds)
+void sleep_for(double seconds)
 {
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
