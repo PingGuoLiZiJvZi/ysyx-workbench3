@@ -77,6 +77,17 @@ size_t fs_read(int fd, void *buf, size_t len)
 		return 0;
 	}
 	CASE_LOG("read: reading %u bytes from file descriptor %d", len, fd);
+	if (fd > 6)
+	{
+		if (file_table[fd].cursor + len > file_table[fd].size)
+		{
+			len = file_table[fd].size - file_table[fd].cursor; // Adjust length if it exceeds file size
+		}
+		if (len == 0)
+		{
+			return 0; // No more data to read
+		}
+	}
 	size_t bytes_read = file_table[fd].read(buf, file_table[fd].disk_offset + file_table[fd].cursor, len);
 	file_table[fd].cursor += len; // Update cursor position
 	return bytes_read;			  // Return the number of bytes read
@@ -92,6 +103,17 @@ size_t fs_write(int fd, const void *buf, size_t len)
 		return 0;
 	}
 	CASE_LOG("write: writing %u bytes to file descriptor %d", len, fd);
+	if (fd > 6)
+	{
+		if (file_table[fd].cursor + len > file_table[fd].size)
+		{
+			len = file_table[fd].size - file_table[fd].cursor; // Adjust length if it exceeds file size
+		}
+		if (len == 0)
+		{
+			return 0; // No more data to read
+		}
+	}
 	size_t bytes_written = file_table[fd].write(buf, file_table[fd].disk_offset + file_table[fd].cursor, len);
 	file_table[fd].cursor += len;
 	return bytes_written; // Return the number of bytes written
