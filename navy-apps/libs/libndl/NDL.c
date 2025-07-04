@@ -51,7 +51,8 @@ void NDL_OpenCanvas(int *w, int *h)
 	{
 		printf("NDL_OpenCanvas: requested size (%d, %d) exceeds screen size (%d, %d)\n", *w, *h, whole_w, whole_h);
 	}
-
+	screen_h = *h;
+	screen_w = *w;
 	if (getenv("NWM_APP"))
 	{
 		int fbctl = 4;
@@ -78,6 +79,23 @@ void NDL_OpenCanvas(int *w, int *h)
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h)
 {
+	int whole_w = 0, whole_h = 0;
+	int fd = open("/proc/dispinfo", O_RDONLY);
+	char buf[256] = {0};
+	read(fd, buf, sizeof(buf) - 1);
+	close(fd);
+	sscanf(buf, "WIDTH:%d\nHEIGHT:%d\n", &whole_w, &whole_h);
+	int offset = (y * whole_w + x) * 4; // 每个像素4字节
+	// 循环写入，一次一行
+	fd = open("/dev/fb", O_WRONLY);
+	for (int i = 0; i < h; i++)
+	{
+		lseek(fd, offset, SEEK_SET);
+		write(fd, pixels, w * 4);
+		pixels += w;		   // 移动到下一行
+		offset += whole_w * 4; // 移动到下一行的起始
+	}
+	close(fd);
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples)

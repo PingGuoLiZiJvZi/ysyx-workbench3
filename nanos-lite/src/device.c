@@ -12,7 +12,6 @@
 static const char *keyname[256] __attribute__((used)) = {
 	[AM_KEY_NONE] = "NONE",
 	AM_KEYS(NAME)};
-static char fb_memory[300 * 400 * 4] = {0}; // 300x400 pixels, each pixel is 4 bytes (RGBA)
 size_t serial_write(const void *buf, size_t offset, size_t len)
 {
 	for (size_t i = 0; i < len; i++)
@@ -57,9 +56,22 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len)
 
 size_t fb_write(const void *buf, size_t offset, size_t len)
 {
-	int x, y, w, h;
-	// len = w*h*4
-	// offset = (x + y * 300)*4;
+	// 认为x,y已经由画布转换至屏幕坐标系
+	int w_screen = io_read(AM_GPU_CONFIG).width;
+	int x, y;
+	if (offset < 0)
+	{
+		panic("fb_write: offset out of bounds");
+	}
+	if (len % 4 != 0 || offset % 4 != 0)
+	{
+		panic("fb_write: len or offset not aligned to 4 bytes");
+	}
+	x = (offset / 4) % w_screen; // 每个像素4字节，所以offset/4是像素索引
+	y = (offset / 4) / w_screen; // 计算y坐标
+	// cal w，h to put in middle of the screen
+	io_write(AM_GPU_FBDRAW, x, y, (void *)buf, len / 4, 1, true);
+	return len; // 返回写入的字节数
 }
 
 void init_device()
