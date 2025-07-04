@@ -54,7 +54,7 @@ int SDL_PollEvent(SDL_Event *ev)
 	{
 		ev->type = SDL_KEYUP;			// 如果buf是空字符串，返回一个空事件
 		ev->key.keysym.sym = SDLK_NONE; // 设置为无效键
-		return 1;						// 返回一个空事件
+		return 0;						// 返回一个空事件
 	}
 	return match_key(ev, buf); // 尝试匹配事件
 }
