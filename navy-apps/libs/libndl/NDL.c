@@ -59,7 +59,7 @@ void NDL_OpenCanvas(int *w, int *h)
 	}
 	else
 	{
-		int fd = open("proc/dispinfo", O_RDONLY);
+		int fd = open("/proc/dispinfo", O_RDONLY);
 		char buf[256] = {0};
 		read(fd, buf, sizeof(buf) - 1);
 		close(fd);
