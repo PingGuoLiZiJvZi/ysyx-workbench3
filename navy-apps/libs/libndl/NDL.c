@@ -41,7 +41,7 @@ void NDL_OpenCanvas(int *w, int *h)
 	read(fd, buf, sizeof(buf) - 1);
 	close(fd);
 	sscanf(buf, "WIDTH:%d\nHEIGHT:%d\n", w, h);
-	printf("NDL_OpenCanvas: screen size %d x %d\n", *w, *h);
+
 	if (getenv("NWM_APP"))
 	{
 		int fbctl = 4;
