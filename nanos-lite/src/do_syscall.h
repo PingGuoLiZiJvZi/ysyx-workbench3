@@ -1,6 +1,7 @@
 #ifndef DO_SYSCALL_H__
 #define DO_SYSCALL_H__
 #include <common.h>
+#include <sys/time.h>
 // #define STRACE
 #include "strace.h"
 #ifndef size_t
@@ -54,5 +55,18 @@ size_t sys_brk(size_t new_end)
 	heap_end = new_end;
 	return old_end; // Return the old end of the heap
 }
-
+size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+	uint64_t t0 = io_read(AM_TIMER_UPTIME).us;
+	if (tv)
+	{
+		tv->tv_sec = t0 / 1000000;
+		tv->tv_usec = t0 % 1000000;
+	}
+	if (tz)
+	{
+		panic("Timezone not supported in Nanos-lite");
+	}
+	return 0;
+}
 #endif

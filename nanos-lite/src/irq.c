@@ -58,6 +58,10 @@ static Context *do_event(Event e, Context *c)
 					 c->GPR2, c->GPR3, c->GPR4);
 			c->GPRx = fs_lseek(c->GPR2, c->GPR3, c->GPR4);
 			return c;
+		case SYS_gettimeofday:
+			CASE_LOG("Gettimeofday syscall called");
+			c->GPRx = sys_gettimeofday((struct timeval *)c->GPR2, (struct timezone *)c->GPR3);
+			return c;
 		default:
 			CASE_LOG("Unhandled syscall ID %d", syscall_id);
 			c->GPRx = -1; // Simulate failure for unhandled syscalls
