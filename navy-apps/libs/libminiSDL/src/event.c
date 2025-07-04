@@ -1,6 +1,6 @@
 #include <NDL.h>
 #include <SDL.h>
-
+#include <string.h>
 #define keyname(k) #k,
 
 static const char *keyname[] = {
@@ -11,44 +11,66 @@ int SDL_PushEvent(SDL_Event *ev)
 {
 	return 0;
 }
-
-int SDL_PollEvent(SDL_Event *ev)
+int match_key(SDL_Event *ev, char *buf)
 {
-	return 0;
-}
-
-int SDL_WaitEvent(SDL_Event *event)
-{
-	char buf[64] = {0};
 	char type[4] = {0};
 	char key_name[16] = {0};
-	NDL_PollEvent(buf, sizeof(buf) - 1);
 	sscanf(buf, "%s %s", type, key_name);
 	if (strcmp(type, "kd") == 0)
 	{
-		event->type = SDL_KEYDOWN;
+		ev->type = SDL_KEYDOWN;
 	}
 	else if (strcmp(type, "ku") == 0)
 	{
-		event->type = SDL_KEYUP;
+		ev->type = SDL_KEYUP;
 	}
 	else
 	{
+		printf("Unknown event type: %s\n", type);
 		return 0; // Not a key event
 	}
 	for (int i = 0; i < sizeof(keyname) / sizeof(keyname[0]); i++)
 	{
 		if (strcmp(keyname[i], key_name) == 0)
 		{
-			event->key.keysym.sym = i;
+			ev->key.keysym.sym = i;
 			break;
 		}
 	}
-	if (event->key.keysym.sym == SDLK_NONE)
+	if (ev->key.keysym.sym == SDLK_NONE)
 	{
+		printf("Unknown key: %s\n", key_name);
 		return 0; // Unknown key}
 	}
 	return 1; // Event successfully read
+}
+int SDL_PollEvent(SDL_Event *ev)
+{
+	char buf[64] = {0};
+	char buf_cmptarget[64] = {0};
+
+	NDL_PollEvent(buf, sizeof(buf) - 1);
+	if (memcmp(buf, buf_cmptarget, 64) == 0)
+	{
+		ev->type = SDL_KEYDOWN;			// 如果buf是空字符串，返回一个空事件
+		ev->key.keysym.sym = SDLK_NONE; // 设置为无效键
+		return 1;						// 返回一个空事件
+	}
+	return match_key(ev, buf); // 尝试匹配事件
+}
+
+int SDL_WaitEvent(SDL_Event *event)
+{
+	char buf[64] = {0};
+	char buf_cmptarget[64] = {0};
+	char type[4] = {0};
+	char key_name[16] = {0};
+	do
+	{
+		NDL_PollEvent(buf, sizeof(buf) - 1);
+	} while (memcmp(buf, buf_cmptarget, 64) == 0); // 直到buf不是空字符串
+
+	return match_key(event, buf); // 尝试匹配事件
 }
 
 int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask)
