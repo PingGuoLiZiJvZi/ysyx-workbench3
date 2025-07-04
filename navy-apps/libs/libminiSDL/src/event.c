@@ -50,7 +50,6 @@ int SDL_PollEvent(SDL_Event *ev)
 	char buf_cmptarget[64] = {0};
 
 	NDL_PollEvent(buf, sizeof(buf) - 1);
-	printf("SDL_PollEvent: buf = %s\n", buf);
 	if (memcmp(buf, buf_cmptarget, 64) == 0)
 	{
 		ev->type = SDL_KEYDOWN;			// 如果buf是空字符串，返回一个空事件
