@@ -162,7 +162,7 @@ typedef __uint128_t fixedptud;
 
 	static inline fixedpt fixedpt_ceil(fixedpt A)
 	{
-		if (A & FIXEDPT_FMASK == 0)
+		if ((A & FIXEDPT_FMASK) == 0)
 			return A; /* already an integer */
 		else
 			return (A & ~(FIXEDPT_FMASK)) + FIXEDPT_ONE;
