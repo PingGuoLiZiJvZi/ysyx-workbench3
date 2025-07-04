@@ -9,11 +9,6 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 	assert(dst && src);
 	assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 	// 步骤 1: 计算实际复制的源区域和目标位置
-	printf("SDL_BlitSurface: src=(%d, %d, %d, %d), dst=(%d, %d, %d, %d)\n",
-		   srcrect ? srcrect->x : 0, srcrect ? srcrect->y : 0,
-		   srcrect ? srcrect->w : src->w, srcrect ? srcrect->h : src->h,
-		   dstrect ? dstrect->x : 0, dstrect ? dstrect->y : 0,
-		   dstrect ? dstrect->w : src->w, dstrect ? dstrect->h : src->h);
 	SDL_Rect src_rect, dst_rect;
 	if (srcrect)
 	{
@@ -91,9 +86,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
 	uint8_t *src_pixels = (uint8_t *)src->pixels;
 	uint8_t *dst_pixels = (uint8_t *)dst->pixels;
-	printf("Blitting from src_rect=(%d, %d, %d, %d) to dst_rect=(%d, %d, %d, %d)\n",
-		   src_rect.x, src_rect.y, src_rect.w, src_rect.h,
-		   dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h);
+
 	for (int y = 0; y < src_rect.h; y++)
 	{
 		uint8_t *src_row = src_pixels +
@@ -117,6 +110,14 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 	assert(s);
 	assert(s->pixels);
 	assert(s->format->BitsPerPixel == 32);
+	if (w == 0 || h == 0)
+	{
+		// If w or h is 0, we assume the whole surface needs to be updated.
+		x = 0;
+		y = 0;
+		w = s->w;
+		h = s->h;
+	}
 	printf("SDL_UpdateRect: x=%d, y=%d, w=%d, h=%d\n", x, y, w, h);
 	NDL_DrawRect(s->pixels, x, y, w, h);
 }
