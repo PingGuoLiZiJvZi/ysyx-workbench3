@@ -17,7 +17,7 @@ int main()
 	while (1)
 	{
 		printf("Hello World from Navy-apps!\n");
-		gettimeofday(&tv, NULL);
+		sleep_for(0.5);
 	}
 	return 0;
 }
