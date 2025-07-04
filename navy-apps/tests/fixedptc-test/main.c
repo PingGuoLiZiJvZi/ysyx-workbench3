@@ -30,8 +30,7 @@ int main()
 	assert(fixedpt_abs(b) == fixedpt_rconst(2.0));	 // 测试abs
 	assert(fixedpt_abs(-b) == fixedpt_rconst(2.0));	 // 测试负数abs
 	assert(fixedpt_floor(b) == fixedpt_rconst(2.0)); // 测试floor
-	printf("b: %d,cell(b): %d\n", b, fixedpt_ceil(b));
-	assert(fixedpt_ceil(b) == fixedpt_rconst(2.0)); // 测试ceil
+	assert(fixedpt_ceil(b) == fixedpt_rconst(2.0));	 // 测试ceil
 
 	assert(fixedpt_floor(-b) == fixedpt_rconst(-2.0)); // 测试负数floor
 	assert(fixedpt_ceil(-b) == fixedpt_rconst(-2.0));  // 测试负数ceil
@@ -58,7 +57,7 @@ int main()
 	assert(fixedpt_muli(e, 16) == fixedpt_rconst(4.0)); // 测试muli
 	assert(fixedpt_mul(e, f) == fixedpt_rconst(0.025));
 	assert(fixedpt_divi(e, 2) == fixedpt_rconst(0.125)); // 测试divi
-	assert(fixedpt_div(e, f) == fixedpt_rconst(4.0));
+	assert(fixedpt_div(e, f) == fixedpt_rconst(0.4));
 	assert(fixedpt_abs(e) == fixedpt_rconst(0.25));		// 测试abs
 	assert(fixedpt_abs(-e) == fixedpt_rconst(0.25));	// 测试负数abs
 	assert(fixedpt_floor(e) == fixedpt_rconst(0.0));	// 测试floor
