@@ -20,60 +20,35 @@ int SDL_PollEvent(SDL_Event *ev)
 int SDL_WaitEvent(SDL_Event *event)
 {
 	char buf[64] = {0};
-
+	char type[4] = {0};
+	char key_name[16] = {0};
 	NDL_PollEvent(buf, sizeof(buf) - 1);
-	if (buf[1] == 'd')
+	sscanf(buf, "%s %s", type, key_name);
+	if (strcmp(type, "kd") == 0)
 	{
 		event->type = SDL_KEYDOWN;
-		switch (buf[3])
+	}
+	else if (strcmp(type, "ku") == 0)
+	{
+		event->type = SDL_KEYUP;
+	}
+	else
+	{
+		return 0; // Not a key event
+	}
+	for (int i = 0; i < sizeof(keyname) / sizeof(keyname[0]); i++)
+	{
+		if (strcmp(keyname[i], key_name) == 0)
 		{
-		case '0':
-			event->key.keysym.sym = SDLK_0;
-			break;
-		case '1':
-			event->key.keysym.sym = SDLK_1;
-			break;
-		case '2':
-			event->key.keysym.sym = SDLK_2;
-			break;
-		case '3':
-			event->key.keysym.sym = SDLK_3;
-			break;
-		case '4':
-			event->key.keysym.sym = SDLK_4;
-			break;
-		case '5':
-			event->key.keysym.sym = SDLK_5;
-			break;
-		case '6':
-			event->key.keysym.sym = SDLK_6;
-			break;
-		case '7':
-			event->key.keysym.sym = SDLK_7;
-			break;
-		case '8':
-			event->key.keysym.sym = SDLK_8;
-			break;
-		case '9':
-			event->key.keysym.sym = SDLK_9;
-			break;
-		case 'G':
-			event->key.keysym.sym = SDLK_G;
-			break;
-		case 'J':
-			event->key.keysym.sym = SDLK_J;
-			break;
-		case 'K':
-			event->key.keysym.sym = SDLK_K;
-			break;
-		default:
-			event->key.keysym.sym = SDLK_NONE;
+			event->key.keysym.sym = i;
 			break;
 		}
 	}
-	else
-		event->type = SDL_KEYUP;
-	return 1;
+	if (event->key.keysym.sym == SDLK_NONE)
+	{
+		return 0; // Unknown key}
+	}
+	return 1; // Event successfully read
 }
 
 int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask)
