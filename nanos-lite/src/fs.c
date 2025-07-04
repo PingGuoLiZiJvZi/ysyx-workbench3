@@ -160,19 +160,11 @@ void init_fs()
 		file_table[i].cursor = 0; // Initialize cursor to 0
 		if (file_table[i].read == NULL)
 		{
-			if (strcmp(file_table[i].name, "/dev/events") == 0)
-				file_table[i].read = events_read; // Special case for /dev/events
-			else if (strcmp(file_table[i].name, "/proc/dispinfo") == 0)
-				file_table[i].read = dispinfo_read; // Special case for /proc/dispinfo
-			else
-				file_table[i].read = ramdisk_read;
+			file_table[i].read = ramdisk_read;
 		}
 		if (file_table[i].write == NULL)
 		{
-			if (strcmp(file_table[i].name, "/dev/fb") == 0)
-				file_table[i].write = fb_write; // Special case for /dev/fb
-			else
-				file_table[i].write = ramdisk_write;
+			file_table[i].write = ramdisk_write;
 		}
 	}
 }
