@@ -9,7 +9,7 @@ void sleep_for(double seconds)
 	do
 	{
 		gettimeofday(&end, NULL);
-	} while ((end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) < seconds * 1000000);
+	} while ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec) < seconds * 1000000);
 }
 int main()
 {
