@@ -29,12 +29,13 @@ size_t events_read(void *buf, size_t offset, size_t len)
 		return 0;
 	char p[64] = {0};
 	if (ev.keydown)
-		sprintf(p, "kd %s\n", keyname[ev.keycode]);
+		sprintf(p, "kd %s", keyname[ev.keycode]);
 	else
-		sprintf(p, "ku %s\n", keyname[ev.keycode]);
+		sprintf(p, "ku %s", keyname[ev.keycode]);
 	size_t n = strlen(p);
 	if (n > len)
 		panic("events_read: buffer too small");
+	printf("events_read: %s,offset=%u,len=%u\n", p, offset, len);
 	memcpy(buf, p + offset, n);
 	return n;
 }
