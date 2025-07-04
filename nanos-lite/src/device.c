@@ -35,9 +35,7 @@ size_t events_read(void *buf, size_t offset, size_t len)
 	size_t n = strlen(p);
 	if (n > len)
 		panic("events_read: buffer too small");
-	if (offset)
-		panic("events_read: offset not supported");
-	memcpy(buf, p, n);
+	memcpy(buf, p + offset, n);
 	return n;
 }
 
