@@ -24,7 +24,21 @@ size_t serial_write(const void *buf, size_t offset, size_t len)
 
 size_t events_read(void *buf, size_t offset, size_t len)
 {
-	return 0;
+	AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
+	if (ev.keycode == AM_KEY_NONE)
+		return 0;
+	char p[64] = {0};
+	if (ev.keydown)
+		sprintf(p, "kd %s\n", keyname[ev.keycode]);
+	else
+		sprintf(p, "ku %s\n", keyname[ev.keycode]);
+	size_t n = strlen(p);
+	if (n > len)
+		panic("events_read: buffer too small");
+	if (offset)
+		panic("events_read: offset not supported");
+	memcpy(buf, p, n);
+	return n;
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len)

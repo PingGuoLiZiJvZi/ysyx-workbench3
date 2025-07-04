@@ -35,6 +35,7 @@ size_t invalid_write(const void *buf, size_t offset, size_t len)
 }
 
 extern size_t serial_write(const void *buf, size_t offset, size_t len);
+extern size_t events_read(void *buf, size_t offset, size_t len);
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
 	[FD_STDIN] = {"stdin", 0, 0, invalid_read, invalid_write},
@@ -137,7 +138,10 @@ void init_fs()
 		file_table[i].cursor = 0; // Initialize cursor to 0
 		if (file_table[i].read == NULL)
 		{
-			file_table[i].read = ramdisk_read;
+			if (strcmp(file_table[i].name, "/dev/events") == 0)
+				file_table[i].read = events_read; // Special case for /dev/events
+			else
+				file_table[i].read = ramdisk_read;
 		}
 		if (file_table[i].write == NULL)
 		{

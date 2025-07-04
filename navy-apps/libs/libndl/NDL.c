@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <fcntl.h>
 static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
@@ -19,7 +20,17 @@ uint32_t NDL_GetTicks()
 
 int NDL_PollEvent(char *buf, int len)
 {
-	return 0;
+	int fd = open("/dev/events", O_RDONLY);
+	char event_buf[64] = {0};
+	read(fd, event_buf, sizeof(event_buf) - 1);
+	close(fd);
+	int len_event = strlen(event_buf);
+	if (len_event + 1 >= len)
+	{
+		printf("NDL_PollEvent: buffer too small, need %d bytes, got %d bytes\n", len_event, len);
+	}
+	strcpy(buf, event_buf);
+	return len_event;
 }
 
 void NDL_OpenCanvas(int *w, int *h)
