@@ -102,7 +102,30 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 {
-	assert(0);
+	assert(dst);
+	SDL_Rect rect;
+	if (dstrect)
+	{
+		rect = *dstrect;
+	}
+	else
+	{
+		rect.x = 0;
+		rect.y = 0;
+		rect.w = dst->w;
+		rect.h = dst->h;
+	}
+	if (rect.x < 0 || rect.y < 0 || rect.w <= 0 || rect.h <= 0 ||
+		rect.x + rect.w > dst->w || rect.y + rect.h > dst->h)
+	{
+		return; // 无效的矩形
+	}
+	assert(dst->pixels);
+	assert(dst->format->BitsPerPixel == 32);
+	uint32_t *pixels = (uint32_t *)dst->pixels;
+	for (int y = rect.y; y < rect.y + rect.h; y++)
+		for (int x = rect.x; x < rect.x + rect.w; x++)
+			pixels[y * dst->w + x] = color; // 填充颜色
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
