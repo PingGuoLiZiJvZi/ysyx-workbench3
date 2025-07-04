@@ -88,6 +88,7 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h)
 	int offset = (y * whole_w + x) * 4; // 每个像素4字节
 	// 循环写入，一次一行
 	fd = open("/dev/fb", O_WRONLY);
+
 	for (int i = 0; i < h; i++)
 	{
 		lseek(fd, offset, SEEK_SET);
