@@ -58,7 +58,10 @@ size_t sys_brk(size_t new_end)
 size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 	uint64_t t0 = io_read(AM_TIMER_UPTIME).us;
-	printf("sys_gettimeofday: t0 = %u us\n", io_read(AM_TIMER_UPTIME).us);
+	uint32_t res[2];
+	res[0] = t0 & 0xFFFFFFFF; // Lower 32 bits
+	res[1] = t0 >> 32;		  // Upper 32 bits
+	printf("sys_gettimeofday: t0 = %u%u\n", res[1], res[0]);
 	if (tv)
 	{
 		tv->tv_sec = t0 / 1000000;
