@@ -4,7 +4,6 @@
 #include <SDL.h>
 #include <fcntl.h>
 char handle_key(SDL_Event *ev);
-
 static void sh_printf(const char *format, ...)
 {
 	static char buf[256] = {};
@@ -37,14 +36,17 @@ static void sh_handle_cmd(const char *cmd)
 			break;
 		}
 	}
-	execve(n_cmd, NULL, NULL);
+	if (n_cmd[0] == '/')
+		execve(n_cmd, NULL, NULL);
+	else
+		execvp(n_cmd, NULL);
 }
 
 void builtin_sh_run()
 {
 	sh_banner();
 	sh_prompt();
-
+	setenv("PATH", "/bin", 1);
 	while (1)
 	{
 		SDL_Event ev;
