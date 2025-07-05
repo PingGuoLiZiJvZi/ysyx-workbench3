@@ -37,7 +37,7 @@ static void sh_handle_cmd(const char *cmd)
 			break;
 		}
 	}
-	execve(cmd, NULL, NULL);
+	execve(n_cmd, NULL, NULL);
 }
 
 void builtin_sh_run()
