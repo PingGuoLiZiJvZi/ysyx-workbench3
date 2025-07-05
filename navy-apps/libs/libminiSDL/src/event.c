@@ -7,7 +7,8 @@
 static const char *keyname[] = {
 	"NONE",
 	_KEYS(keyname)};
-
+const uint32_t key_num = sizeof(keyname) / sizeof(keyname[0]);
+uint8_t key_state[key_num] = {0};
 int SDL_PushEvent(SDL_Event *ev)
 {
 	return 0;
@@ -35,6 +36,19 @@ int match_key(SDL_Event *ev, char *buf)
 		if (strcmp(keyname[i], key_name) == 0)
 		{
 			ev->key.keysym.sym = i;
+			if (ev->type == SDL_KEYDOWN)
+			{
+				ket_state[i] = 1; // Set key state to pressed
+			}
+			else if (ev->type == SDL_KEYUP)
+			{
+				ket_state[i] = 0; // Set key state to released
+			}
+			else
+			{
+				printf("Unknown event type: %s\n", type);
+				return 0; // Not a valid key event
+			}
 			break;
 		}
 	}
@@ -82,6 +96,7 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask)
 
 uint8_t *SDL_GetKeyState(int *numkeys)
 {
-	assert(0);
-	return NULL;
+	if (numkeys)
+		numkeys = &key_num;
+	return key_state;
 }
