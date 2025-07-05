@@ -27,6 +27,16 @@ static void sh_prompt()
 
 static void sh_handle_cmd(const char *cmd)
 {
+	char n_cmd[256] = {};
+	memcpy(n_cmd, cmd, 256);
+	for (int i = 0; n_cmd[i] != '\0'; i++)
+	{
+		if (n_cmd[i] == '\n')
+		{
+			n_cmd[i] = '\0'; // Replace newline with null terminator
+			break;
+		}
+	}
 	execve(cmd, NULL, NULL);
 }
 

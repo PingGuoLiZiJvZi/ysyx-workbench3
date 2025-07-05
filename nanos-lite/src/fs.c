@@ -57,8 +57,6 @@ int fs_open(const char *pathname, int flags, int mode)
 {
 	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
 	{
-		printf("strcmp: %s == %s == %d\n", pathname, file_table[i].name, strcmp(pathname, file_table[i].name));
-
 		if (strcmp(pathname, file_table[i].name) == 0)
 		{
 			CASE_LOG("open: found file '%s' at index %d", pathname, i);
