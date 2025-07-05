@@ -214,7 +214,6 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 	else
 	{
 		// 8位：使用 pitch 访问像素
-		printf("SDL_UpdateRect: Updating 8-bit surface at (%d, %d) size (%d, %d)\n", x, y, w, h);
 		uint8_t *pixels = (uint8_t *)s->pixels;
 		uint32_t *converted_pixels = malloc(w * h * sizeof(uint32_t));
 		if (!converted_pixels)

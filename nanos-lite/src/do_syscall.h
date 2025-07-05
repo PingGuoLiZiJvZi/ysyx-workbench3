@@ -70,4 +70,11 @@ size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
 	}
 	return 0;
 }
+int sys_execve(const char *filename, char *const argv[], char *const envp[])
+{
+	CASE_LOG("sys_execve: filename = %s, argv = %p, envp = %p", filename, argv, envp);
+
+	panic("sys_execve not implemented in Nanos-lite");
+	return -1;
+}
 #endif
