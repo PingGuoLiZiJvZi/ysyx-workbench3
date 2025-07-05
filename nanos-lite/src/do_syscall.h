@@ -2,6 +2,7 @@
 #define DO_SYSCALL_H__
 #include <common.h>
 #include <sys/time.h>
+#include <proc.h>
 // #define STRACE
 #include "strace.h"
 #ifndef size_t
@@ -41,7 +42,7 @@ enum
 	SYS_times,
 	SYS_gettimeofday
 };
-
+extern int naive_uload(PCB *pcb, const char *filename);
 size_t sys_brk(size_t new_end)
 {
 	extern char end;
@@ -73,8 +74,15 @@ size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
 int sys_execve(const char *filename, char *const argv[], char *const envp[])
 {
 	CASE_LOG("sys_execve: filename = %s, argv = %p, envp = %p", filename, argv, envp);
-
-	panic("sys_execve not implemented in Nanos-lite");
+	naive_uload(NULL, filename);
+	panic("should not reach here after sys_execve");
 	return -1;
+}
+int sys_exit(int status)
+{
+	CASE_LOG("sys_exit: status = %d", status);
+	naive_uload(NULL, "/bin/nterm");
+	panic("should not reach here after sys_exit");
+	return -1; // This should never be reached
 }
 #endif

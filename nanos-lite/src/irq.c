@@ -14,8 +14,8 @@ static Context *do_event(Event e, Context *c)
 		{
 		case SYS_exit:
 			CASE_LOG("Exit syscall called with code %d", c->GPR2);
-			halt(c->GPR2); // Terminate the process
-			return c;	   // Terminate the process
+			sys_exit(c->GPR2);
+			return c; // Terminate the process
 		case SYS_yield:
 			CASE_LOG("Yield syscall called");
 			yield();
@@ -63,6 +63,11 @@ static Context *do_event(Event e, Context *c)
 			CASE_LOG("Gettimeofday syscall called");
 			c->GPRx = sys_gettimeofday((struct timeval *)c->GPR2, (struct timezone *)c->GPR3);
 			return c;
+		case SYS_execve:
+			CASE_LOG("Execve syscall called with filename %s, argv %p, envp %p",
+					 (char *)c->GPR2, (char **)c->GPR3, (char **)c->GPR4);
+			sys_execve((const char *)c->GPR2, (char *const *)c->GPR3, (char *const *)c->GPR4);
+			return c; // This should not return
 		default:
 			CASE_LOG("Unhandled syscall ID %d", syscall_id);
 			c->GPRx = -1; // Simulate failure for unhandled syscalls
