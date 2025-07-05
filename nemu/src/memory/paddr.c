@@ -62,7 +62,7 @@ word_t paddr_read(paddr_t addr, int len)
 	if (likely(in_pmem(addr)))
 	{
 		ret = pmem_read(addr, len);
-		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000) printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, ret, ret));
+		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000 && addr < 0x84000000) printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, ret, ret));
 
 		return ret;
 	}
@@ -78,7 +78,7 @@ void paddr_write(paddr_t addr, int len, word_t data)
 	assert(test == 224);
 	if (likely(in_pmem(addr)))
 	{
-		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000) printf("paddr_write addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, data, data));
+		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000 && addr < 0x84000000) printf("paddr_write addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, data, data));
 		pmem_write(addr, len, data);
 		return;
 	}
