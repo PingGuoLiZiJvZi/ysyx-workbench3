@@ -87,7 +87,7 @@ static int unsigned_number_to_string(char *buf, unsigned int num, int base)
 }
 int printf(const char *fmt, ...)
 {
-	char buf[10240];
+	char buf[4096];
 	va_list args;
 	va_start(args, fmt);
 	int written = vsprintf(buf, fmt, args);
@@ -140,17 +140,9 @@ int vsprintf(char *out, const char *fmt, va_list ap)
 			break;
 		}
 		case 'x':
-		case 'p':
 		{
 			unsigned int num = va_arg(ap, unsigned int);
 			written += unsigned_number_to_string(out, num, 16);
-			out += strlen(out);
-			break;
-		}
-		case 'u':
-		{
-			unsigned int num = va_arg(ap, unsigned int);
-			written += unsigned_number_to_string(out, num, 10);
 			out += strlen(out);
 			break;
 		}
