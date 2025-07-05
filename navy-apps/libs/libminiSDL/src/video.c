@@ -169,13 +169,13 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 		w = s->w;
 		h = s->h;
 	}
-	printf("SDL_UpdateRect: x=%d, y=%d, w=%d, h=%d\n", x, y, w, h);
 	if (s->format->BitsPerPixel == 32)
 		NDL_DrawRect(s->pixels, x, y, w, h);
 	else
 	{
 		// For 8-bit surfaces, we need to convert the pixel data to a format
 		// that NDL can understand. Assuming the palette is set up correctly.
+		printf("SDL_UpdateRect: Updating 8-bit surface at (%d, %d) with size (%d, %d)\n", x, y, w, h);
 		uint8_t *pixels = (uint8_t *)s->pixels;
 		uint32_t *converted_pixels = malloc(w * h * sizeof(uint32_t));
 		assert(converted_pixels);
