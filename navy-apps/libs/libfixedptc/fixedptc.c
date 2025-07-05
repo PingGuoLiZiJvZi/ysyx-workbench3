@@ -9,7 +9,8 @@
  * be returned, meaning there will be invalid, bogus digits outside the
  * specified precisions.
  */
-void fixedpt_str(fixedpt A, char *str, int max_dec) {
+void fixedpt_str(fixedpt A, char *str, int max_dec)
+{
 	int ndec = 0, slen = 0;
 	char tmp[12] = {0};
 	fixedptud fr, ip;
@@ -31,13 +32,15 @@ void fixedpt_str(fixedpt A, char *str, int max_dec) {
 	else if (max_dec == -2)
 		max_dec = 15;
 
-	if (A < 0) {
+	if (A < 0)
+	{
 		str[slen++] = '-';
 		A *= -1;
 	}
 
 	ip = fixedpt_toint(A);
-	do {
+	do
+	{
 		tmp[ndec++] = '0' + ip % 10;
 		ip /= 10;
 	} while (ip != 0);
@@ -47,21 +50,23 @@ void fixedpt_str(fixedpt A, char *str, int max_dec) {
 	str[slen++] = '.';
 
 	fr = (fixedpt_fracpart(A) << FIXEDPT_WBITS) & mask;
-	do {
+	do
+	{
 		fr = (fr & mask) * 10;
 
 		str[slen++] = '0' + (fr >> FIXEDPT_BITS) % 10;
 		ndec++;
 	} while (fr != 0 && ndec < max_dec);
 
-	if (ndec > 1 && str[slen-1] == '0')
-		str[slen-1] = '\0'; /* cut off trailing 0 */
+	if (ndec > 1 && str[slen - 1] == '0')
+		str[slen - 1] = '\0'; /* cut off trailing 0 */
 	else
 		str[slen] = '\0';
 }
 
 /* Returns the square root of the given number, or -1 in case of error */
-fixedpt fixedpt_sqrt(fixedpt A) {
+fixedpt fixedpt_sqrt(fixedpt A)
+{
 	int invert = 0;
 	int iter = FIXEDPT_FBITS;
 	int l, i;
@@ -70,15 +75,18 @@ fixedpt fixedpt_sqrt(fixedpt A) {
 		return (-1);
 	if (A == 0 || A == FIXEDPT_ONE)
 		return (A);
-	if (A < FIXEDPT_ONE && A > 6) {
+	if (A < FIXEDPT_ONE && A > 6)
+	{
 		invert = 1;
 		A = fixedpt_div(FIXEDPT_ONE, A);
 	}
-	if (A > FIXEDPT_ONE) {
+	if (A > FIXEDPT_ONE)
+	{
 		int s = A;
 
 		iter = 0;
-		while (s > 0) {
+		while (s > 0)
+		{
 			s >>= 2;
 			iter++;
 		}
@@ -93,25 +101,28 @@ fixedpt fixedpt_sqrt(fixedpt A) {
 	return (l);
 }
 
-/* Returns the sine of the given fixedpt number. 
+/* Returns the sine of the given fixedpt number.
  * Note: the loss of precision is extraordinary! */
-fixedpt fixedpt_sin(fixedpt fp) {
+fixedpt fixedpt_sin(fixedpt fp)
+{
 	int sign = 1;
 	fixedpt sqr, result;
 	const fixedpt SK[2] = {
 		fixedpt_rconst(7.61e-03),
-		fixedpt_rconst(1.6605e-01)
-	};
+		fixedpt_rconst(1.6605e-01)};
 
 	fp %= 2 * FIXEDPT_PI;
 	if (fp < 0)
 		fp = FIXEDPT_PI * 2 + fp;
-	if ((fp > FIXEDPT_HALF_PI) && (fp <= FIXEDPT_PI)) 
+	if ((fp > FIXEDPT_HALF_PI) && (fp <= FIXEDPT_PI))
 		fp = FIXEDPT_PI - fp;
-	else if ((fp > FIXEDPT_PI) && (fp <= (FIXEDPT_PI + FIXEDPT_HALF_PI))) {
+	else if ((fp > FIXEDPT_PI) && (fp <= (FIXEDPT_PI + FIXEDPT_HALF_PI)))
+	{
 		fp = fp - FIXEDPT_PI;
 		sign = -1;
-	} else if (fp > (FIXEDPT_PI + FIXEDPT_HALF_PI)) {
+	}
+	else if (fp > (FIXEDPT_PI + FIXEDPT_HALF_PI))
+	{
 		fp = (FIXEDPT_PI << 1) - fp;
 		sign = -1;
 	}
@@ -126,7 +137,8 @@ fixedpt fixedpt_sin(fixedpt fp) {
 }
 
 /* Returns the value exp(x), i.e. e^x of the given fixedpt number. */
-fixedpt fixedpt_exp(fixedpt fp) {
+fixedpt fixedpt_exp(fixedpt fp)
+{
 	fixedpt xabs, k, z, R, xp;
 	const fixedpt LN2 = fixedpt_rconst(0.69314718055994530942);
 	const fixedpt LN2_INV = fixedpt_rconst(1.4426950408889634074);
@@ -150,9 +162,9 @@ fixedpt fixedpt_exp(fixedpt fp) {
 	z = fixedpt_mul(fp, fp);
 	/* Taylor */
 	R = FIXEDPT_TWO +
-	    fixedpt_mul(z, EXP_P[0] + fixedpt_mul(z, EXP_P[1] +
-	    fixedpt_mul(z, EXP_P[2] + fixedpt_mul(z, EXP_P[3] +
-	    fixedpt_mul(z, EXP_P[4])))));
+		fixedpt_mul(z, EXP_P[0] + fixedpt_mul(z, EXP_P[1] +
+													 fixedpt_mul(z, EXP_P[2] + fixedpt_mul(z, EXP_P[3] +
+																								  fixedpt_mul(z, EXP_P[4])))));
 	xp = FIXEDPT_ONE + fixedpt_div(fixedpt_mul(fp, FIXEDPT_TWO), R - fp);
 	if (k < 0)
 		k = FIXEDPT_ONE >> (-k >> FIXEDPT_FBITS);
@@ -162,7 +174,8 @@ fixedpt fixedpt_exp(fixedpt fp) {
 }
 
 /* Returns the natural logarithm of the given fixedpt number. */
-fixedpt fixedpt_ln(fixedpt x) {
+fixedpt fixedpt_ln(fixedpt x)
+{
 	fixedpt log2, xi;
 	fixedpt f, s, z, w, R;
 	const fixedpt LN2 = fixedpt_rconst(0.69314718055994530942);
@@ -173,8 +186,7 @@ fixedpt fixedpt_ln(fixedpt x) {
 		fixedpt_rconst(2.222219843214978396e-01),
 		fixedpt_rconst(1.818357216161805012e-01),
 		fixedpt_rconst(1.531383769920937332e-01),
-		fixedpt_rconst(1.479819860511658591e-01)
-	};
+		fixedpt_rconst(1.479819860511658591e-01)};
 
 	if (x < 0)
 		return (0);
@@ -183,7 +195,8 @@ fixedpt fixedpt_ln(fixedpt x) {
 
 	log2 = 0;
 	xi = x;
-	while (xi > FIXEDPT_TWO) {
+	while (xi > FIXEDPT_TWO)
+	{
 		xi >>= 1;
 		log2++;
 	}
@@ -191,10 +204,6 @@ fixedpt fixedpt_ln(fixedpt x) {
 	s = fixedpt_div(f, FIXEDPT_TWO + f);
 	z = fixedpt_mul(s, s);
 	w = fixedpt_mul(z, z);
-	R = fixedpt_mul(w, LG[1] + fixedpt_mul(w, LG[3]
-	    + fixedpt_mul(w, LG[5]))) + fixedpt_mul(z, LG[0]
-	    + fixedpt_mul(w, LG[2] + fixedpt_mul(w, LG[4]
-	    + fixedpt_mul(w, LG[6]))));
-	return (fixedpt_mul(LN2, (log2 << FIXEDPT_FBITS)) + f
-	    - fixedpt_mul(s, f - R));
+	R = fixedpt_mul(w, LG[1] + fixedpt_mul(w, LG[3] + fixedpt_mul(w, LG[5]))) + fixedpt_mul(z, LG[0] + fixedpt_mul(w, LG[2] + fixedpt_mul(w, LG[4] + fixedpt_mul(w, LG[6]))));
+	return (fixedpt_mul(LN2, (log2 << FIXEDPT_FBITS)) + f - fixedpt_mul(s, f - R));
 }

@@ -58,12 +58,13 @@ static long load_img()
 	Assert(fp, "Can not open '%s'", img_file);
 
 	fseek(fp, 0, SEEK_END);
-	long size = ftell(fp);
+	size_t size = ftell(fp);
 
-	Log("The image is %s, size = %ld", img_file, size);
+	Log("The image is %s, size = %lu", img_file, size);
 
 	fseek(fp, 0, SEEK_SET);
 	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+	printf("ret = %d\n", ret);
 	assert(ret == 1);
 
 	fclose(fp);
