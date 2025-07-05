@@ -143,12 +143,10 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 		uint8_t *pixels = dst->pixels; // 转换为8位像素
 		assert(pixels);
 		for (int y = rect.y; y < rect.y + rect.h; y++)
-		{
-			uint8_t *row = pixels + y * dst->pitch;
 			for (int x = rect.x; x < rect.x + rect.w; x++)
-				row[x] = color; // 填充颜色
-		} // 确保像素数据存在
-		return; // 8位表面处理完毕
+				pixels[y * dst->w + x] = color; // 填充颜色
+												// 确保像素数据存在
+		return;									// 8位表面处理完毕
 	}
 	uint32_t *pixels = (uint32_t *)dst->pixels;
 	assert(pixels);
