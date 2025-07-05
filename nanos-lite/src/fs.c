@@ -55,9 +55,9 @@ static Finfo file_table[] __attribute__((used)) = {
 
 int fs_open(const char *pathname, int flags, int mode)
 {
-	printf("fs_open: pathname = %s, flags = %d, mode = %d\n", pathname, flags, mode);
 	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
 	{
+		printf("strcmp: %s == %s == %d\n", pathname, file_table[i].name, strcmp(pathname, file_table[i].name));
 
 		if (strcmp(pathname, file_table[i].name) == 0)
 		{
