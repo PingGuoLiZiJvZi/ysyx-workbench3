@@ -46,7 +46,7 @@ size_t sys_brk(size_t new_end)
 {
 	extern char end;
 	static size_t heap_end = (size_t)&end;
-	printf("sys_brk: new_end = 0x%x, current heap_end = 0x%x\n", new_end, heap_end);
+	// printf("sys_brk: new_end = 0x%x, current heap_end = 0x%x\n", new_end, heap_end);
 	if (new_end < heap_end)
 	{
 		Log("Cannot shrink heap");
