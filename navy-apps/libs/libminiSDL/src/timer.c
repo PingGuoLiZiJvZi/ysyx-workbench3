@@ -25,7 +25,6 @@ void SDL_Delay(uint32_t ms)
 	uint32_t start = SDL_GetTicks();
 	while (SDL_GetTicks() - start < ms)
 	{
-		printf("SDL_Delay: busy-waiting for %u ms\n", ms);
 		// Busy-waiting to simulate delay
 	}
 	return;
