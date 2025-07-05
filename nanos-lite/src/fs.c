@@ -55,8 +55,10 @@ static Finfo file_table[] __attribute__((used)) = {
 
 int fs_open(const char *pathname, int flags, int mode)
 {
+	printf("fs_open: pathname = %s, flags = %d, mode = %d\n", pathname, flags, mode);
 	for (int i = 0; i < sizeof(file_table) / sizeof(Finfo); i++)
 	{
+
 		if (strcmp(pathname, file_table[i].name) == 0)
 		{
 			CASE_LOG("open: found file '%s' at index %d", pathname, i);
