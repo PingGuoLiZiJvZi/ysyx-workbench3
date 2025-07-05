@@ -100,7 +100,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 	}
 }
 
-void SDL_FillRect(SDL_Surface *dst, const SDL_Rect *dstrect, uint32_t color)
+void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 {
 	assert(dst && dst->pixels);
 	assert(dst->format->BitsPerPixel == 8 || dst->format->BitsPerPixel == 32);
@@ -153,33 +153,82 @@ void SDL_FillRect(SDL_Surface *dst, const SDL_Rect *dstrect, uint32_t color)
 }
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 {
-	assert(s);
-	assert(s->pixels);
-	assert(s->format->BitsPerPixel == 32 || s->format->BitsPerPixel == 8);
-	if (w == 0 || h == 0)
+	// 参数验证
+	assert(s && s->pixels);
+	assert(s->format->BitsPerPixel == 8 || s->format->BitsPerPixel == 32);
+
+	// 处理 w/h=0 的情况
+	if (w <= 0 || h <= 0)
 	{
-		// If w or h is 0, we assume the whole surface needs to be updated.
 		x = 0;
 		y = 0;
 		w = s->w;
 		h = s->h;
 	}
+
+	// 裁剪矩形到表面范围内
+	if (x < 0)
+	{
+		w += x;
+		x = 0;
+	}
+	if (y < 0)
+	{
+		h += y;
+		y = 0;
+	}
+	if (x + w > s->w)
+		w = s->w - x;
+	if (y + h > s->h)
+		h = s->h - y;
+	if (w <= 0 || h <= 0)
+		return; // 裁剪后矩形无效
+
 	if (s->format->BitsPerPixel == 32)
-		NDL_DrawRect(s->pixels, x, y, w, h);
+	{
+		// 32位：使用 pitch 计算行偏移
+		uint8_t *pixels = (uint8_t *)s->pixels;
+		uint8_t *rect_start = pixels + y * s->pitch + x * 4;
+
+		// 若 pitch 无填充且绘制整个表面，可免复制
+		if (s->pitch == s->w * 4 && x == 0 && y == 0 && w == s->w && h == s->h)
+		{
+			NDL_DrawRect((uint32_t *)rect_start, x, y, w, h);
+		}
+		else
+		{
+			// 复制子矩形到连续内存
+			uint32_t *converted_pixels = malloc(w * h * sizeof(uint32_t));
+			if (!converted_pixels)
+				return;
+
+			for (int j = 0; j < h; j++)
+			{
+				uint32_t *src = (uint32_t *)(rect_start + j * s->pitch);
+				memcpy(&converted_pixels[j * w], src, w * 4);
+			}
+			NDL_DrawRect(converted_pixels, x, y, w, h);
+			free(converted_pixels);
+		}
+	}
 	else
 	{
-		// For 8-bit surfaces, we need to convert the pixel data to a format
-		// that NDL can understand. Assuming the palette is set up correctly.
-		printf("SDL_UpdateRect: Updating 8-bit surface at (%d, %d) with size (%d, %d)\n", x, y, w, h);
+		// 8位：使用 pitch 访问像素
+		printf("SDL_UpdateRect: Updating 8-bit surface at (%d, %d) size (%d, %d)\n", x, y, w, h);
 		uint8_t *pixels = (uint8_t *)s->pixels;
 		uint32_t *converted_pixels = malloc(w * h * sizeof(uint32_t));
-		assert(converted_pixels);
+		if (!converted_pixels)
+			return;
+
 		SDL_Palette *palette = s->format->palette;
+		assert(palette && palette->ncolors > 0);
+
 		for (int j = 0; j < h; j++)
 		{
+			uint8_t *src_row = pixels + (y + j) * s->pitch + x; // 使用 pitch
 			for (int i = 0; i < w; i++)
 			{
-				uint8_t index = pixels[(y + j) * s->w + (x + i)];
+				uint8_t index = src_row[i];
 				converted_pixels[j * w + i] = palette->colors[index].val;
 			}
 		}
