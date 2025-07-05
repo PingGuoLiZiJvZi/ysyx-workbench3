@@ -100,14 +100,14 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 	}
 }
 
-void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
+void SDL_FillRect(SDL_Surface *dst, const SDL_Rect *dstrect, uint32_t color)
 {
-	assert(dst);
+	assert(dst && dst->pixels);
+	assert(dst->format->BitsPerPixel == 8 || dst->format->BitsPerPixel == 32);
+
 	SDL_Rect rect;
 	if (dstrect)
-	{
 		rect = *dstrect;
-	}
 	else
 	{
 		rect.x = 0;
@@ -115,47 +115,42 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 		rect.w = dst->w;
 		rect.h = dst->h;
 	}
-	if (rect.x < 0 || rect.y < 0 || rect.w <= 0 || rect.h <= 0 ||
-		rect.x + rect.w > dst->w || rect.y + rect.h > dst->h)
-	{
-		return; // 无效的矩形
-	}
-	assert(dst->pixels);
-	assert(dst->format->BitsPerPixel == 32 || dst->format->BitsPerPixel == 8);
+
+	// 更严谨的边界检查（含整数溢出防护）
+	if (rect.w <= 0 || rect.h <= 0)
+		return;
+	if (rect.x < 0 || rect.y < 0)
+		return;
+	if ((rect.x > dst->w - rect.w) || (rect.y > dst->h - rect.h))
+		return;
+
 	if (dst->format->BitsPerPixel == 8)
 	{
-		SDL_Palette *palette = dst->format->palette;
-		if (palette == NULL || palette->ncolors == 0)
+		// 8-bit: color 必须是调色板索引 (0-255)
+		uint8_t index = (uint8_t)color;
+		uint8_t *pixels = (uint8_t *)dst->pixels;
+		for (int y = rect.y; y < rect.y + rect.h; y++)
 		{
-			printf("SDL_FillRect: No palette available for 8-bit surface.\n");
-			return; // 没有调色板
-		}
-		uint8_t index = 0;
-		for (int i = 0; i < palette->ncolors; i++)
-		{
-			if (palette->colors[i].val == color)
+			uint8_t *row = pixels + y * dst->pitch; // 使用 pitch
+			for (int x = rect.x; x < rect.x + rect.w; x++)
 			{
-				index = i;
-				break;
+				row[x] = index;
 			}
 		}
-		color = index;				   // 使用索引填充
-		uint8_t *pixels = dst->pixels; // 转换为8位像素
-		assert(pixels);
-		for (int y = rect.y; y < rect.y + rect.h; y++)
-			for (int x = rect.x; x < rect.x + rect.w; x++)
-				pixels[y * dst->w + x] = color; // 填充颜色
-												// 确保像素数据存在
-		return;									// 8位表面处理完毕
 	}
-	uint32_t *pixels = (uint32_t *)dst->pixels;
-	assert(pixels);
-	for (int y = rect.y; y < rect.y + rect.h; y++)
-		for (int x = rect.x; x < rect.x + rect.w; x++)
-			pixels[y * dst->w + x] = color; // 填充颜色
-	return;									// 32位表面处理完毕
+	else
+	{ // 32-bit
+		uint8_t *pixels = (uint8_t *)dst->pixels;
+		for (int y = rect.y; y < rect.y + rect.h; y++)
+		{
+			uint32_t *row = (uint32_t *)(pixels + y * dst->pitch); // 使用 pitch
+			for (int x = rect.x; x < rect.x + rect.w; x++)
+			{
+				row[x] = color; // 注意：color 必须与表面格式匹配！
+			}
+		}
+	}
 }
-
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
 {
 	assert(s);
