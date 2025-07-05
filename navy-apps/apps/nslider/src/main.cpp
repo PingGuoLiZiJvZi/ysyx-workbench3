@@ -119,6 +119,9 @@ int main()
 					g = 0;
 				}
 				break;
+			case SDLK_ESCAPE:
+			case SDLK_q:
+				return 0;
 			}
 		}
 	}
