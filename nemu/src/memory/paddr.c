@@ -58,7 +58,7 @@ word_t paddr_read(paddr_t addr, int len)
 {
 	word_t ret = 0;
 	int test = pmem_read(0x83070739, 4);
-	printf("test = %d\n", test);
+	assert(test == 224);
 	if (likely(in_pmem(addr)))
 	{
 		ret = pmem_read(addr, len);
