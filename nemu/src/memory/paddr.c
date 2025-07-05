@@ -57,7 +57,7 @@ void init_mem()
 word_t paddr_read(paddr_t addr, int len)
 {
 	word_t ret = 0;
-	int test = pmem_read(0x83070739, 4);
+	int test = pmem_read(0x83070f15, 4);
 	assert(test == 224);
 	if (likely(in_pmem(addr)))
 	{
@@ -74,7 +74,7 @@ word_t paddr_read(paddr_t addr, int len)
 
 void paddr_write(paddr_t addr, int len, word_t data)
 {
-	int test = pmem_read(0x83070739, 4);
+	int test = pmem_read(0x83070f15, 4);
 	assert(test == 224);
 	if (likely(in_pmem(addr)))
 	{
