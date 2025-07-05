@@ -51,7 +51,8 @@ static Context *do_event(Event e, Context *c)
 			return c;
 		case SYS_brk:
 			CASE_LOG("Brk syscall called with new_end %u", c->GPR2);
-			c->GPRx = sys_brk(c->GPR2);
+			sys_brk(c->GPR2);
+			c->GPRx = 0;
 			return c;
 		case SYS_lseek:
 			CASE_LOG("Lseek syscall called with fd %d, offset %d, whence %d",
