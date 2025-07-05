@@ -49,7 +49,7 @@ size_t sys_brk(size_t new_end)
 	if (new_end < heap_end)
 	{
 		Log("Cannot shrink heap");
-		return -1; // Cannot shrink the heap
+		return heap_end; // Cannot shrink the heap
 	}
 	size_t old_end = heap_end;
 	heap_end = new_end;
