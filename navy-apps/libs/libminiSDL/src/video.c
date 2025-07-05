@@ -122,7 +122,6 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 	}
 	assert(dst->pixels);
 	assert(dst->format->BitsPerPixel == 32 || dst->format->BitsPerPixel == 8);
-	uint32_t *pixels = (uint32_t *)dst->pixels;
 	if (dst->format->BitsPerPixel == 8)
 	{
 		SDL_Palette *palette = dst->format->palette;
@@ -140,14 +139,21 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color)
 				break;
 			}
 		}
-		color = index;					 // 使用索引填充
-		pixels = (uint8_t *)dst->pixels; // 转换为8位像素
-		assert(pixels);					 // 确保像素数据存在
+		color = index;				   // 使用索引填充
+		uint8_t *pixels = dst->pixels; // 转换为8位像素
+		assert(pixels);
+		for (int y = rect.y; y < rect.y + rect.h; y++)
+			for (int x = rect.x; x < rect.x + rect.w; x++)
+				pixels[y * dst->w + x] = color; // 填充颜色
+												// 确保像素数据存在
+		return;									// 8位表面处理完毕
 	}
-
+	uint32_t *pixels = (uint32_t *)dst->pixels;
+	assert(pixels);
 	for (int y = rect.y; y < rect.y + rect.h; y++)
 		for (int x = rect.x; x < rect.x + rect.w; x++)
 			pixels[y * dst->w + x] = color; // 填充颜色
+	return;									// 32位表面处理完毕
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h)
