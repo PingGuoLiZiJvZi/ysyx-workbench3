@@ -7,8 +7,8 @@
 static const char *keyname[] = {
 	"NONE",
 	_KEYS(keyname)};
-const uint32_t key_num = sizeof(keyname) / sizeof(keyname[0]);
-uint8_t key_state[key_num] = {0};
+int key_num = sizeof(keyname) / sizeof(keyname[0]);
+uint8_t key_state[512] = {0};
 int SDL_PushEvent(SDL_Event *ev)
 {
 	return 0;
@@ -38,11 +38,11 @@ int match_key(SDL_Event *ev, char *buf)
 			ev->key.keysym.sym = i;
 			if (ev->type == SDL_KEYDOWN)
 			{
-				ket_state[i] = 1; // Set key state to pressed
+				key_state[i] = 1; // Set key state to pressed
 			}
 			else if (ev->type == SDL_KEYUP)
 			{
-				ket_state[i] = 0; // Set key state to released
+				key_state[i] = 0; // Set key state to released
 			}
 			else
 			{
