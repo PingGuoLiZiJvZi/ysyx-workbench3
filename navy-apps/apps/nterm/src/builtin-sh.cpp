@@ -28,25 +28,31 @@ static void sh_handle_cmd(const char *cmd)
 {
 	char n_cmd[256] = {};
 	memcpy(n_cmd, cmd, 256);
+	char *argv[8] = {};
+	char *null_ptr[1] = {NULL}; // For execve to use the environment variables
+	int argc = 0;
+	argv[argc++] = n_cmd; // First argument is the command itself
 	for (int i = 0; n_cmd[i] != '\0'; i++)
 	{
-		if (n_cmd[i] == '\n')
+		if (n_cmd[i] == '\n' || n_cmd[i] == ' ')
 		{
-			n_cmd[i] = '\0'; // Replace newline with null terminator
-			break;
+			n_cmd[i] = '\0';
+			if (n_cmd[i + 1] != '\0' && n_cmd[i + 1] != ' ')
+				argv[argc++] = &n_cmd[i + 1]; // Next argument starts after the null terminator
 		}
 	}
+	argv[argc] = NULL; // Null-terminate the argument list
 	if (n_cmd[0] == '/')
-		execve(n_cmd, NULL, NULL);
+		execve(n_cmd, argv, null_ptr);
 	else
-		execvp(n_cmd, NULL);
+		execvp(n_cmd, argv);
 }
 
 void builtin_sh_run()
 {
 	sh_banner();
 	sh_prompt();
-	setenv("PATH", "/bin", 1);
+	setenv("PATH", "/bin:/usr/bin", 1);
 	while (1)
 	{
 		SDL_Event ev;

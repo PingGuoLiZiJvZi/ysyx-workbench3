@@ -14,6 +14,9 @@
 #ifndef uintptr_t
 #define uintptr_t unsigned int
 #endif
+static char *const null_argv[] = {NULL};
+static char *const null_envp[] = {NULL};
+extern void switch_boot_pcb();
 extern int fs_open(const char *pathname, int flags, mode_t mode);
 extern size_t fs_read(int fd, void *buf, size_t len);
 extern int fs_close(int fd);
@@ -42,22 +45,9 @@ enum
 	SYS_times,
 	SYS_gettimeofday
 };
-extern int naive_uload(PCB *pcb, const char *filename);
-size_t sys_brk(size_t new_end)
-{
-	extern char end;
-	static size_t heap_end = (size_t)&end;
-	CASE_LOG("sys_brk: old_end = 0x%x, new_end = 0x%x", heap_end, new_end);
-	if (new_end < heap_end)
-	{
-		CASE_LOG("sys_brk: Cannot shrink the heap from 0x%x to 0x%x", heap_end, new_end);
-		return heap_end; // Cannot shrink the heap
-	}
-	size_t old_end = heap_end;
-	heap_end = new_end;
-	return old_end; // Return the old end of the heap
-}
-size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
+extern void naive_uload(PCB *pcb, const char *filename);
+extern void context_uload(PCB *pcb, char *filename, const char *argv[], const char *envp[]);
+extern size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 	uint64_t t0 = io_read(AM_TIMER_UPTIME).us;
 	if (tv)
@@ -74,14 +64,25 @@ size_t sys_gettimeofday(struct timeval *tv, struct timezone *tz)
 int sys_execve(const char *filename, char *const argv[], char *const envp[])
 {
 	CASE_LOG("sys_execve: filename = %s, argv = %p, envp = %p", filename, argv, envp);
-	naive_uload(NULL, filename);
+	PCB *pcb = current;
+	assert(pcb);
+	int res = fs_open(filename, 0, 0);
+	if (res < 0)
+	{
+		return -2;
+	}
+	fs_close(res); // Close the file descriptor after checking
+	context_uload(pcb, (char *)filename, (const char **)argv, (const char **)envp);
+
+	switch_boot_pcb(); // Switch to the boot PCB
+	yield();		   // Yield to the scheduler after loading the new program
 	panic("should not reach here after sys_execve");
 	return -1;
 }
 int sys_exit(int status)
 {
 	CASE_LOG("sys_exit: status = %d", status);
-	naive_uload(NULL, "/bin/nterm");
+	sys_execve("/bin/nterm", null_argv, null_envp);
 	panic("should not reach here after sys_exit");
 	return -1; // This should never be reached
 }

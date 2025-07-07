@@ -1,6 +1,7 @@
 
 #include "do_syscall.h"
-
+extern int mm_brk(uintptr_t brk);
+extern Context *schedule(Context *prev);
 static Context *do_event(Event e, Context *c)
 {
 	switch (e.event)
@@ -12,15 +13,15 @@ static Context *do_event(Event e, Context *c)
 		int syscall_id = c->GPR1;
 		switch (syscall_id)
 		{
+		case -1:
+			return schedule(c); // If syscall_id is -1, just yield to the scheduler
 		case SYS_exit:
 			CASE_LOG("Exit syscall called with code %d", c->GPR2);
 			sys_exit(c->GPR2);
 			return c; // Terminate the process
 		case SYS_yield:
 			CASE_LOG("Yield syscall called");
-			yield();
-			c->GPRx = 0; // Set return value to 0
-			return c;
+			return schedule(c); // Yield to the scheduler
 		case SYS_open:
 			CASE_LOG("Open syscall called with path %s, flags %d, mode %d",
 					 (char *)c->GPR2, c->GPR3, c->GPR4);
@@ -51,7 +52,7 @@ static Context *do_event(Event e, Context *c)
 			return c;
 		case SYS_brk:
 			CASE_LOG("Brk syscall called with new_end %u", c->GPR2);
-			sys_brk(c->GPR2);
+			mm_brk(c->GPR2);
 			c->GPRx = 0;
 			return c;
 		case SYS_lseek:
@@ -66,7 +67,7 @@ static Context *do_event(Event e, Context *c)
 		case SYS_execve:
 			CASE_LOG("Execve syscall called with filename %s, argv %p, envp %p",
 					 (char *)c->GPR2, (char **)c->GPR3, (char **)c->GPR4);
-			sys_execve((const char *)c->GPR2, (char *const *)c->GPR3, (char *const *)c->GPR4);
+			c->GPRx = sys_execve((const char *)c->GPR2, (char *const *)c->GPR3, (char *const *)c->GPR4);
 			return c; // This should not return
 		default:
 			CASE_LOG("Unhandled syscall ID %d", syscall_id);

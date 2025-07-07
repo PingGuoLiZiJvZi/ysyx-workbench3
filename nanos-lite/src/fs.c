@@ -63,7 +63,10 @@ int fs_open(const char *pathname, int flags, int mode)
 			return i; // Return the index as the file descriptor
 		}
 	}
-	panic("open: file not found");
+	// return -1;
+	// if want to enable file finding, please uncomment this line
+	// for the convenience of debugging, we will panic here
+	panic("open: file '%s' at address %p not found,memory coverage may be wrong", pathname, pathname);
 	return -1; // File not found
 }
 size_t fs_read(int fd, void *buf, size_t len)

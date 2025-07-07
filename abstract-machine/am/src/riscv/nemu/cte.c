@@ -66,7 +66,6 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
 	ctx->mepc = (uintptr_t)entry;
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
 	ctx->gpr[10] = (uintptr_t)arg;		 // a0
-
 	return ctx;
 }
 
