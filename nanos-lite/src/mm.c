@@ -6,17 +6,20 @@ static void *pf = NULL;
 void *new_page(size_t nr_page)
 {
 	CASE_LOG("new_page: Allocating %u pages", nr_page);
-	printf("from %p to %p\n", pf, pf + nr_page * PGSIZE);
+	// printf("from %p to %p\n", pf, pf + nr_page * PGSIZE);
 	assert(pf);
 	void *p = pf;
+	memset(p, 0, nr_page * PGSIZE);
 	pf += nr_page * PGSIZE;
+	assert(((uintptr_t)pf) < 0x83000000);
 	return p;
 }
 
 #ifdef HAS_VME
 static void *pg_alloc(int n)
 {
-	return NULL;
+	assert(!(n % PGSIZE)); // Ensure n is a multiple of PGSIZE
+	return new_page(n / PGSIZE);
 }
 #endif
 

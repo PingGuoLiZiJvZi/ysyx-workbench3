@@ -1,7 +1,6 @@
 #include <am.h>
 #include <nemu.h>
 #include <klib.h>
-
 static AddrSpace kas = {};
 static void *(*pgalloc_usr)(int) = NULL;
 static void (*pgfree_usr)(void *) = NULL;
@@ -30,6 +29,7 @@ bool vme_init(void *(*pgalloc_f)(int), void (*pgfree_f)(void *))
 	pgalloc_usr = pgalloc_f;
 	pgfree_usr = pgfree_f;
 
+	kas.pgsize = PGSIZE;
 	kas.ptr = pgalloc_f(PGSIZE);
 
 	int i;
@@ -77,6 +77,37 @@ void __am_switch(Context *c)
 
 void map(AddrSpace *as, void *va, void *pa, int prot)
 {
+	// assert((uintptr_t)as->area.start <= (uintptr_t)va && (uintptr_t)va < (uintptr_t)as->area.end);
+	// 鉴于目前是恒等映射，所以推测，这个断言必定会失败
+	assert(as->pgsize == PGSIZE);
+	assert(((uintptr_t)pa) % PGSIZE == 0);
+	assert(((uintptr_t)va) % PGSIZE == 0);
+	PTE *updir = (PTE *)as->ptr;
+	uintptr_t vpn1 = (uintptr_t)va >> 22;
+	uintptr_t vpn2 = ((uintptr_t)va >> 12) & 0x3ff;
+	PTE *pte1 = &updir[vpn1];
+	if ((*pte1 & PTE_V) == 0)
+	{
+		PTE *pgtable = (PTE *)(pgalloc_usr(PGSIZE));
+		assert(pgtable != NULL && ((uintptr_t)pgtable) % PGSIZE == 0);
+		uintptr_t ppn = ((uintptr_t)pgtable >> 12) << 10;
+		*pte1 = (ppn) | PTE_V;
+	}
+	PTE ppn2 = (*pte1 >> 10) << 12;
+	PTE *pgtable2 = (PTE *)(ppn2);
+	PTE *pte2 = &pgtable2[vpn2];
+	if ((*pte2 & PTE_V) == 0)
+	{
+		// if (pa != va)
+		// 	printf("Mapping virtual address l2 %p to physical address %p\n", va, pa);
+		uintptr_t ppn = ((uintptr_t)pa >> 12) << 10;
+		*pte2 = (uintptr_t)ppn | PTE_V | PTE_R | PTE_W | PTE_X;
+	}
+	else
+	{
+		uintptr_t ppn = ((uintptr_t)(*pte2) >> 10) << 12;
+		assert(((ppn) == (uintptr_t)pa));
+	}
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry)
@@ -84,5 +115,6 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry)
 	Context *ctx = (Context *)((uintptr_t)kstack.end - sizeof(Context));
 	ctx->mepc = (uintptr_t)entry;
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
+	ctx->pdir = (vme_enable ? as->ptr : NULL);
 	return ctx;
 }

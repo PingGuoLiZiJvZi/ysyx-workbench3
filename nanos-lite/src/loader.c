@@ -15,7 +15,7 @@ enum
 	SEEK_CUR = 1,
 	SEEK_END = 2
 };
-static char program_buf[0x100000];
+static char program_buf[0x80000];
 extern int fs_open(const char *pathname, int flags, int mode);
 extern void *new_page(size_t nr_page);
 extern size_t fs_read(int fd, void *buf, size_t len);
@@ -25,9 +25,10 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 {
 	Log("Loading program '%s'...", filename);
 	int fd = fs_open(filename, 0, 0);
-	size_t file_size = fs_lseek(fd, 0, SEEK_END); // Get file size
-	fs_lseek(fd, 0, SEEK_SET);					  // Reset file cursor to the beginning
-	fs_read(fd, program_buf, file_size);		  // Read the program into buffer
+	size_t file_size = fs_lseek(fd, 0, SEEK_END);			  // Get file size
+	assert(file_size > 0 && file_size < sizeof(program_buf)); // Ensure file size is valid
+	fs_lseek(fd, 0, SEEK_SET);								  // Reset file cursor to the beginning
+	fs_read(fd, program_buf, file_size);					  // Read the program into buffer
 	fs_close(fd);
 	Elf_Ehdr *ehdr = (Elf_Ehdr *)program_buf;
 	assert(ehdr->e_ident[0] == ELFMAG0 &&
@@ -44,19 +45,37 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 		if (phdr->p_type == PT_LOAD) // Loadable segment
 		{
 			uintptr_t vaddr = phdr->p_vaddr;
-			// printf("vaddr = 0x%x\n", vaddr); // Virtual address
-			uintptr_t paddr = vaddr;		// Physical address (for simplicity)
-			uint32_t memsz = phdr->p_memsz; // Memory size
-			uint32_t filesz = phdr->p_filesz;
-			// printf("memsz = 0x%x filesz = 0x%x\n", memsz, filesz);		 // File size
-			assert(memsz >= filesz);									 // Ensure memory size is at least file size
-			memcpy((void *)paddr, program_buf + phdr->p_offset, filesz); // Load segment into memory
-			memset((void *)(paddr + filesz), 0, memsz - filesz);		 // Zero out the rest of the segment
+			uintptr_t paddr = vaddr;
+			uint32_t memsz = phdr->p_memsz;
+			uint32_t filesz = phdr->p_filesz; // File size
+			assert(memsz >= filesz);		  // Ensure memory size is at least file size
+			// memcpy((void *)paddr, program_buf + phdr->p_offset, filesz); // Load segment into memory
+			// memset((void *)(paddr + filesz), 0, memsz - filesz);		 // Zero out the rest of the segment
+			uint32_t offset = phdr->p_offset; // Offset in the file
+			for (uintptr_t addr = paddr; addr < paddr + memsz; addr += PGSIZE)
+			{
+				void *page = new_page(1);			  // Allocate a new page
+				map(&pcb->as, (void *)addr, page, 0); // Map the page into the address space
+				if (filesz >= PGSIZE)
+				{
+					memcpy(page, program_buf + offset, PGSIZE); // Load page into memory
+					filesz -= PGSIZE;
+					offset += PGSIZE;
+				}
+				else if (filesz > 0)
+				{
+					memcpy(page, program_buf + offset, filesz);			 // Load remaining bytes
+					memset((void *)(page + filesz), 0, PGSIZE - filesz); // Zero out the rest of the page
+					filesz = 0;
+				}
+				else
+				{
+					memset(page, 0, PGSIZE); // Zero out the page if no data left
+				}
+			}
 		}
 	}
-	// Check ELF magic number
 	return ehdr->e_entry; // Return the entry point address
-	return 0;
 }
 void hello_only()
 {
@@ -70,6 +89,7 @@ void naive_uload(PCB *pcb, const char *filename)
 }
 void context_uload(PCB *pcb, char *filename, const char *argv[], const char *envp[])
 {
+	protect(&pcb->as); // Protect the address space before loading
 	int argc = 0;
 	while (argv[argc] != NULL)
 		argc++;
@@ -87,7 +107,14 @@ void context_uload(PCB *pcb, char *filename, const char *argv[], const char *env
 		str_size += strlen(envp[i]) + 1; // +1 for null termin
 	}
 
-	char *argc_pos = (char *)(new_page(8)); // Allocate a new page for arguments
+	char *argc_pos = (char *)(new_page(8));				  // Allocate a new page for arguments
+	uint32_t usr_stack_end = (uintptr_t)pcb->as.area.end; // Get the end of the user stack area
+	// build mapping relationship
+	for (int i = 0; i < 8; i++)
+	{
+		map(&pcb->as, (void *)(usr_stack_end - (9 - i) * PGSIZE), argc_pos + i * PGSIZE, 0);
+	}
+
 	argc_pos -= (sizeof(int) + (argc + 2 + envc) * sizeof(char *));
 	argc_pos -= str_size;				  // Adjust for the size of strings
 	uintptr_t gprx = (uintptr_t)argc_pos; // Set the stack pointer to the start of the arguments
@@ -110,7 +137,7 @@ void context_uload(PCB *pcb, char *filename, const char *argv[], const char *env
 	*(char **)(argc_pos + (argc + 1 + envc) * sizeof(char *)) = NULL; // Null-terminate the environment list
 
 	uintptr_t entry = loader(pcb, filename);
-	Context *ctx = ucontext(NULL, (Area){pcb->stack, pcb->stack + sizeof(pcb->stack)}, ((void (*)())entry));
+	Context *ctx = ucontext(&pcb->as, (Area){pcb->stack, pcb->stack + sizeof(pcb->stack)}, ((void (*)())entry));
 	ctx->GPRx = gprx; // Set the stack pointer to the arguments area
 	pcb->cp = ctx;
 	printf("User context created at position %p with entry point %p\n", ctx, (void *)entry);

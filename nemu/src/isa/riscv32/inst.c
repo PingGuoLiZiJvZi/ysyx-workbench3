@@ -32,6 +32,8 @@ word_t csrr(word_t csr)
 		return cpu.mcause;
 	case 0x343:
 		return cpu.mtval;
+	case 0x180:
+		return cpu.satp;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -58,6 +60,9 @@ void csrw(word_t csr, word_t val)
 		break;
 	case 0x343:
 		cpu.mtval = val;
+		break;
+	case 0x180:
+		cpu.satp = val;
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);

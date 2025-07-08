@@ -32,13 +32,13 @@ void hello_fun(void *arg)
 void init_proc()
 {
 	context_kload(&pcb[0], hello_fun, "ha ji mi");
-	context_uload(&pcb[1], "/bin/nterm", argv, envp);
+	context_uload(&pcb[1], "/bin/dummy", argv, envp);
 	switch_boot_pcb();
 	yield();
 	// yield(); // Switch to the boot process
 	// yield(); // Switch to the first process
 	Log("Initializing processes...");
-	// panic("testing context switch,so should not reach here!");
+	panic("testing context switch,so should not reach here!");
 	// load program here
 	naive_uload(NULL, "/bin/bmp-test");
 }
