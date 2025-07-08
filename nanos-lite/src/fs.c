@@ -59,7 +59,6 @@ int fs_open(const char *pathname, int flags, int mode)
 	{
 		if (strcmp(pathname, file_table[i].name) == 0)
 		{
-			CASE_LOG("open: found file '%s' at index %d", pathname, i);
 			return i; // Return the index as the file descriptor
 		}
 	}

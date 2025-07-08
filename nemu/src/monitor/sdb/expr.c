@@ -205,7 +205,7 @@ word_t expr(char *e, bool *success)
 }
 bool check_parent(int beg, int end)
 {
-	printf("beg %d end %d\n", beg, end);
+	// printf("beg %d end %d\n", beg, end);
 	if (tokens[beg].type == '(')
 		if (tokens[end - 1].type == ')')
 			// {

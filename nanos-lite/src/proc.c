@@ -35,8 +35,7 @@ void init_proc()
 	context_uload(&pcb[1], "/bin/nterm", argv, envp);
 	switch_boot_pcb();
 	yield();
-	// yield(); // Switch to the boot process
-	// yield(); // Switch to the first process
+
 	Log("Initializing processes...");
 	// panic("testing context switch,so should not reach here!");
 	// load program here

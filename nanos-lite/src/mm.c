@@ -1,14 +1,16 @@
 #include <memory.h>
 #include "strace.h"
+#include <proc.h>
 #include <stdio.h>
 static void *pf = NULL;
 
 void *new_page(size_t nr_page)
 {
 	CASE_LOG("new_page: Allocating %u pages", nr_page);
-	printf("from %p to %p\n", pf, pf + nr_page * PGSIZE);
+
 	assert(pf);
 	void *p = pf;
+	memset(p, 0, nr_page * PGSIZE);
 	pf += nr_page * PGSIZE;
 	return p;
 }
@@ -16,7 +18,8 @@ void *new_page(size_t nr_page)
 #ifdef HAS_VME
 static void *pg_alloc(int n)
 {
-	return NULL;
+	assert(!(n % PGSIZE)); // Ensure n is a multiple of PGSIZE
+	return new_page(n / PGSIZE);
 }
 #endif
 
@@ -28,6 +31,24 @@ void free_page(void *p)
 /* The brk() system call handler. */
 int mm_brk(uintptr_t brk)
 {
+	// printf("mm_brk: brk = %p\n", (void *)brk);
+	if (brk > current->max_brk)
+	{
+		printf("mm_brk: current->max_brk = %p, brk = %p\n", (void *)current->max_brk, (void *)brk);
+		uint32_t pg_num = (brk - current->max_brk - 1) / PGSIZE + 1;
+		printf("pgnum = %u\n", pg_num);
+		void *new_pages = new_page(pg_num);
+		if (new_pages == NULL)
+			assert(0);
+		void *newpgptr = new_pages;
+		for (uint32_t i = 0; i < pg_num; i++)
+		{
+			map(&current->as, (void *)(current->max_brk + i * PGSIZE), newpgptr, 0);
+			newpgptr += PGSIZE;
+		}
+		current->max_brk = ROUNDUP(brk, PGSIZE);
+	}
+
 	return 0;
 }
 

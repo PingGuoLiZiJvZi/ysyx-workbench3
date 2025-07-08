@@ -94,6 +94,9 @@ void check(char *inst)
 			{
 				if (elf->prev_addr >= elf->sym[i].st_value && elf->prev_addr < elf->sym[i].st_value + elf->sym[i].st_size)
 				{
+
+					if (strcmp(elf->strtab_buf + elf->sym[i].st_name, "_start") == 0 || strcmp(elf->strtab_buf + elf->sym[i].st_name, "_trm_init") == 0 || strcmp(elf->strtab_buf + elf->sym[i].st_name, "putch") == 0)
+						break;
 					elf->depth--;
 					// for (int j = 0; j < elf->depth; j++)
 					// 	printf(" ");
@@ -112,7 +115,7 @@ void check(char *inst)
 		{
 			if (addr == elf->sym[i].st_value)
 			{
-				if (strcmp(elf->strtab_buf + elf->sym[i].st_name, "_start") == 0 || strcmp(elf->strtab_buf + elf->sym[i].st_name, "_trm_init") == 0)
+				if (strcmp(elf->strtab_buf + elf->sym[i].st_name, "_start") == 0 || strcmp(elf->strtab_buf + elf->sym[i].st_name, "_trm_init") == 0 || strcmp(elf->strtab_buf + elf->sym[i].st_name, "putch") == 0)
 					break;
 
 				// for (int j = 0; j < elf->depth; j++)
