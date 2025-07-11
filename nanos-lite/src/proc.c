@@ -1,4 +1,5 @@
 #include <proc.h>
+extern int fg_pcb; // current foreground process index
 #define MAX_NR_PROC 4
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static const char *argv[] = {
@@ -30,8 +31,11 @@ void hello_fun(void *arg)
 
 void init_proc()
 {
-	context_kload(&pcb[0], hello_fun, "ha ji mi");
-	context_uload(&pcb[1], "/bin/pal", argv, envp);
+
+	context_uload(&pcb[0], "/bin/nterm", argv, envp);
+	context_uload(&pcb[1], "/bin/bird", argv, envp);
+	context_uload(&pcb[2], "/bin/pal", argv, envp);
+	context_uload(&pcb[3], "/bin/hello", argv, envp);
 	switch_boot_pcb();
 	printf("Boot process initialized.\n");
 	yield();
@@ -46,11 +50,6 @@ Context *schedule(Context *prev)
 {
 
 	current->cp = prev;
-	// printf("current == boot pcb? %s\n", current == &pcb_boot ? "yes" : "no");
-	current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
-
-	// printf("Scheduling: switching from %p to %p\n", current->cp, prev);
-	// printf("Switching to PCB%d\n", current - pcb);
-	// printf("Switch from as %p to as %p\n", prev->pdir, current->cp->pdir);
+	current = (current == &pcb[3] ? &pcb[fg_pcb] : &pcb[3]);
 	return current->cp;
 }

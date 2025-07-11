@@ -1,7 +1,6 @@
 #include <am.h>
 #include <riscv/riscv.h>
 #include <klib.h>
-
 static Context *(*user_handler)(Event, Context *) = NULL;
 extern void __am_get_cur_as(Context *c);
 extern void __am_switch(Context *c);
@@ -80,6 +79,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
 	ctx->gpr[10] = (uintptr_t)arg;		 // a0
 	ctx->mstatus = 0x80;
+	ctx->next_priv = 0;
 	ctx->pdir = NULL; // no address space for kernel context
 	return ctx;
 }

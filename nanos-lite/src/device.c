@@ -1,5 +1,5 @@
 #include <common.h>
-
+uint32_t fg_pcb = 0;
 #if defined(MULTIPROGRAM) && !defined(TIME_SHARING)
 #define MULTIPROGRAM_YIELD() yield()
 #else
@@ -26,6 +26,10 @@ size_t events_read(void *buf, size_t offset, size_t len)
 	AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
 	if (ev.keycode == AM_KEY_NONE)
 		return 0;
+	if (ev.keycode <= 4 && ev.keycode >= 2)
+	{
+		fg_pcb = ev.keycode - 2;
+	}
 	char p[64] = {0};
 	if (ev.keydown)
 		sprintf(p, "kd %s", keyname[ev.keycode]);

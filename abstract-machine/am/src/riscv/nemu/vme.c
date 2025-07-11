@@ -70,7 +70,7 @@ void __am_get_cur_as(Context *c)
 
 void __am_switch(Context *c)
 {
-	if (vme_enable && c->pdir != NULL && c->pdir != kas.ptr)
+	if (vme_enable && c->pdir != NULL)
 	{
 		set_satp(c->pdir);
 	}
@@ -130,6 +130,7 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry)
 	Context *ctx = (Context *)((uintptr_t)kstack.end - sizeof(Context));
 	ctx->mepc = (uintptr_t)entry;
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
+	ctx->next_priv = 1;					 // Set next privilege level to USER
 	ctx->mstatus = 0x80;				 // MPP = 0b11, MPIE = 1, MIE = 1
 	ctx->pdir = (vme_enable ? as->ptr : NULL);
 	return ctx;
