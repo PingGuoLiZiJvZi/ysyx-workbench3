@@ -20,6 +20,7 @@
  */
 #include <regex.h>
 #include <memory/paddr.h>
+extern word_t vaddr_read(vaddr_t addr, int len);
 enum Type
 {
 	TK_EQ,
@@ -29,6 +30,8 @@ enum Type
 	TK_AND,
 	TK_REG,
 	DEREF,
+	TK_GREATER,
+	TK_LESS,
 
 	TK_NOTYPE = 256
 	/* TODO: Add more token types */
@@ -47,8 +50,10 @@ static struct rule
 
 	{" +", TK_NOTYPE}, // spaces
 	{"==", TK_EQ},	   // equal
-	{"!=", TK_NEQ},	   // unequal
-	{"&&", TK_AND},	   // and
+	{">", TK_GREATER},
+	{"<", TK_LESS},
+	{"!=", TK_NEQ}, // unequal
+	{"&&", TK_AND}, // and
 
 	{"\\$[a-zA-Z0-9]+", TK_REG},
 	{"0x[0-9a-f]+", TK_HEX},
@@ -87,6 +92,8 @@ void init_regex()
 	memset(table, 0, sizeof(table));
 	table[TK_EQ] = 4;
 	table[TK_NEQ] = 4;
+	table[TK_GREATER] = 4;
+	table[TK_LESS] = 4;
 	table[TK_AND] = 5;
 	table['+'] = 3;
 	table['-'] = 3;
@@ -256,7 +263,7 @@ int find_main(int beg, int end, bool *success)
 			continue;
 		}
 	}
-	if (tokens[pos].type != '+' && tokens[pos].type != '-' && tokens[pos].type != '/' && tokens[pos].type != '*' && tokens[pos].type != TK_EQ && tokens[pos].type != TK_AND && tokens[pos].type != TK_NEQ)
+	if (tokens[pos].type != '+' && tokens[pos].type != '-' && tokens[pos].type != '/' && tokens[pos].type != '*' && tokens[pos].type != TK_EQ && tokens[pos].type != TK_AND && tokens[pos].type != TK_NEQ && tokens[pos].type != TK_GREATER && tokens[pos].type != TK_LESS)
 	{
 		// Log("did not find pos");
 		*success = false;
@@ -327,7 +334,7 @@ int exprr(int beg, int end, bool *success)
 		{
 			if (tokens[beg].type == DEREF)
 			{
-				return paddr_read(exprr(beg + 1, end, success), 4);
+				return vaddr_read(exprr(beg + 1, end, success), 4);
 			}
 			else
 			{
@@ -354,6 +361,12 @@ int exprr(int beg, int end, bool *success)
 		break;
 	case TK_EQ:
 		res = val1 == val2;
+		break;
+	case TK_GREATER:
+		res = val1 > val2;
+		break;
+	case TK_LESS:
+		res = val1 < val2;
 		break;
 	case '+':
 		res = val1 + val2;

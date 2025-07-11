@@ -28,7 +28,7 @@ typedef struct
 	word_t mcause;
 	word_t mtval;
 	word_t satp;
-	uint8_t priv;
+	bool intr;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
 // decode

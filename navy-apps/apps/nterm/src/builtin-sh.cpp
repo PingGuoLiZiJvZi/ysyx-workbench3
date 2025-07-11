@@ -56,6 +56,7 @@ void builtin_sh_run()
 	sh_banner();
 	sh_prompt();
 	setenv("PATH", "/bin:/usr/bin", 1);
+	sh_handle_cmd("bmp-test\n"); // Example command to run
 	while (1)
 	{
 		SDL_Event ev;

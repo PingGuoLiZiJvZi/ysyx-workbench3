@@ -60,9 +60,9 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 			size_t aligned_addr = paddr & ~(PGSIZE - 1);
 			size_t zero_bytes = paddr - aligned_addr;
 			size_t avail_bytes = PGSIZE - zero_bytes;
-			printf("aligned_addr = %p, avail_bytes = %u\n", (void *)aligned_addr, avail_bytes);
-			printf("seg %d start to load, paddr = %p, vaddr = %p, memsz = %x, filesz = %x, offset = %u\n",
-				   i, (void *)paddr, (void *)vaddr, memsz, filesz, offset);
+			// printf("aligned_addr = %p, avail_bytes = %u\n", (void *)aligned_addr, avail_bytes);
+			// printf("seg %d start to load, paddr = %p, vaddr = %p, memsz = %x, filesz = %x, offset = %u\n",
+			// 	   i, (void *)paddr, (void *)vaddr, memsz, filesz, offset);
 			for (uintptr_t addr = aligned_addr; addr < paddr + memsz; addr += PGSIZE)
 			{
 				void *page = new_page(1);
@@ -170,7 +170,7 @@ void context_uload(PCB *pcb, char *filename, const char *argv[], const char *env
 	printf("Loading program '%s' with entry point %p\n", filename, (void *)entry);
 	Context *ctx = ucontext(&pcb->as, (Area){pcb->stack, pcb->stack + sizeof(pcb->stack)}, ((void (*)())entry));
 	ctx->GPRx = gprx - offset_from_v_to_p; // Set the stack pointer in the context
-	printf("User sp is set to %p (virtual), %p (physical)\n",
+	printf("User sp is set to %p (physical), %p (virtual)\n",
 		   (void *)gprx, (void *)(gprx - offset_from_v_to_p));
 	pcb->cp = ctx;
 	printf("User context created at position %p with entry point %p\n", ctx, (void *)entry);

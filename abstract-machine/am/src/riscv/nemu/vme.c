@@ -56,7 +56,7 @@ void protect(AddrSpace *as)
 	as->pgsize = PGSIZE;
 	// map kernel space
 	memcpy(updir, kas.ptr, PGSIZE);
-	// printf("Protecting address space %p with page directory %p\n", as, updir);
+	printf("Protecting address space %p with page directory %p\n", as, updir);
 }
 
 void unprotect(AddrSpace *as)
@@ -65,15 +65,13 @@ void unprotect(AddrSpace *as)
 
 void __am_get_cur_as(Context *c)
 {
-	if (c->pdir)
-		c->pdir = (vme_enable ? (void *)get_satp() : NULL);
+	c->pdir = (vme_enable ? (void *)get_satp() : NULL);
 }
 
 void __am_switch(Context *c)
 {
-	if (vme_enable && c->pdir != NULL)
+	if (vme_enable && c->pdir != NULL && c->pdir != kas.ptr)
 	{
-		// printf("switched from %p to %p\n", get_satp(), c->pdir);
 		set_satp(c->pdir);
 	}
 }
@@ -97,8 +95,8 @@ void map(AddrSpace *as, void *va, void *pa, int prot)
 		assert(pgtable != NULL && ((uintptr_t)pgtable) % PGSIZE == 0);
 		uintptr_t ppn = ((uintptr_t)pgtable >> 12) << 10;
 		*pte1 = (ppn) | PTE_V;
-		printf("Creating new page table at %p , its tle is %p , at position %p\n",
-			   pgtable, *pte1, (uintptr_t)updir + vpn1 * sizeof(PTE));
+		// printf("Creating new page table at %p , its tle is %p , at position %p\n",
+		// 	   pgtable, *pte1, (uintptr_t)updir + vpn1 * sizeof(PTE));
 	}
 	PTE ppn2 = (*pte1 >> 10) << 12;
 	PTE *pgtable2 = (PTE *)(ppn2);
@@ -132,6 +130,7 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry)
 	Context *ctx = (Context *)((uintptr_t)kstack.end - sizeof(Context));
 	ctx->mepc = (uintptr_t)entry;
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
+	ctx->mstatus = 0x80;				 // MPP = 0b11, MPIE = 1, MIE = 1
 	ctx->pdir = (vme_enable ? as->ptr : NULL);
 	return ctx;
 }

@@ -36,7 +36,7 @@ int mm_brk(uintptr_t brk)
 	{
 		printf("mm_brk: current->max_brk = %p, brk = %p\n", (void *)current->max_brk, (void *)brk);
 		uint32_t pg_num = (brk - current->max_brk - 1) / PGSIZE + 1;
-		printf("pgnum = %u\n", pg_num);
+		// printf("pgnum = %u\n", pg_num);
 		void *new_pages = new_page(pg_num);
 		if (new_pages == NULL)
 			assert(0);

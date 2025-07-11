@@ -14,7 +14,6 @@ static const char *keyname[256] __attribute__((used)) = {
 	AM_KEYS(NAME)};
 size_t serial_write(const void *buf, size_t offset, size_t len)
 {
-	yield(); // Yield to allow other processes to run
 	for (size_t i = 0; i < len; i++)
 	{
 		putch(((const char *)buf)[i]);
@@ -24,7 +23,6 @@ size_t serial_write(const void *buf, size_t offset, size_t len)
 
 size_t events_read(void *buf, size_t offset, size_t len)
 {
-	yield(); // Yield to allow other processes to run
 	AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
 	if (ev.keycode == AM_KEY_NONE)
 		return 0;
@@ -59,7 +57,6 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len)
 size_t fb_write(const void *buf, size_t offset, size_t len)
 {
 	// 认为x,y已经由画布转换至屏幕坐标系
-	yield(); // Yield to allow other processes to run
 	int w_screen = io_read(AM_GPU_CONFIG).width;
 	int x, y;
 	if (offset < 0)

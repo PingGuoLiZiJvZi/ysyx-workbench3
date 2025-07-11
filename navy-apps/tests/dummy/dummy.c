@@ -10,8 +10,5 @@ extern int _syscall_(int, uintptr_t, uintptr_t, uintptr_t);
 
 int main()
 {
-	putchar('1');	// Indicate the start of the program
-	malloc(0x1000); // Ensure the heap is initialized
-	putchar('2');	// Indicate that malloc was called
 	return _syscall_(SYS_yield, 0, 0, 0);
 }
