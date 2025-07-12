@@ -38,12 +38,12 @@ sim:
 #run规则为调用sim
 run:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH ${THIS_DIR}/vsrc/top.v ${THIS_DIR}/csrc/main.cpp  ${THIS_DIR}/csrc/Sdb.cpp  ${THIS_DIR}/csrc/paddr_simple.cpp ${THIS_DIR}/csrc/disasm.cpp  ${THIS_DIR}/csrc/Iomap.cpp --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 		${BIN}
 
 autorun:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall ${THIS_DIR}/vsrc/top.v ${THIS_DIR}/csrc/main.cpp  ${THIS_DIR}/csrc/Sdb.cpp  ${THIS_DIR}/csrc/paddr_simple.cpp ${THIS_DIR}/csrc/disasm.cpp  ${THIS_DIR}/csrc/Iomap.cpp --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 	printf "c\nq\n" |${BIN}
 
 
