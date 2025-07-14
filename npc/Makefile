@@ -5,7 +5,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 
 THIS_DIR := ~/ysyx-workbench/npc
 BUILD_DIR =${THIS_DIR}/build
-OBJ_DIR = $(THIS_DIR)/obj_dir
+OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
 
 override ARGS ?= 
@@ -38,12 +38,12 @@ sim:
 #run规则为调用sim
 run:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 		${BIN}
 
 autorun:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 	printf "c\nq\n" |${BIN}
 
 

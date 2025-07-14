@@ -1,6 +1,7 @@
 #pragma once
 #include "Vtop.h"
 #include "verilated.h"
+#include "verilated_vcd_c.h"
 #include "paddr_simple.h"
 #include "disasm.h"
 #include "Iringbuf.h"
@@ -19,19 +20,33 @@ public:
 	{
 		Verilated::commandArgs(argc, argv);
 		top = new Vtop;
+#ifdef WAVE
+		tfp = new VerilatedVcdC;
+		Verilated::traceEverOn(true);
+		top->trace(tfp, 99);
+		tfp->open("top.vcd");
+#endif
 		init_disasm();
 	}
 	~Npc()
 	{
 		delete top;
 	}
+	void dump()
+	{
+#ifdef WAVE
+		tfp->dump(main_time++);
+#endif
+	}
 	void reset_top()
 	{
 		top->clk = 0;
 		top->rst = 1;
 		top->eval();
+		dump();
 		top->clk = 1;
 		top->eval();
+		dump();
 		top->rst = 0;
 #ifdef TRACE
 		update_messages();
@@ -42,8 +57,10 @@ public:
 
 		top->clk = 0;
 		top->eval();
+		dump();
 		top->clk = 1;
 		top->eval();
+		dump();
 #ifdef TRACE
 		update_messages();
 #endif
@@ -54,7 +71,7 @@ public:
 		printf("pc= %010u\t0x%08x\n", top->pc, top->pc);
 		for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
 		{
-			printf("%s= %010u\t0x%08x", regs[i], top->regs[i], top->regs[i]);
+			printf("%s= %010u\t0x%08x\t", regs[i], top->regs[i], top->regs[i]);
 			if (i % 2 == 1)
 				printf("\n");
 		}
@@ -90,11 +107,11 @@ public:
 			is_skip_ref = 0;
 			ref_difftest_memcpy(0, pmem, 0x8000000, DIFFTEST_TO_REF);
 			ref_difftest_regcpy(regs_val, DIFFTEST_TO_REF);
-			ref_difftest_exec(1);
 			return;
 		}
 		else
 		{
+			ref_difftest_exec(1);
 			uint32_t ref_regs[17];
 			ref_difftest_regcpy(ref_regs, DIFFTEST_TO_DUT);
 			if (top->pc != ref_regs[0])
@@ -114,7 +131,6 @@ public:
 					assert(0);
 				}
 			}
-			ref_difftest_exec(1);
 		}
 	}
 	void difftest_skip_ref()
@@ -144,15 +160,21 @@ public:
 	}
 	void update_messages()
 	{
-		disassemble(disasm, sizeof(disasm), top->pc, (uint8_t *)&top->inst, 4);
-		sprintf(message, "pc 0x%08x inst 0x%08x %s\n", top->pc, top->inst, disasm);
+		disassemble(disasm, sizeof(disasm), pc_before, (uint8_t *)&top->inst, 4);
+		sprintf(message, "pc 0x%08x inst 0x%08x %s\n", pc_before, top->inst, disasm);
 		regs_val[0] = top->pc;
 		for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
 		{
 			regs_val[i + 1] = top->regs[i];
 		}
+		pc_before = top->pc;
 	}
 	static Vtop *top;
+#ifdef WAVE
+	uint32_t main_time = 0;
+	VerilatedVcdC *tfp;
+#endif
+	uint32_t pc_before = 0;
 	void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
 	void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 	void (*ref_difftest_exec)(uint64_t n) = NULL;

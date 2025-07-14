@@ -258,28 +258,32 @@ int Sdb::run(uint32_t n)
 		{
 			return -1;
 		}
-#ifdef ITRACE
-		iringbuf.push_iringbuf(npc.message);
-#endif
+
+		do
+		{
+			npc.step_top();
+		} while (npc.top->ifu_state != 1);
 #ifdef TRACE
 		if (n < 12)
 			printf("%s", npc.message);
 #endif
+#ifdef DIFFTEST
+		if (is_device)
+			npc.difftest_skip_ref();
+		if (!is_device)
+			npc.difftest_step();
+#endif
+#ifdef ITRACE
+		iringbuf.push_iringbuf(npc.message);
+#endif
+
 #ifdef TRACE
 		bool res = wpool.check_wp(expr);
 #endif
 #ifdef FTRACE
 		elf.check(npc.message);
 #endif
-#ifdef DIFFTEST
-		if (!is_device)
-			npc.difftest_step();
-#endif
-		npc.step_top();
-#ifdef DIFFTEST
-		if (is_device)
-			npc.difftest_skip_ref();
-#endif
+
 #ifdef TRACE
 		if (res)
 			return 0;

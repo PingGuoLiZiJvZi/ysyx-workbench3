@@ -26,6 +26,7 @@ word_t host_read(uint8_t *haddr, int len)
 }
 extern "C" word_t paddr_read(paddr_t addr, int len, int is_fetch, int is_avail)
 {
+
 	if (!is_avail)
 	{
 		return 0;
@@ -45,7 +46,6 @@ extern "C" word_t paddr_read(paddr_t addr, int len, int is_fetch, int is_avail)
 #endif
 		ret = mmio_read(addr, len);
 	}
-
 #ifdef MEMTRACE
 	if (!is_fetch)
 		printf("paddr read addr=0x%08x len=%d data = 0x%08x\n", addr, len, ret);
