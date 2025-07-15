@@ -1,5 +1,5 @@
 #pragma once
-#include "Vtop.h"
+#include "Vysyx_25040129_top.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "paddr_simple.h"
@@ -19,7 +19,7 @@ public:
 	Npc(int argc, char **argv)
 	{
 		Verilated::commandArgs(argc, argv);
-		top = new Vtop;
+		top = new Vysyx_25040129_top;
 #ifdef WAVE
 		tfp = new VerilatedVcdC;
 		Verilated::traceEverOn(true);
@@ -169,7 +169,7 @@ public:
 		}
 		pc_before = top->pc;
 	}
-	static Vtop *top;
+	static Vysyx_25040129_top *top;
 #ifdef WAVE
 	uint32_t main_time = 0;
 	VerilatedVcdC *tfp;

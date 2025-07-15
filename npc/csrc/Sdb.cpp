@@ -3,7 +3,7 @@
 #include <readline/history.h>
 #include "paddr_simple.h"
 #include "Sdb.h"
-Vtop *Npc::top = NULL;
+Vysyx_25040129_top *Npc::top = NULL;
 char *Sdb::rl_gets()
 {
 	static char *line_read = NULL;

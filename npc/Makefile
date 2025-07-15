@@ -1,4 +1,4 @@
-TOPNAME = top
+TOPNAME = ysyx_25040129_top
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert
@@ -38,12 +38,12 @@ sim:
 #run规则为调用sim
 run:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module $(TOPNAME) --Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 		${BIN}
 
 autorun:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module $(TOPNAME) --Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 	printf "c\nq\n" |${BIN}
 
 

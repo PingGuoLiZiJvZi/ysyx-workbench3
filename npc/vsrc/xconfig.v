@@ -14,31 +14,37 @@
 `define MRET 12'b001100000010
 `define ECALL 12'b000000000000
 
-	`define NO_MEM_WRITE 2'b00
-	`define MEM_WRITE_BYTE 2'b01
-	`define MEM_WRITE_HALF 2'b10
-	`define MEM_WRITE_WORD 2'b11
+		`define NO_MEM_WRITE 2'b00
+		`define MEM_WRITE_BYTE 2'b01
+		`define MEM_WRITE_HALF 2'b10
+		`define MEM_WRITE_WORD 2'b11
 
-	`define NO_MEM_READ 3'b000
-	`define MEM_READ_BYTE 3'b001
-	`define MEM_READ_HALF 3'b010
-	`define MEM_READ_WORD 3'b011
-	`define MEM_READ_BYTE_U 3'b100
-	`define MEM_READ_HALF_U 3'b101
+		`define NO_MEM_READ 3'b000
+		`define MEM_READ_BYTE 3'b001
+		`define MEM_READ_HALF 3'b010
+		`define MEM_READ_WORD 3'b011
+		`define MEM_READ_BYTE_U 3'b100
+		`define MEM_READ_HALF_U 3'b101
 
-	`define ADD 4'b0000//0 1 2 3 4 5 6 7 8 13已使用
-	`define SUB 4'b1000//9 10 11 12 14 15
-	`define SLL 4'b0001
-	`define SLT 4'b0010
-	`define SLTU 4'b0011
-	`define XOR 4'b0100
-	`define SRL 4'b0101
-	`define SRA 4'b1101
-	`define OR 4'b0110
-	`define AND 4'b0111//b指令func3:0 1 4 5 6 7 （15-func3刚好使用剩余编码）
-	`define EQ 4'b1001
-	`define NEQ 4'b1010
-	`define LT 4'b1011
-	`define GE 4'b1100
-	`define LTU 4'b1110
-	`define GEU 4'b1111
+		`define ADD 4'b0000//0 1 2 3 4 5 6 7 8 13已使用
+		`define SUB 4'b1000//9 10 11 12 14 15
+		`define SLL 4'b0001
+		`define SLT 4'b0010
+		`define SLTU 4'b0011
+		`define XOR 4'b0100
+		`define SRL 4'b0101
+		`define SRA 4'b1101
+		`define OR 4'b0110
+		`define AND 4'b0111//b指令func3:0 1 4 5 6 7 （15-func3刚好使用剩余编码）
+		`define EQ 4'b1001
+		`define NEQ 4'b1010
+		`define LT 4'b1011
+		`define GE 4'b1100
+		`define LTU 4'b1110
+		`define GEU 4'b1111
+
+`define OKAY 2'b00
+`define EXOKAY 2'b01
+`define SLVERR 2'b10
+`define DECERR 2'b11
+

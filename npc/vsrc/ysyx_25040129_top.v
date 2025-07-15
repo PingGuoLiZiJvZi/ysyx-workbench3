@@ -12,20 +12,37 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 );
 	
 	ysyx_25040129_MMEM u_ysyx_25040129_MMEM_IFU(
-		.is_req_valid(is_req_valid_from_ifu_to_mmem),
-		.is_req_ready(is_req_ready_from_mmem_to_ifu),
-		.is_rsp_valid(is_rsp_valid_from_mmem_to_ifu),
-		.is_rsp_ready(is_rsp_ready_from_ifu_to_mmem),
 		.clk(clk),
 		.rst(rst),
-		.mmem_read(3'b011),
-		.mmem_write(2'b00),
-		.mmem_addr(pc_from_ifu),
-		.mmem_write_data(32'b0),
-		.mmem_read_data(inst_from_mmem)
-	);
 
-	wire [31:0] inst_from_mmem;
+		.araddr(araddr_from_ifu),
+		.arvalid(arvalid_from_ifu),
+		.arready(rready_to_ifu),
+
+		.rdata(rdata_to_ifu),
+		.rresp(rresp_to_ifu),
+		.rvalid(rvalid_to_ifu),
+		.rready(rready_from_ifu),
+
+		.awaddr(32'b0), 
+		.awvalid(1'b0),
+		.awready(empty_awready),
+
+		.wstrb(2'b0),
+		.wdata(32'b0),
+		.wvalid(1'b0),
+		.wready(empty_wready),
+
+		.bresp(empty_bresp),
+		.bvalid(empty_bvalid),
+		.bready(1'b0)
+	);
+	/* verilator lint_off UNUSEDSIGNAL */
+	wire empty_awready;
+	wire empty_wready;
+	wire empty_bvalid;
+	wire [1:0] empty_bresp;
+	/* verilator lint_on UNUSEDSIGNAL */
 
 
 	ysyx_25040129_IFU u_ysyx_25040129_IFU (
@@ -33,30 +50,47 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.pc(pc_from_ifu),
 		.is_branch(is_branch_out_wbu),
 		.jump_target(branch_target_out_wbu),
-		.inst_from_mmem(inst_from_mmem),
+	
 		.inst_to_idu(inst_to_idu),
 		.is_req_valid_to_idu(is_req_valid_from_ifu_to_idu),
-		.is_req_valid_to_mmem(is_req_valid_from_ifu_to_mmem),
-		.is_rsp_ready_to_mmem(is_rsp_ready_from_ifu_to_mmem),
+		
 		.is_req_ready_to_wbu(is_req_ready_from_ifu_to_wbu),
-		.is_rsp_valid_from_mmem(is_rsp_valid_from_mmem_to_ifu),
+		
 		.is_req_valid_from_wbu(is_req_valid_from_wb_to_ifu),
 		.is_req_ready_from_idu(is_req_ready_from_idu_to_ifu),
-		.is_req_ready_from_mmem(is_req_ready_from_mmem_to_ifu),
+		
 		.rst(rst),
-		.clk(clk)
+		.clk(clk),
+
+		.araddr(araddr_from_ifu),
+		.arvalid(arvalid_from_ifu),
+		.arready(rready_to_ifu),
+
+		.rdata(rdata_to_ifu),
+		.rresp(rresp_to_ifu),
+		.rvalid(rvalid_to_ifu),
+		.rready(rready_from_ifu)
 	);
 
 	wire [31:0] pc_from_ifu;
 	assign pc = pc_from_ifu;
 	wire [31:0] inst_to_idu;
 	assign inst = inst_to_idu;
+
 	wire is_req_valid_from_wb_to_ifu;
-	wire is_req_valid_from_ifu_to_mmem;
-	wire is_rsp_ready_from_ifu_to_mmem;
-	wire is_rsp_valid_from_mmem_to_ifu;
+	wire [31:0] araddr_from_ifu;
+	wire arvalid_from_ifu;
+	wire rready_to_ifu;
+
+	wire [31:0] rdata_to_ifu;
+	wire [1:0] rresp_to_ifu;
+	wire rvalid_to_ifu;
+	wire rready_from_ifu;
+	// wire is_req_valid_from_ifu_to_mmem;
+	// wire is_rsp_ready_from_ifu_to_mmem;
+	// wire is_rsp_valid_from_mmem_to_ifu;
 	wire is_req_ready_from_idu_to_ifu;
-	wire is_req_ready_from_mmem_to_ifu;
+	// wire is_req_ready_from_mmem_to_ifu;
 	wire is_req_valid_from_ifu_to_idu;
 	wire is_req_ready_from_ifu_to_wbu;
 
@@ -215,28 +249,41 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.pc_in_lsu(pc_out_exu),
 		.pc_out_lsu(pc_out_lsu),
 
+		.mmem_read_in_lsu(lsu_read_out_exu),
+		.mmem_write_in_lsu(lsu_write_out_exu),
+
 		.branch_target_in_lsu(branch_target_out_exu),
 		.branch_target_out_lsu(branch_target_out_lsu),
 
-		.mmem_read_in_lsu(lsu_read_out_exu),
-		.mmem_write_in_lsu(lsu_write_out_exu),
-		.mmem_addr_in_lsu(result_out_exu),
 		.result_in_lsu(result_out_exu),
 		.result_out_lsu(result_out_lsu), // 如果发送了读，则该信号会被数据覆盖
-		.mmem_read_data_in_lsu(mmem_read_data_in_lsu),
-		.mmem_read_addr_out_lsu(mmem_read_addr_out_lsu), // 直接传递地址
-		.mmem_write_data_in_lsu(lsu_write_data_out_exu),
-		.mmem_write_data_out_lsu(mmem_write_data_out_lsu),
-
-		.mmem_read_out_lsu(mmem_read_out_lsu),
-		.mmem_write_out_lsu(mmem_write_out_lsu),
 
 		.is_req_valid_from_exu(is_req_valid_from_exu_to_lsu),
 		.is_req_ready_to_exu(is_req_ready_from_lsu_to_exu),
-		.is_req_valid_to_mmem(is_req_valid_from_lsu_to_mmem),
-		.is_req_ready_from_mmem(is_req_ready_from_mmem_to_lsu),
-		.is_rsp_ready_to_mmem(is_rsp_ready_from_lsu_to_mmem),
-		.is_rsp_valid_from_mmem(is_rsp_valid_from_mmem_to_lsu),
+		.mmem_write_data_in_lsu(lsu_write_data_out_exu),
+
+		.araddr(araddr_from_lsu),
+		.arvalid(arvalid_from_lsu),
+		.arready(rready_to_lsu),
+
+		.rdata(rdata_to_lsu),
+		.rresp(rresp_to_lsu),
+		.rvalid(rvalid_to_lsu),
+		.rready(rready_from_lsu),
+
+		.awaddr(awaddr_from_lsu),
+		.awvalid(awvalid_from_lsu),
+		.awready(awready_to_lsu),
+
+		.wstrb(wstrb_from_lsu),
+		.wdata(wdata_from_lsu),
+		.wvalid(wvalid_from_lsu),
+		.wready(wready_to_lsu),
+
+		.bresp(bresp_to_lsu),
+		.bvalid(bvalid_to_lsu),
+		.bready(bready_from_lsu),
+
 		.is_req_valid_to_wbu(is_req_valid_from_lsu_to_wbu),
 		.is_req_ready_from_wbu(is_req_ready_from_wb_to_lsu),
 
@@ -249,6 +296,28 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.is_branch_in_lsu(is_branch_out_exu),
 		.is_branch_out_lsu(is_branch_out_lsu)
 	);
+	wire [31:0] araddr_from_lsu;
+	wire arvalid_from_lsu;
+	wire rready_to_lsu;
+
+	wire [31:0] rdata_to_lsu;
+	wire [1:0] rresp_to_lsu;
+	wire rvalid_to_lsu;
+	wire rready_from_lsu;
+
+	wire [31:0] awaddr_from_lsu;
+	wire awvalid_from_lsu;
+	wire awready_to_lsu;
+
+	wire [1:0] wstrb_from_lsu;
+	wire [31:0] wdata_from_lsu;
+	wire wvalid_from_lsu;
+	wire wready_to_lsu;
+
+	wire [1:0] bresp_to_lsu;
+	wire bvalid_to_lsu;
+	wire bready_from_lsu;
+
 	wire [4:0] rd_out_lsu;
 	wire mret_out_lsu;
 	wire ecall_out_lsu;
@@ -258,31 +327,35 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	wire [31:0] pc_out_lsu;
 	wire [31:0] branch_target_out_lsu;
 
-	wire [31:0] mmem_read_addr_out_lsu;
-	wire [2:0] mmem_read_out_lsu;
-	wire [1:0] mmem_write_out_lsu;
 	wire [31:0] result_out_lsu;
-	wire [31:0] mmem_read_data_in_lsu;
-	wire is_req_valid_from_lsu_to_mmem;
-	wire is_req_ready_from_mmem_to_lsu;
-	wire is_rsp_valid_from_mmem_to_lsu;
-	wire is_rsp_ready_from_lsu_to_mmem;
 	ysyx_25040129_MMEM u_ysyx_25040129_MMEM_LSU (
-		.is_req_valid(is_req_valid_from_lsu_to_mmem),
-		.is_req_ready(is_req_ready_from_mmem_to_lsu),
-		.is_rsp_valid(is_rsp_valid_from_mmem_to_lsu),
-		.is_rsp_ready(is_rsp_ready_from_lsu_to_mmem),
 		.clk(clk),
 		.rst(rst),
-		.mmem_read(mmem_read_out_lsu),
-		.mmem_write(mmem_write_out_lsu),
-		.mmem_addr(mmem_read_addr_out_lsu),
-		.mmem_write_data(mmem_write_data_out_lsu),
-		.mmem_read_data(mmem_read_data_in_lsu)
+
+		.araddr(araddr_from_lsu),
+		.arvalid(arvalid_from_lsu),
+		.arready(rready_to_lsu),
+
+		.rdata(rdata_to_lsu),
+		.rresp(rresp_to_lsu),
+		.rvalid(rvalid_to_lsu),
+		.rready(rready_from_lsu),
+
+		.awaddr(awaddr_from_lsu),
+		.awvalid(awvalid_from_lsu),
+		.awready(awready_to_lsu),
+
+		.wstrb(wstrb_from_lsu),
+		.wdata(wdata_from_lsu),
+		.wvalid(wvalid_from_lsu),
+		.wready(wready_to_lsu),
+
+		.bresp(bresp_to_lsu),
+		.bvalid(bvalid_to_lsu),
+		.bready(bready_from_lsu)
 	);
 	
 
-	wire [31:0] mmem_write_data_out_lsu;
 
 
 	wire is_req_valid_from_lsu_to_wbu;
