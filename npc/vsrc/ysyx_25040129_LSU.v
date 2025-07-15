@@ -93,15 +93,15 @@ assign is_req_valid_to_wbu = (state == WAIT_WBU_READY);
 assign result_out_lsu = (mmem_read_store != `NO_MEM_READ) ? processed_rdata : result_in_lsu; // 如果是读请求，则将读数据传递出去，否则传递计算结果
 assign araddr = result_in_lsu;
 
-always @(*) begin
+always @(posedge clk) begin
 	case (mmem_read_store)
-		`NO_MEM_READ: processed_rdata = 32'b0; // 如果没有读请求，则返回0
-		`MEM_READ_BYTE: processed_rdata = {{24{rdata[7]}}, rdata[7:0]}; // 读取字节
-		`MEM_READ_HALF: processed_rdata = {{16{rdata[15]}}, rdata[15:0]}; // 读取半字
-		`MEM_READ_WORD: processed_rdata = rdata; // 读取字
-		`MEM_READ_BYTE_U: processed_rdata = {24'b0, rdata[7:0]}; // 无符号字节
-		`MEM_READ_HALF_U: processed_rdata = {16'b0, rdata[15:0]}; // 无符号半字
-		default: processed_rdata = 32'b0; // 默认返回0
+		`NO_MEM_READ: processed_rdata <= processed_rdata; // 不处理数据
+		`MEM_READ_BYTE: processed_rdata <= {{24{rdata[7]}}, rdata[7:0]}; // 读取字节
+		`MEM_READ_HALF: processed_rdata <= {{16{rdata[15]}}, rdata[15:0]}; // 读取半字
+		`MEM_READ_WORD: processed_rdata <= rdata; // 读取字
+		`MEM_READ_BYTE_U: processed_rdata <= {24'b0, rdata[7:0]}; // 无符号字节
+		`MEM_READ_HALF_U: processed_rdata <= {16'b0, rdata[15:0]}; // 无符号半字
+		default: processed_rdata = processed_rdata;
 	endcase
 end
 

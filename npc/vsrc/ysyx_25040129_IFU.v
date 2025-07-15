@@ -49,7 +49,7 @@ always @(posedge clk) begin
 		inst_to_idu <= 32'b0; // 初始化指令
 	end
 	else begin
-		if(next_state == WAIT_MMEM_READY) begin
+		if(state==IDLE && next_state == WAIT_MMEM_READY) begin
 			pc <= is_branch ? jump_target : pc + `WORD_T;
 			end
 		else pc <= pc; // 保持pc不变

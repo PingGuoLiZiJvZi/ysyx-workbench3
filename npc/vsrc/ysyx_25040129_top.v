@@ -8,35 +8,74 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	output [2:0] ifu_state,
 	output [31:0] pc,
 	output [31:0] inst,
-	output [31:0][15:0] regs
+	output [511:0] regs
 );
 	
-	ysyx_25040129_MMEM u_ysyx_25040129_MMEM_IFU(
+	ysyx_25040129_BUSARB u_ysyx_25040129_BUSARB(
 		.clk(clk),
 		.rst(rst),
 
-		.araddr(araddr_from_ifu),
-		.arvalid(arvalid_from_ifu),
-		.arready(rready_to_ifu),
+		.ifu_araddr(araddr_from_ifu),
+		.ifu_arvalid(arvalid_from_ifu),
+		.ifu_arready(rready_to_ifu),
 
-		.rdata(rdata_to_ifu),
-		.rresp(rresp_to_ifu),
-		.rvalid(rvalid_to_ifu),
-		.rready(rready_from_ifu),
+		.ifu_rdata(rdata_to_ifu),
+		.ifu_rresp(rresp_to_ifu),
+		.ifu_rvalid(rvalid_to_ifu),
+		.ifu_rready(rready_from_ifu),
 
-		.awaddr(32'b0), 
-		.awvalid(1'b0),
-		.awready(empty_awready),
+		.lsu_araddr(araddr_from_lsu),
+		.lsu_arvalid(arvalid_from_lsu),
+		.lsu_arready(rready_to_lsu),
 
-		.wstrb(2'b0),
-		.wdata(32'b0),
-		.wvalid(1'b0),
-		.wready(empty_wready),
+		.lsu_rdata(rdata_to_lsu),
+		.lsu_rresp(rresp_to_lsu),
+		.lsu_rvalid(rvalid_to_lsu),
+		.lsu_rready(rready_from_lsu),
 
-		.bresp(empty_bresp),
-		.bvalid(empty_bvalid),
-		.bready(1'b0)
+		.araddr(araddr_to_mmem),
+		.arvalid(arvalid_to_mmem),
+		.arready(arready_from_mmem),
+
+		.rdata(rdata_from_mmem),
+		.rresp(rresp_from_mmem),
+		.rvalid(rvalid_from_mmem),
+		.rready(rready_to_mmem)
+	);	
+	wire [31:0] araddr_to_mmem;
+	wire arvalid_to_mmem;
+	wire rready_to_mmem;
+	wire [31:0] rdata_from_mmem;
+	wire [1:0] rresp_from_mmem;
+	wire rvalid_from_mmem;
+	wire arready_from_mmem;
+	ysyx_25040129_MMEM u_ysyx_25040129_MMEM (
+		.clk(clk),
+		.rst(rst),
+
+		.araddr(araddr_to_mmem),
+		.arvalid(arvalid_to_mmem),
+		.arready(arready_from_mmem),
+
+		.rdata(rdata_from_mmem),
+		.rresp(rresp_from_mmem),
+		.rvalid(rvalid_from_mmem),
+		.rready(rready_to_mmem),
+
+		.awaddr(awaddr_from_lsu),
+		.awvalid(awvalid_from_lsu),
+		.awready(awready_to_lsu),
+
+		.wstrb(wstrb_from_lsu),
+		.wdata(wdata_from_lsu),
+		.wvalid(wvalid_from_lsu),
+		.wready(wready_to_lsu),
+
+		.bresp(bresp_to_lsu),
+		.bvalid(bvalid_to_lsu),
+		.bready(bready_from_lsu)
 	);
+	
 	/* verilator lint_off UNUSEDSIGNAL */
 	wire empty_awready;
 	wire empty_wready;
@@ -328,33 +367,7 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	wire [31:0] branch_target_out_lsu;
 
 	wire [31:0] result_out_lsu;
-	ysyx_25040129_MMEM u_ysyx_25040129_MMEM_LSU (
-		.clk(clk),
-		.rst(rst),
 
-		.araddr(araddr_from_lsu),
-		.arvalid(arvalid_from_lsu),
-		.arready(rready_to_lsu),
-
-		.rdata(rdata_to_lsu),
-		.rresp(rresp_to_lsu),
-		.rvalid(rvalid_to_lsu),
-		.rready(rready_from_lsu),
-
-		.awaddr(awaddr_from_lsu),
-		.awvalid(awvalid_from_lsu),
-		.awready(awready_to_lsu),
-
-		.wstrb(wstrb_from_lsu),
-		.wdata(wdata_from_lsu),
-		.wvalid(wvalid_from_lsu),
-		.wready(wready_to_lsu),
-
-		.bresp(bresp_to_lsu),
-		.bvalid(bvalid_to_lsu),
-		.bready(bready_from_lsu)
-	);
-	
 
 
 

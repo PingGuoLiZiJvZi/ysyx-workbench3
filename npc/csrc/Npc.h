@@ -119,6 +119,9 @@ public:
 				printf("pc is different, ref %x, dut %x\n", ref_regs[0], top->pc);
 				irbuf->print_iringbuf();
 				printf("\n");
+#ifdef WAVE
+				tfp->flush();
+#endif
 				assert(0);
 			}
 			for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
@@ -128,6 +131,9 @@ public:
 					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], top->regs[i], top->pc);
 					irbuf->print_iringbuf();
 					printf("\n");
+#ifdef WAVE
+					tfp->flush();
+#endif
 					assert(0);
 				}
 			}
