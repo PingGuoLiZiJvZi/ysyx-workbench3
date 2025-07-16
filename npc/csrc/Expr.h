@@ -1,11 +1,11 @@
 #pragma once
 #include <regex.h>
-#include "paddr_simple.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "Npc.h"
 #define NR_REGEX 13
+extern "C" uint32_t paddr_read(uint32_t addr, int len, int is_fetch, int is_avail);
 enum Type
 {
 	TK_EQ,
@@ -298,7 +298,7 @@ private:
 	}
 
 public:
-	word_t expr(char *e, bool *success)
+	uint32_t expr(char *e, bool *success)
 	{
 		// printf("expr %s\n", e);
 		*success = true;
@@ -321,7 +321,7 @@ public:
 		}
 		// x (10+10)*100/5+12-13
 		/* TODO: Insert codes to evaluate the expression. */
-		word_t res = exprr(0, nr_token, success);
+		uint32_t res = exprr(0, nr_token, success);
 		memset(tokens, 0, sizeof(tokens));
 		return res;
 	}

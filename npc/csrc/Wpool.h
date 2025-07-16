@@ -5,12 +5,11 @@
 #include <string.h>
 #include <stdio.h>
 #include "Expr.h"
-typedef uint32_t word_t;
 #define NR_WP 32
 typedef struct watchpoint
 {
 	char regex[512];
-	word_t value_before;
+	uint32_t value_before;
 } WP;
 class Wpool
 {
@@ -44,7 +43,7 @@ public:
 		for (auto it = wp_list.begin(); it != wp_list.end(); ++it)
 		{
 			bool success;
-			word_t newval = expr.expr(it->regex, &success);
+			uint32_t newval = expr.expr(it->regex, &success);
 			if (newval != it->value_before)
 			{
 				printf("update:id %ld regex %s preval oct:%010u hex:0x%08x newval oct:%010u hex:0x%08x\n", wp_list.size(), it->regex, it->value_before, it->value_before, newval, newval);

@@ -1,7 +1,6 @@
 module ysyx_25040129_XBAR (
 	input clk,
 	input rst,
-	output reg is_device,
 	//---------------XBAR输入---------------
 	//---------------读地址---------------
 	input [31:0] araddr,
@@ -80,6 +79,7 @@ localparam IDLE = 3'b000;
 localparam HANDLE_MMEM = 3'b001;
 localparam HANDLE_UART = 3'b010;
 localparam HANDLE_RTC = 3'b011;
+reg is_device; 
 reg [2:0] state;
 reg [2:0] next_state;
 always @(posedge clk) begin
@@ -91,6 +91,7 @@ always @(posedge clk) begin
 end
 //-----------------------信号转接-----------------------
 always @(*) begin
+	update_is_device(is_device);
 	case (state)
 		HANDLE_MMEM:begin
 			mmem_araddr = araddr;

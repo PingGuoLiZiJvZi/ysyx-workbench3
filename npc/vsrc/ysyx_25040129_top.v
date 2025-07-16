@@ -2,19 +2,19 @@ import "DPI-C" function void ebreak_trigger();
 import "DPI-C" function void unknown_inst(int inst);
 import "DPI-C" function int paddr_read(int addr, int len,int is_fetch, int is_avail);
 import "DPI-C" function void paddr_write(int addr, int len, int data, int is_avail);
+import "DPI-C" function void update_regs(int reg1, int reg2, int reg3, int reg4, int reg5, int reg6, int reg7, int reg8, int reg9, int reg10, int reg11, int reg12, int reg13, int reg14, int reg15, int reg16);
+import "DPI-C" function void update_pc(int pc);
+import "DPI-C" function void update_inst(int inst);
+import "DPI-C" function void update_is_device(bit is_device);
+import "DPI-C" function void update_ifu_state(byte ifu_state);
+
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129_top(
 	input clk,
-	input rst,
-	output [2:0] ifu_state,
-	output [31:0] pc,
-	output [31:0] inst,
-	output [511:0] regs,
-	output is_device
+	input rst
 );
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
 		.rst(rst),
-		.is_device(is_device),
 
 		.araddr(araddr_to_xbar),
 		.arvalid(arvalid_to_xbar),
@@ -235,7 +235,6 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 
 
 	ysyx_25040129_IFU u_ysyx_25040129_IFU (
-		.state(ifu_state),
 		.pc(pc_from_ifu),
 		.is_branch(is_branch_out_wbu),
 		.jump_target(branch_target_out_wbu),
@@ -262,9 +261,8 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	);
 
 	wire [31:0] pc_from_ifu;
-	assign pc = pc_from_ifu;
+
 	wire [31:0] inst_to_idu;
-	assign inst = inst_to_idu;
 
 	wire is_req_valid_from_wb_to_ifu;
 	wire [31:0] araddr_from_ifu;
@@ -349,7 +347,6 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.clk(clk),
 		.rst(rst),
 		.rd(rd_out_wbu),
-		.regs_out(regs),
 		.reg_write(reg_write_out_wbu),
 		.result(result_out_wbu),
 		.src1_id(src1_id_out_idu),

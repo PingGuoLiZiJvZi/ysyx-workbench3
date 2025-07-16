@@ -1,9 +1,31 @@
 #define MAX_LINE_LENGTH 1024
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "paddr_simple.h"
 #include "Sdb.h"
 Vysyx_25040129_top *Npc::top = NULL;
+long Sdb::load_img()
+{
+	if (img_file == NULL)
+	{
+		printf("No image is given. Use the default build-in image.");
+		return 4096; // built-in image size
+	}
+
+	FILE *fp = fopen(img_file, "rb");
+	// Assert(fp, "Can not open '%s'", img_file);
+
+	fseek(fp, 0, SEEK_END);
+	long size = ftell(fp);
+
+	printf("The image is %s, size = %ld\n", img_file, size);
+
+	fseek(fp, 0, SEEK_SET);
+	int ret = fread(pmem, size, 1, fp);
+	assert(ret == 1);
+
+	fclose(fp);
+	return size;
+}
 char *Sdb::rl_gets()
 {
 	static char *line_read = NULL;
@@ -214,29 +236,7 @@ int Sdb::parse_args(int argc, char **argv)
 	}
 	return 0;
 }
-long Sdb::load_img()
-{
-	if (img_file == NULL)
-	{
-		printf("No image is given. Use the default build-in image.");
-		return 4096; // built-in image size
-	}
 
-	FILE *fp = fopen(img_file, "rb");
-	// Assert(fp, "Can not open '%s'", img_file);
-
-	fseek(fp, 0, SEEK_END);
-	long size = ftell(fp);
-
-	printf("The image is %s, size = %ld\n", img_file, size);
-
-	fseek(fp, 0, SEEK_SET);
-	int ret = fread(pmem, size, 1, fp);
-	assert(ret == 1);
-
-	fclose(fp);
-	return size;
-}
 int Sdb::run(uint32_t n)
 {
 
@@ -259,24 +259,17 @@ int Sdb::run(uint32_t n)
 			return -1;
 		}
 
-		do
-		{
+		while (npc.ifu_state == 1)
 			npc.step_top();
-		} while (npc.top->ifu_state != 1);
-		do
-		{
+		while (npc.ifu_state != 1)
 			npc.step_top();
-		} while (npc.top->ifu_state != 1);
-		do
-		{
-			npc.step_top();
-		} while (npc.top->ifu_state != 1);
+
 #ifdef TRACE
 		if (n < 12)
 			printf("%s", npc.message);
 #endif
 #ifdef DIFFTEST
-		if (npc.top->is_device)
+		if (npc.is_device)
 			npc.difftest_skip_ref();
 		else
 			npc.difftest_step();

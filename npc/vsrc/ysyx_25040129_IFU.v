@@ -13,9 +13,6 @@ module ysyx_25040129_IFU (
 	input is_req_valid_from_wbu,//
 	input is_req_ready_from_idu,//
 	
-	output reg[2:0] state,
-
-	
 	//---------------读地址---------------
 	output [31:0] araddr,
 	output arvalid,
@@ -26,6 +23,7 @@ module ysyx_25040129_IFU (
 	input rvalid,
 	output rready
 	);
+reg[2:0] state;
 assign araddr = pc;
 reg [2:0] next_state;
 assign arvalid = (state == WAIT_MMEM_READY);
@@ -43,7 +41,6 @@ localparam WAIT_IDU_READY = 3'b011;
 
 // pc 更新逻辑
 always @(posedge clk) begin
-	
 	if(rst)begin
 		pc <= `START_ADDR;
 		inst_to_idu <= 32'b0; // 初始化指令
@@ -64,6 +61,9 @@ assign is_req_ready_to_wbu = (state == IDLE);
 assign is_req_valid_to_idu = (state == WAIT_IDU_READY);
 // next state 逻辑 
 always @(*) begin
+	update_pc(pc);
+	update_inst(inst_to_idu);
+	update_ifu_state({5'b0,state});
 	case (state)
 		IDLE: next_state = is_req_valid_from_wbu ? WAIT_MMEM_READY : IDLE;
 		WAIT_MMEM_READY: next_state = arready ? WAIT_MMEM_REQ : WAIT_MMEM_READY;

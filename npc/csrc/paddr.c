@@ -1,13 +1,18 @@
-#include "paddr_simple.h"
+#include <stdint.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "config.h"
+
 uint8_t pmem[MAX_SIZE] = {0};
-int is_device = 0;
-uint8_t *guest_to_host(paddr_t paddr)
+
+uint8_t *guest_to_host(uint32_t paddr)
 {
 	return pmem + paddr - START_ADDR;
 }
-word_t host_read(uint8_t *haddr, int len)
+uint32_t host_read(uint8_t *haddr, int len)
 {
-	word_t ret = 0;
+	uint32_t ret = 0;
 	switch (len)
 	{
 	case 1:
@@ -24,27 +29,21 @@ word_t host_read(uint8_t *haddr, int len)
 	}
 	return ret;
 }
-extern "C" word_t paddr_read(paddr_t addr, int len, int is_fetch, int is_avail)
+extern "C" uint32_t paddr_read(uint32_t addr, int len, int is_fetch, int is_avail)
 {
 
 	if (!is_avail)
 	{
 		return 0;
 	}
-	word_t ret = 0;
+	uint32_t ret = 0;
 	if (addr >= START_ADDR && addr < START_ADDR + MAX_SIZE)
 	{
-#ifdef DIFFTEST
-		is_device = 0;
-#endif
 		ret = host_read(guest_to_host(addr), len);
 	}
 	else
 	{
-#ifdef DIFFTEST
-		is_device = 1;
-#endif
-		ret = mmio_read(addr, len);
+		assert(0);
 	}
 #ifdef MEMTRACE
 	if (!is_fetch)
@@ -53,7 +52,7 @@ extern "C" word_t paddr_read(paddr_t addr, int len, int is_fetch, int is_avail)
 
 	return ret;
 }
-extern "C" void paddr_write(paddr_t addr, int len, word_t data, int is_avail)
+extern "C" void paddr_write(uint32_t addr, int len, uint32_t data, int is_avail)
 {
 	if (!is_avail)
 	{
@@ -63,9 +62,6 @@ extern "C" void paddr_write(paddr_t addr, int len, word_t data, int is_avail)
 		return;
 	if (addr >= START_ADDR && addr < START_ADDR + MAX_SIZE)
 	{
-#ifdef DIFFTEST
-		is_device = 0;
-#endif
 		switch (len)
 		{
 		case 1:
@@ -83,10 +79,7 @@ extern "C" void paddr_write(paddr_t addr, int len, word_t data, int is_avail)
 	}
 	else
 	{
-		mmio_write(addr, len, data);
-#ifdef DIFFTEST
-		is_device = 1;
-#endif
+		assert(0);
 	}
 
 #ifdef MEMTRACE

@@ -3,7 +3,10 @@
 // #define TRACE 1
 // #define WAVE 1
 #ifdef TRACE
-#define FTRACE 1
-#define ITRACE 1
+// #define FTRACE 1
+// #define ITRACE 1
 #define DIFFTEST 1
 #endif
+
+#define MAX_SIZE 0x10000000
+#define START_ADDR 0x80000000

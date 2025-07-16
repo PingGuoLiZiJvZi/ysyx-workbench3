@@ -35,16 +35,17 @@ CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
 run:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module ysyxSoCFull \
-	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(find $(SOC_PATH)/perip -name "*.v") ${THIS_DIR}/csrc/*.cpp  \
+	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(find ~/ysyx-workbench/ysyxSoC/perip -name "*.v") $(SOC_PATH)/build/*.v ${THIS_DIR}/csrc/*.cpp  \
 	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
 	-I$(SOC_PATH)/perip/uart16550/rtl -I$(SOC_PATH)/perip/spi/rtl \
 	--timescale "1ns/1ns" --no-timing
-
 		${BIN}
 
 autorun:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module $(TOPNAME) --Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module $(TOPNAME) \
+	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.c ${THIS_DIR}/csrc/*.cpp \
+	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
 	printf "c\nq\n" |${BIN}
 
 
