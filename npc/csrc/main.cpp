@@ -4,6 +4,8 @@
 #include "verilated.h"
 #include "Sdb.h"
 NPC_STATE Sdb::npc_state = NPC_RUNNING;
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void ebreak_trigger()
 {
 	if (Npc::top->regs[10] == 0)

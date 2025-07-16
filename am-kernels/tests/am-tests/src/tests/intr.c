@@ -28,8 +28,8 @@ void hello_intr()
 	iset(1);
 	while (1)
 	{
-		for (volatile int i = 0; i < 100000; i++)
-			;
+		// for (volatile int i = 0; i < 1000; i++)
+		// 	;
 		yield();
 	}
 }

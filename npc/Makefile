@@ -4,6 +4,7 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert
 
 THIS_DIR := ~/ysyx-workbench/npc
+SOC_PATH := ~/ysyx-workbench/ysyxSoC
 BUILD_DIR =${THIS_DIR}/build
 OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
@@ -30,15 +31,15 @@ CSRCS += $(SRC_AUTO_BIND)
 LIBCAPSTONE = ~/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5
 CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
 
-sim:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j 0 -Wall ${THIS_DIR}/vsrc/top.v ${THIS_DIR}/csrc/top.cpp 
-	${THIS_DIR}/obj_dir/Vtop
-
 #run规则为调用sim
 run:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module $(TOPNAME) --Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.cpp  --LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module ysyxSoCFull \
+	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(find $(SOC_PATH)/perip -name "*.v") ${THIS_DIR}/csrc/*.cpp  \
+	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
+	-I$(SOC_PATH)/perip/uart16550/rtl -I$(SOC_PATH)/perip/spi/rtl \
+	--timescale "1ns/1ns" --no-timing
+
 		${BIN}
 
 autorun:

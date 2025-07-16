@@ -267,15 +267,18 @@ int Sdb::run(uint32_t n)
 		{
 			npc.step_top();
 		} while (npc.top->ifu_state != 1);
-
+		do
+		{
+			npc.step_top();
+		} while (npc.top->ifu_state != 1);
 #ifdef TRACE
 		if (n < 12)
 			printf("%s", npc.message);
 #endif
 #ifdef DIFFTEST
-		if (is_device)
+		if (npc.top->is_device)
 			npc.difftest_skip_ref();
-		if (!is_device)
+		else
 			npc.difftest_step();
 #endif
 #ifdef ITRACE

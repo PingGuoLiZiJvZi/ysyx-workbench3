@@ -8,9 +8,159 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 	output [2:0] ifu_state,
 	output [31:0] pc,
 	output [31:0] inst,
-	output [511:0] regs
+	output [511:0] regs,
+	output is_device
 );
+	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
+		.clk(clk),
+		.rst(rst),
+		.is_device(is_device),
+
+		.araddr(araddr_to_xbar),
+		.arvalid(arvalid_to_xbar),
+		.arready(arready_from_xbar),
+
+		.rdata(rdata_from_xbar),
+		.rresp(rresp_from_xbar),
+		.rvalid(rvalid_from_xbar),
+		.rready(rready_to_xbar),
+
+		.awaddr(awaddr_from_lsu),
+		.awvalid(awvalid_from_lsu),
+		.awready(awready_to_lsu),
+
+		.wstrb(wstrb_from_lsu),
+		.wdata(wdata_from_lsu),
+		.wvalid(wvalid_from_lsu),
+		.wready(wready_to_lsu),
+
+		.bresp(bresp_to_lsu),
+		.bvalid(bvalid_to_lsu),
+		.bready(bready_from_lsu),
+
+		.mmem_araddr(araddr_to_mmem),
+		.mmem_arvalid(arvalid_to_mmem),
+		.mmem_arready(arready_from_mmem),
+
+		.mmem_rdata(rdata_from_mmem),
+		.mmem_rresp(rresp_from_mmem),
+		.mmem_rvalid(rvalid_from_mmem),
+		.mmem_rready(rready_to_mmem),
+
+		.mmem_awaddr(awaddr_to_mmem),
+		.mmem_awvalid(awvalid_to_mmem),
+		.mmem_awready(awready_from_mmem),
+
+		.mmem_wstrb(wstrb_to_mmem),
+		.mmem_wdata(wdata_to_mmem),
+		.mmem_wvalid(wvalid_to_mmem),
+		.mmem_wready(wready_from_mmem),
+
+		.mmem_bresp(bresp_from_mmem),
+		.mmem_bvalid(bvalid_from_mmem),
+		.mmem_bready(bready_to_mmem),
+
+		.uart_awaddr(awaddr_to_uart),
+		.uart_awvalid(awvalid_to_uart),
+		.uart_awready(awready_from_uart),
+
+		.uart_wstrb(wstrb_to_uart),
+		.uart_wdata(wdata_to_uart),
+		.uart_wvalid(wvalid_to_uart),
+		.uart_wready(wready_from_uart),
+
+		.uart_bresp(bresp_from_uart),
+		.uart_bvalid(bvalid_from_uart),
+		.uart_bready(bready_to_uart),
+
+		.rtc_araddr(araddr_to_rtc),
+		.rtc_arvalid(arvalid_to_rtc),
+		.rtc_arready(arready_from_rtc),
+
+		.rtc_rdata(rdata_from_rtc),
+		.rtc_rresp(rresp_from_rtc),
+		.rtc_rvalid(rvalid_from_rtc),
+		.rtc_rready(rready_to_rtc)
+	);
+	wire [31:0] araddr_to_rtc;
+	wire arvalid_to_rtc;
+	wire arready_from_rtc;
+
+	wire [31:0] rdata_from_rtc;
+	wire [1:0] rresp_from_rtc;
+	wire rvalid_from_rtc;
+	wire rready_to_rtc;
+
+	ysyx_25040129_CLINT u_ysyx_25040129_CLINT (
+		.clk(clk),
+		.rst(rst),
+
+		.araddr(araddr_to_rtc),
+		.arvalid(arvalid_to_rtc),
+		.arready(arready_from_rtc),
+
+		.rdata(rdata_from_rtc),
+		.rresp(rresp_from_rtc),
+		.rvalid(rvalid_from_rtc),
+		.rready(rready_to_rtc)
+	);
+
+
+ 	wire [31:0] araddr_to_mmem;
+	wire arvalid_to_mmem;
+	wire arready_from_mmem;
+
+	wire [31:0] rdata_from_mmem;
+	wire [1:0] rresp_from_mmem;
+	wire rvalid_from_mmem;
+	wire rready_to_mmem;
+
+	wire [31:0] awaddr_to_mmem;
+	wire awvalid_to_mmem;
+	wire awready_from_mmem;
+
+	wire [1:0] wstrb_to_mmem;
+	wire [31:0] wdata_to_mmem;
+	wire wvalid_to_mmem;
+	wire wready_from_mmem;
+
+	wire [1:0] bresp_from_mmem;
+	wire bvalid_from_mmem;
+	wire bready_to_mmem;
+
+	wire [31:0] awaddr_to_uart;
+	wire awvalid_to_uart;
+	wire awready_from_uart;
+
+	wire [1:0] wstrb_to_uart;
+	wire [31:0] wdata_to_uart;
+	wire wvalid_to_uart;
+	wire wready_from_uart;
+
+	wire [1:0] bresp_from_uart;
+	wire bvalid_from_uart;
+	wire bready_to_uart;
 	
+	ysyx_25040129_UART u_ysyx_25040129_UART (
+		.clk(clk),
+		.rst(rst),
+
+		.awaddr(awaddr_to_uart),
+		.awvalid(awvalid_to_uart),
+		.awready(awready_from_uart),
+
+		.wstrb(wstrb_to_uart),
+		.wdata(wdata_to_uart),
+		.wvalid(wvalid_to_uart),
+		.wready(wready_from_uart),
+
+		.bresp(bresp_from_uart),
+		.bvalid(bvalid_from_uart),
+		.bready(bready_to_uart)
+	);
+
+
+
 	ysyx_25040129_BUSARB u_ysyx_25040129_BUSARB(
 		.clk(clk),
 		.rst(rst),
@@ -33,22 +183,22 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.lsu_rvalid(rvalid_to_lsu),
 		.lsu_rready(rready_from_lsu),
 
-		.araddr(araddr_to_mmem),
-		.arvalid(arvalid_to_mmem),
-		.arready(arready_from_mmem),
+		.araddr(araddr_to_xbar),
+		.arvalid(arvalid_to_xbar),
+		.arready(arready_from_xbar),
 
-		.rdata(rdata_from_mmem),
-		.rresp(rresp_from_mmem),
-		.rvalid(rvalid_from_mmem),
-		.rready(rready_to_mmem)
+		.rdata(rdata_from_xbar),
+		.rresp(rresp_from_xbar),
+		.rvalid(rvalid_from_xbar),
+		.rready(rready_to_xbar)
 	);	
-	wire [31:0] araddr_to_mmem;
-	wire arvalid_to_mmem;
-	wire rready_to_mmem;
-	wire [31:0] rdata_from_mmem;
-	wire [1:0] rresp_from_mmem;
-	wire rvalid_from_mmem;
-	wire arready_from_mmem;
+	wire [31:0] araddr_to_xbar;
+	wire arvalid_to_xbar;
+	wire rready_to_xbar;
+	wire [31:0] rdata_from_xbar;
+	wire [1:0] rresp_from_xbar;
+	wire rvalid_from_xbar;
+	wire arready_from_xbar;
 	ysyx_25040129_MMEM u_ysyx_25040129_MMEM (
 		.clk(clk),
 		.rst(rst),
@@ -62,18 +212,18 @@ import "DPI-C" function void paddr_write(int addr, int len, int data, int is_ava
 		.rvalid(rvalid_from_mmem),
 		.rready(rready_to_mmem),
 
-		.awaddr(awaddr_from_lsu),
-		.awvalid(awvalid_from_lsu),
-		.awready(awready_to_lsu),
+		.awaddr(awaddr_to_mmem),
+		.awvalid(awvalid_to_mmem),
+		.awready(awready_from_mmem),
 
-		.wstrb(wstrb_from_lsu),
-		.wdata(wdata_from_lsu),
-		.wvalid(wvalid_from_lsu),
-		.wready(wready_to_lsu),
+		.wstrb(wstrb_to_mmem),
+		.wdata(wdata_to_mmem),
+		.wvalid(wvalid_to_mmem),
+		.wready(wready_from_mmem),
 
-		.bresp(bresp_to_lsu),
-		.bvalid(bvalid_to_lsu),
-		.bready(bready_from_lsu)
+		.bresp(bresp_from_mmem),
+		.bvalid(bvalid_from_mmem),
+		.bready(bready_to_mmem)
 	);
 	
 	/* verilator lint_off UNUSEDSIGNAL */
