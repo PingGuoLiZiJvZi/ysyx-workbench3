@@ -34,6 +34,8 @@ word_t csrr(word_t csr)
 		return cpu.mtval;
 	case 0x180:
 		return cpu.satp;
+	case 0x340:
+		return cpu.mscratch; // Added for RISC-V
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -41,8 +43,9 @@ word_t csrr(word_t csr)
 		return 0;
 	}
 }
-void csrw(word_t csr, word_t val)
+word_t csrw(word_t csr, word_t val)
 {
+	word_t old_val = csrr(csr); // Read the old value before writing
 	csr = csr & 0xFFF;
 	switch (csr)
 	{
@@ -64,11 +67,15 @@ void csrw(word_t csr, word_t val)
 	case 0x180:
 		cpu.satp = val;
 		break;
+	case 0x340:
+		cpu.mscratch = val; // Added for RISC-V
+		break;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
 		assert(0);
 	}
+	return old_val; // Return the old value before writing
 }
 #define R(i) gpr(i)
 #define Mr vaddr_read
@@ -195,12 +202,18 @@ static int decode_exec(Decode *s)
 	INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb, I, R(rd) = SEXT((int8_t)Mr(src1 + imm, 1), 8));
 	INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak, N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 	INSTPAT("0011000 00010 00000 000 00000 11100 11", mret, I, {
+		// printf("mret: :beg:mstatus = %x, mepc = %x, mcause = %d\n", cpu.mstatus, cpu.mepc, cpu.mcause);
 		s->dnpc = cpu.mepc;
-		cpu.priv = 0;
+		word_t MPIE = (cpu.mstatus >> 7) & 1;
+		cpu.mstatus &= ~(1 << 3); // MIE = 0
+		cpu.mstatus &= ~(1 << 7); // MPIE = 0
+		cpu.mstatus |= MPIE << 3; // MPIE = MIE
+		// printf("mret:end:mstatus = %x\n", cpu.mstatus);
+		// printf("mstatus restored to %x, there could be interrupt\n", cpu.mstatus);
 		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", cpu.mcause, s->dnpc));
 	});
-	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, s->dnpc = isa_raise_intr(11, s->pc));
-	INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrw, I, csrw(imm, src1));
+	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, { s->dnpc = isa_raise_intr(11, s->pc); });
+	INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrw, I, R(rd) = csrw(imm, src1));
 	INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrr, I, R(rd) = csrr(imm););
 	INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc, U, R(rd) = s->pc + imm);
 	INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui, U, R(rd) = imm);

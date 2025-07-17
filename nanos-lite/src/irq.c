@@ -4,9 +4,13 @@ extern int mm_brk(uintptr_t brk);
 extern Context *schedule(Context *prev);
 static Context *do_event(Event e, Context *c)
 {
+
 	switch (e.event)
 	{
-
+	case EVENT_IRQ_TIMER:
+	{
+		return schedule(c); // Yield to the scheduler
+	}
 	case EVENT_YIELD:
 	{
 		CASE_LOG("Yield event triggered");

@@ -23,10 +23,11 @@ static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
-
+// static int is_set = 0;
 uint8_t *guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
-
+extern void print_iringbuf();
+extern void isa_reg_display();
 static word_t pmem_read(paddr_t addr, int len)
 {
 	word_t ret = host_read(guest_to_host(addr), len);
@@ -59,7 +60,13 @@ word_t paddr_read(paddr_t addr, int len)
 	word_t ret = 0;
 	if (likely(in_pmem(addr)))
 	{
+
 		ret = pmem_read(addr, len);
+		// if (addr >= 0x82e66780 && addr <= 0x82e66790)
+		// {
+
+		// 	printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u,pc = %08x\n", addr, len, ret, ret, cpu.pc);
+		// }
 		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000 && addr < 0x83050000) printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, ret, ret));
 		return ret;
 	}
@@ -73,7 +80,18 @@ void paddr_write(paddr_t addr, int len, word_t data)
 {
 	if (likely(in_pmem(addr)))
 	{
-		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000 && addr < 0x84000000) printf("paddr_write addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, data, data));
+
+		// if (addr >= 0x82e66780 && addr <= 0x82e66790)
+		// {
+		// 	printf("paddr_write addr = %08x len = %d data = 0x%08x\t%010u,pc = %08x\n", addr, len, data, data, cpu.pc);
+		// 	// if (addr == 0x82e64954)
+		// 	// {
+		// 	// 	print_iringbuf();
+		// 	// 	isa_reg_display();
+		// 	// 	assert(0);
+		// 	// }
+		// }
+		IFDEF(CONFIG_MTRACE, if (addr > 0x82e0ff10 && addr < 0x82e0ff20) printf("paddr_write addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, data, data));
 		pmem_write(addr, len, data);
 		return;
 	}

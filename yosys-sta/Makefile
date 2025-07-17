@@ -1,8 +1,8 @@
 PROJ_PATH = $(shell pwd)
 
-DESIGN ?= top
-SDC_FILE ?= $(PROJ_PATH)/example/gcd.sdc
-RTL_FILES ?= $(shell find $(PROJ_PATH)/example -name "*.v")
+DESIGN ?= ysyx_25040129_top
+SDC_FILE ?= $(NPC_HOME)/sta/gcd.sdc
+RTL_FILES ?= $(shell find $(NPC_HOME)/sta/vsrc -name "*.v")
 export CLK_FREQ_MHZ ?= 500
 
 RESULT_DIR = $(PROJ_PATH)/result/$(DESIGN)-$(CLK_FREQ_MHZ)MHz

@@ -1,15 +1,12 @@
 #pragma once
 #include "Npc.h"
-#include "paddr_simple.h"
 #include "Wpool.h"
 #include "Elf.h"
 #include <getopt.h>
 #include "Expr.h"
-#include "RTC.h"
-#include "Serial.h"
 #include "config.h"
 #define NR_CMD 8
-
+extern "C" uint32_t paddr_read(uint32_t addr, int len, int is_fetch, int is_avail);
 class Sdb;
 enum NPC_STATE
 {
@@ -36,8 +33,6 @@ public:
 		elf.open_elf(elf_file);
 #endif
 		npc.reset_top();
-		init_timer();
-		init_serial();
 #ifdef DIFFTEST
 		npc.init_difftest(img_size);
 		npc.irbuf = &iringbuf;
@@ -72,6 +67,7 @@ public:
 	{
 		iringbuf.print_iringbuf();
 	}
+	Npc npc;
 
 private:
 	cmds cmd_table[NR_CMD] = {
@@ -87,7 +83,7 @@ private:
 	// {"test", "used without args perform some test", cmd_test}};
 	int parse_args(int argc, char *argv[]);
 	long load_img();
-	Npc npc;
+
 	Expr expr;
 	Wpool wpool;
 	Iringbuf iringbuf;

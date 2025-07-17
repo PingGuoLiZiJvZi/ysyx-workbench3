@@ -31,18 +31,50 @@ f(30) f(31)
 #define PUSH(n) STORE concat(x, n), (n * XLEN)(sp);
 #define POP(n)  LOAD  concat(x, n), (n * XLEN)(sp);
 
-#define CONTEXT_SIZE  ((NR_REGS + 3) * XLEN)
+#define CONTEXT_SIZE  ((NR_REGS + 5) * XLEN)
 #define OFFSET_SP     ( 2 * XLEN)
 #define OFFSET_CAUSE  ((NR_REGS + 0) * XLEN)
 #define OFFSET_STATUS ((NR_REGS + 1) * XLEN)
 #define OFFSET_EPC    ((NR_REGS + 2) * XLEN)
+#define OFFSET_NP     ((NR_REGS + 3) * XLEN)
+#define KERNAL 0
+#define USER 1
 
 .align 3
 .globl __am_asm_trap
 __am_asm_trap:
+  csrrw sp, mscratch, sp   # (1) atomically exchange sp and mscratch
+  bnez sp, save_context    # (2) take the branch if we trapped from user
+  csrr sp, mscratch        # (3) if we trapped from kernel, restore the original sp
+  j save_context
+
+save_context:
   addi sp, sp, -CONTEXT_SIZE
 
   MAP(REGS, PUSH)
+
+  #此时，检测sp和mscratch中的值，如果sp+CONTEXT_SIZE=mscratch 即表明ksp =0,np为内核
+  #若不等，则ksp!=0 np为USER
+  #随后，将ksp置零
+
+  csrr t0, mscratch
+  addi t1, sp, CONTEXT_SIZE
+  beq t0, t1, kernal
+  li t0, USER
+  Li t1, KERNAL
+  STORE t0, OFFSET_NP(sp)
+  j np_end
+
+kernal:
+  STORE t1, OFFSET_NP(sp)
+  j np_end
+
+
+np_end:
+  csrr t0, mscratch
+  STORE t0, OFFSET_SP(sp)
+  csrw mscratch,x0
+  
 
   csrr t0, mcause
   csrr t1, mstatus
@@ -51,6 +83,7 @@ __am_asm_trap:
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
   STORE t2, OFFSET_EPC(sp)
+
 
   # set mstatus.MPRV to pass difftest
   li a0, (1 << 17)
@@ -66,7 +99,16 @@ __am_asm_trap:
   csrw mstatus, t1
   csrw mepc, t2
 
+  LOAD t3, OFFSET_NP(sp)
+  beqz t3, kernal_restore
+  addi t0, sp, CONTEXT_SIZE
+  csrw mscratch, t0
   MAP(REGS, POP)
+  LOAD sp, OFFSET_SP(sp)
+  mret
 
+kernal_restore:
+  
+  MAP(REGS, POP)
   addi sp, sp, CONTEXT_SIZE
   mret

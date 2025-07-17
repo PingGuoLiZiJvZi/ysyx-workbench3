@@ -16,7 +16,7 @@
 #include <isa.h>
 #include <memory/vaddr.h>
 #include <memory/paddr.h>
-
+extern void print_iringbuf();
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type)
 {
 	word_t satp = cpu.satp;
@@ -28,11 +28,17 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type)
 	word_t pte1 = paddr_read(root_idx + vpn1 * 4, 4);
 	if ((pte1 & 0x1) == 0)
 	{
+		print_iringbuf();
+		isa_reg_display();
 		printf("PTE1 invalid for vaddr 0x%x, pte1=0x%x,pos=0x%x\n", vaddr, pte1, root_idx + vpn1 * 4);
 	}
 	assert((pte1 & 0x1) == 0x1); // PTE valid bit must be set
 	word_t table_idx = ((pte1 >> 10) << 12);
 	word_t pte2 = paddr_read(table_idx + vpn2 * 4, 4);
+	if ((pte2 & 0x1) == 0)
+	{
+		printf("PTE2 invalid for vaddr 0x%x, pte2=0x%x,pos=0x%x\n", vaddr, pte2, table_idx + vpn2 * 4);
+	}
 	assert((pte2 & 0x1) == 0x1); // PTE valid bit must be set
 	paddr_t paddr = ((pte2 >> 10) << 12) | offset;
 	return paddr;

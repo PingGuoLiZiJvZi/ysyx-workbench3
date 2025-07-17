@@ -45,7 +45,10 @@ static void sh_handle_cmd(const char *cmd)
 	if (n_cmd[0] == '/')
 		execve(n_cmd, argv, null_ptr);
 	else
+	{
+		printf("Executing command: %s\n", n_cmd);
 		execvp(n_cmd, argv);
+	}
 }
 
 void builtin_sh_run()

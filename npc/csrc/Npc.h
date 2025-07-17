@@ -1,13 +1,18 @@
 #pragma once
-#include "Vtop.h"
+#include "VysyxSoCFull.h"
 #include "verilated.h"
-#include "paddr_simple.h"
-#include "disasm.h"
+#include "verilated_vcd_c.h"
 #include "Iringbuf.h"
 #include "Difftest.h"
+#include "config.h"
 #include <stdio.h>
 #define DIFFTEST_TO_REF 1
 #define DIFFTEST_TO_DUT 0
+
+extern uint8_t pmem[];
+extern void init_disasm();
+extern void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
 static char regs[16][8] = {
 	"$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
 	"s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5"};
@@ -18,21 +23,35 @@ public:
 	Npc(int argc, char **argv)
 	{
 		Verilated::commandArgs(argc, argv);
-		top = new Vtop;
+		top = new VysyxSoCFull;
+#ifdef WAVE
+		tfp = new VerilatedVcdC;
+		Verilated::traceEverOn(true);
+		top->trace(tfp, 99);
+		tfp->open("top.vcd");
+#endif
 		init_disasm();
 	}
 	~Npc()
 	{
 		delete top;
 	}
+	void dump()
+	{
+#ifdef WAVE
+		tfp->dump(main_time++);
+#endif
+	}
 	void reset_top()
 	{
-		top->clk = 0;
-		top->rst = 1;
+		top->clock = 0;
+		top->reset = 1;
 		top->eval();
-		top->clk = 1;
+		dump();
+		top->clock = 1;
 		top->eval();
-		top->rst = 0;
+		dump();
+		top->reset = 0;
 #ifdef TRACE
 		update_messages();
 #endif
@@ -40,10 +59,12 @@ public:
 	void step_top()
 	{
 
-		top->clk = 0;
+		top->clock = 0;
 		top->eval();
-		top->clk = 1;
+		dump();
+		top->clock = 1;
 		top->eval();
+		dump();
 #ifdef TRACE
 		update_messages();
 #endif
@@ -51,10 +72,10 @@ public:
 
 	void reg_display()
 	{
-		printf("pc= %010u\t0x%08x\n", top->pc, top->pc);
+		printf("pc= %010u\t0x%08x\n", regs_val[0], regs_val[0]);
 		for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
 		{
-			printf("%s= %010u\t0x%08x", regs[i], top->regs[i], top->regs[i]);
+			printf("%s= %010u\t0x%08x\t", regs[i], regs_val[i + 1], regs_val[i + 1]);
 			if (i % 2 == 1)
 				printf("\n");
 		}
@@ -90,31 +111,36 @@ public:
 			is_skip_ref = 0;
 			ref_difftest_memcpy(0, pmem, 0x8000000, DIFFTEST_TO_REF);
 			ref_difftest_regcpy(regs_val, DIFFTEST_TO_REF);
-			ref_difftest_exec(1);
 			return;
 		}
 		else
 		{
+			ref_difftest_exec(1);
 			uint32_t ref_regs[17];
 			ref_difftest_regcpy(ref_regs, DIFFTEST_TO_DUT);
-			if (top->pc != ref_regs[0])
+			if (regs_val[0] != ref_regs[0])
 			{
-				printf("pc is different, ref %x, dut %x\n", ref_regs[0], top->pc);
+				printf("pc is different, ref %x, dut %x\n", ref_regs[0], regs_val[0]);
 				irbuf->print_iringbuf();
 				printf("\n");
+#ifdef WAVE
+				tfp->flush();
+#endif
 				assert(0);
 			}
 			for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
 			{
-				if (top->regs[i] != ref_regs[i + 1])
+				if (regs_val[i + 1] != ref_regs[i + 1])
 				{
-					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], top->regs[i], top->pc);
+					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], regs_val[i + 1], regs_val[0]);
 					irbuf->print_iringbuf();
 					printf("\n");
+#ifdef WAVE
+					tfp->flush();
+#endif
 					assert(0);
 				}
 			}
-			ref_difftest_exec(1);
 		}
 	}
 	void difftest_skip_ref()
@@ -127,7 +153,7 @@ public:
 		{
 			if (success != NULL)
 				*success = true;
-			return top->pc;
+			return regs_val[0];
 		}
 		for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
 		{
@@ -135,7 +161,7 @@ public:
 			{
 				if (success != NULL)
 					*success = true;
-				return top->regs[i];
+				return regs_val[i + 1];
 			}
 		}
 		if (success != NULL)
@@ -144,16 +170,17 @@ public:
 	}
 	void update_messages()
 	{
-		disassemble(disasm, sizeof(disasm), top->pc, (uint8_t *)&top->inst, 4);
-		sprintf(message, "pc 0x%08x inst 0x%08x %s\n", top->pc, top->inst, disasm);
-		regs_val[0] = top->pc;
-		for (int i = 0; i < sizeof(regs) / sizeof(regs[0]); i++)
-		{
-			regs_val[i + 1] = top->regs[i];
-		}
+		disassemble(disasm, sizeof(disasm), pc_before, (uint8_t *)&inst, 4);
+		sprintf(message, "pc 0x%08x inst 0x%08x %s\n", pc_before, inst, disasm);
+		pc_before = regs_val[0];
 	}
-	static Vtop *top;
-	void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
+	static VysyxSoCFull *top;
+#ifdef WAVE
+	uint32_t main_time = 0;
+	VerilatedVcdC *tfp;
+#endif
+	uint32_t pc_before = 0;
+	void (*ref_difftest_memcpy)(uint32_t addr, void *buf, size_t n, bool direction) = NULL;
 	void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 	void (*ref_difftest_exec)(uint64_t n) = NULL;
 	Iringbuf *irbuf = NULL;
@@ -161,6 +188,9 @@ public:
 	int port = 0;
 	char message[64];
 	char disasm[32];
-	uint32_t regs_val[17];
+	static uint32_t regs_val[17];
+	static uint32_t inst;
+	static bool is_device;
+	static uint8_t ifu_state;
 	int is_skip_ref = 0;
 };

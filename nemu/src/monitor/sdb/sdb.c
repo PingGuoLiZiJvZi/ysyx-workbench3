@@ -158,7 +158,7 @@ static int cmd_si(char *args)
 	cpu_exec(res);
 	return 0;
 }
-
+extern word_t vaddr_read(paddr_t addr, int len);
 static int cmd_x(char *args)
 {
 	unsigned int num;
@@ -183,7 +183,7 @@ static int cmd_x(char *args)
 				printf("\n");
 			printf("0x%x:\t", addr);
 		}
-		printf("0x%x ", paddr_read(addr, 4));
+		printf("0x%x ", vaddr_read(addr, 4));
 		addr += 4;
 	}
 	printf("\n");
