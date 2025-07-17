@@ -16,7 +16,7 @@ module ysyx_25040129_XBAR (
 	input awvalid,
 	output reg awready,
 	//---------------写数据---------------
-	input [1:0] wstrb,
+	input [3:0] wstrb,
 	input [31:0] wdata,
 	input wvalid,
 	output reg wready,
@@ -25,44 +25,29 @@ module ysyx_25040129_XBAR (
 	output reg bvalid,
 	input bready,
 	///--------------XBAR转发---------------
-	//---------------MMEM---------------
+	//---------------外部设备转发------------
 	//---------------读地址---------------
-	output reg [31:0] mmem_araddr,
-	output reg mmem_arvalid,
-	input mmem_arready,
+	output reg [31:0] soc_araddr,
+	output reg soc_arvalid,
+	input soc_arready,
 	//---------------读数据---------------
-	input [31:0] mmem_rdata,
-	input [1:0]mmem_rresp,
-	input mmem_rvalid,
-	output reg mmem_rready,
+	input [31:0] soc_rdata,
+	input [1:0]soc_rresp,
+	input soc_rvalid,
+	output reg soc_rready,
 	//---------------写地址---------------
-	output reg [31:0] mmem_awaddr,
-	output reg mmem_awvalid,
-	input mmem_awready,
+	output reg [31:0] soc_awaddr,
+	output reg soc_awvalid,
+	input soc_awready,
 	//---------------写数据---------------
-	output reg [1:0] mmem_wstrb,
-	output reg [31:0] mmem_wdata,
-	output reg mmem_wvalid,
-	input mmem_wready,
+	output reg [3:0] soc_wstrb,
+	output reg [31:0] soc_wdata,
+	output reg soc_wvalid,
+	input soc_wready,
 	//---------------写响应---------------
-	input [1:0]mmem_bresp,
-	input mmem_bvalid,
-	output reg mmem_bready,
-	//---------------UART---------------
-	//UART不支持读取，应该在XBAR中拦截并报错
-	//---------------写地址---------------
-	output reg [31:0] uart_awaddr,
-	output reg uart_awvalid,
-	input uart_awready,
-	//---------------写数据---------------
-	output reg [1:0] uart_wstrb,
-	output reg [31:0] uart_wdata,
-	output reg uart_wvalid,
-	input uart_wready,
-	//---------------写响应---------------
-	input [1:0]uart_bresp,
-	input uart_bvalid,
-	output reg uart_bready,
+	input [1:0]soc_bresp,
+	input soc_bvalid,
+	output reg soc_bready,
 	//---------------RTC---------------
 	//RTC不支持写入，应该在XBAR中拦截并报错
 	//---------------读地址---------------
@@ -76,8 +61,7 @@ module ysyx_25040129_XBAR (
 	output reg rtc_rready
 );
 localparam IDLE = 3'b000;
-localparam HANDLE_MMEM = 3'b001;
-localparam HANDLE_UART = 3'b010;
+localparam HANDLE_SOC = 3'b001;
 localparam HANDLE_RTC = 3'b011;
 reg is_device; 
 reg [2:0] state;
@@ -90,77 +74,32 @@ always @(posedge clk) begin
 	end
 end
 //-----------------------信号转接-----------------------
+//---------------------目前已经接入
 always @(*) begin
 	update_is_device(is_device);
 	case (state)
-		HANDLE_MMEM:begin
-			mmem_araddr = araddr;
-			mmem_arvalid = arvalid;
-			arready = mmem_arready;
+		HANDLE_SOC:begin
+			soc_araddr = araddr;
+			soc_arvalid = arvalid;
+			arready = soc_arready;
 
-			rdata = mmem_rdata;
-			rresp = mmem_rresp;
-			rvalid = mmem_rvalid;
-			mmem_rready = rready;
+			rdata = soc_rdata;
+			rresp = soc_rresp;
+			rvalid = soc_rvalid;
+			soc_rready = rready;
 
-			mmem_awaddr = awaddr;
-			mmem_awvalid = awvalid;
-			awready = mmem_awready;
+			soc_awaddr = awaddr;
+			soc_awvalid = awvalid;
+			awready = soc_awready;
 
-			mmem_wstrb = wstrb;
-			mmem_wdata = wdata;
-			mmem_wvalid = wvalid;
-			wready = mmem_wready;
+			soc_wstrb = wstrb;
+			soc_wdata = wdata;
+			soc_wvalid = wvalid;
+			wready = soc_wready;
 
-			bresp = mmem_bresp;
-			bvalid = mmem_bvalid;
-			mmem_bready = bready;
-
-			uart_awaddr = 32'b0; 
-			uart_awvalid = 1'b0;
-
-			uart_wstrb = 2'b0;
-			uart_wdata = 32'b0;
-			uart_wvalid = 1'b0;
-
-			uart_bready = 1'b0;
-
-			rtc_araddr = 32'b0;
-			rtc_arvalid = 1'b0;
-
-			rtc_rready = 1'b0;
-		end
-		HANDLE_UART:begin
-			mmem_araddr = 32'b0;
-			mmem_arvalid = 1'b0;
-			arready = 1'b0;
-
-			rdata = 32'b0;
-			rresp = 2'b00;
-			rvalid = 1'b0;
-			mmem_rready = 1'b0;
-
-			mmem_awaddr = 32'b0;
-			mmem_awvalid = 1'b0;
-			awready = 1'b0;
-
-			mmem_wstrb = 2'b0;
-			mmem_wdata = 32'b0;
-			mmem_wvalid = 1'b0;
-			wready = 1'b0;
-
-			uart_awaddr = awaddr;
-			uart_awvalid = awvalid;
-			awready = uart_awready;
-
-			uart_wstrb = wstrb;
-			uart_wdata = wdata;
-			uart_wvalid = wvalid;
-			wready = uart_wready;
-
-			bresp = uart_bresp;
-			bvalid = uart_bvalid;
-			uart_bready = bready;
+			bresp = soc_bresp;
+			bvalid = soc_bvalid;
+			soc_bready = bready;
 
 			rtc_araddr = 32'b0;
 			rtc_arvalid = 1'b0;
@@ -168,32 +107,23 @@ always @(*) begin
 			rtc_rready = 1'b0;
 		end
 		HANDLE_RTC:begin
-			mmem_araddr = 32'b0;
-			mmem_arvalid = 1'b0;
+			soc_araddr = 32'b0;
+			soc_arvalid = 1'b0;
 			arready = 1'b0;
 
 			rdata = 32'b0;
 			rresp = 2'b00;
 			rvalid = 1'b0;
-			mmem_rready = 1'b0;
+			soc_rready = 1'b0;
 
-			mmem_awaddr = 32'b0;
-			mmem_awvalid = 1'b0;
+			soc_awaddr = 32'b0;
+			soc_awvalid = 1'b0;
 			awready = 1'b0;
 
-			mmem_wstrb = 2'b0;
-			mmem_wdata = 32'b0;
-			mmem_wvalid = 1'b0;
+			soc_wstrb = 4'b0;
+			soc_wdata = 32'b0;
+			soc_wvalid = 1'b0;
 			wready = 1'b0;
-
-			uart_awaddr = 32'b0; 
-			uart_awvalid = 1'b0;
-
-			uart_wstrb = 2'b0;
-			uart_wdata = 32'b0;
-			uart_wvalid = 1'b0;
-
-			uart_bready = 1'b0;
 
 			rtc_araddr = araddr;
 			rtc_arvalid = arvalid;
@@ -218,28 +148,19 @@ always @(*) begin
 			bresp = 2'b00;
 			bvalid = 1'b0;
 
-			mmem_araddr = 32'b0;
-			mmem_arvalid = 1'b0;
+			soc_araddr = 32'b0;
+			soc_arvalid = 1'b0;
 
-			mmem_rready = 1'b0;
+			soc_rready = 1'b0;
 
-			mmem_awaddr = 32'b0;
-			mmem_awvalid = 1'b0;
+			soc_awaddr = 32'b0;
+			soc_awvalid = 1'b0;
 
-			mmem_wstrb = 2'b0;
-			mmem_wdata = 32'b0;
-			mmem_wvalid = 1'b0;
+			soc_wstrb = 4'b0;
+			soc_wdata = 32'b0;
+			soc_wvalid = 1'b0;
 
-			mmem_bready = 1'b0;
-
-			uart_awaddr = 32'b0;
-			uart_awvalid = 1'b0;
-
-			uart_wstrb = 2'b0;
-			uart_wdata = 32'b0;
-			uart_wvalid = 1'b0;
-
-			uart_bready = 1'b0;
+			soc_bready = 1'b0;
 		end
 	endcase
 end
@@ -249,39 +170,61 @@ always @(*) begin
 		IDLE: begin
 			if((awvalid&&wvalid)||arvalid)begin
 				if(arvalid)begin
-					if(araddr >= `PHYSICAL_MEM_START && araddr < `PHYSICAL_MEM_END) 
-					next_state = HANDLE_MMEM;
-					else if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
+					if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
 					next_state = HANDLE_RTC;
-					else next_state = IDLE;
+					else next_state = HANDLE_SOC;
 				end
 				else begin
-					if(awaddr >= `PHYSICAL_MEM_START && awaddr < `PHYSICAL_MEM_END )
-					next_state = HANDLE_MMEM;
-					else if(awaddr >= `SERIAL_PORT_ADDR && awaddr < `SERIAL_PORT_ADDR + `SERIAL_PORT_SIZE)
-					next_state = HANDLE_UART;
-					else next_state = IDLE;
+					next_state = HANDLE_SOC;
 				end
 			end
 			else next_state = IDLE;
 		end
-		HANDLE_MMEM: if(rready && mmem_rvalid || bready && mmem_bvalid) next_state = IDLE;
-					 else next_state = HANDLE_MMEM;
-		HANDLE_UART: if(bready && uart_bvalid) next_state = IDLE;
-					 else next_state = HANDLE_UART;
-		HANDLE_RTC: if(rready && rtc_rvalid) next_state = IDLE;
+		HANDLE_SOC: if(rready && soc_rvalid || bready && soc_bvalid) begin 
+						next_state = IDLE;
+					if(rresp != `OKAY && rready && soc_rvalid) 
+						$error("XBAR: Invalid response %b %b", rresp, bresp);
+					if(bresp != `OKAY && bready && soc_bvalid)
+						$error("XBAR: Invalid response %b %b", rresp, bresp);
+		end
+					 else next_state = HANDLE_SOC;
+		HANDLE_RTC: if(rready && rtc_rvalid)begin
+			 next_state = IDLE;
+			 if(rtc_rresp != `OKAY && rready && rtc_rvalid) 
+					$error("XBAR: Invalid RTC response %b", rtc_rresp);
+		end
 					 else next_state = HANDLE_RTC;
 		default: next_state = IDLE;
 	endcase
 end
 //-----------------------调试信号产生逻辑-----------------------
 always @(posedge clk) begin
-	case (state)
-		HANDLE_MMEM:is_device <= 1'b0;
-		HANDLE_UART:is_device <= 1'b1;
-		HANDLE_RTC:is_device <= 1'b1;
-		default:is_device <= is_device; 
-	endcase
+	if(state == IDLE && next_state == HANDLE_RTC)is_device <= 1'b1;
+	else if(state == IDLE && next_state == HANDLE_SOC)begin
+		if(awvalid && wvalid)begin
+			if(awaddr >= `UART_REG_ADDR && awaddr < `UART_REG_ADDR + `UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `SRAM_START && awaddr < `SRAM_START + `SRAM_SIZE)
+				is_device <= 1'b0;
+			else begin
+				is_device <= 1'b0;
+				$error("XBAR: Invalid write address %h", awaddr);
+			end
+		end
+		else if(arvalid)begin
+			if(araddr >= `ROM_START && araddr < `ROM_START + `ROM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `SRAM_START && araddr < `SRAM_START + `SRAM_SIZE)
+				is_device <= 1'b0;
+			else begin
+				is_device <= 1'b0;
+				$error("XBAR: Invalid read address %h", araddr);
+			end
+		end
+		else is_device <= 1'b0;
+	end
+	else if(next_state == IDLE) is_device <= 1'b0;
+	else is_device <= is_device;
 end
 endmodule
 

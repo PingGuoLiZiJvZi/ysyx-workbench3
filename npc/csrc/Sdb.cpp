@@ -2,7 +2,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "Sdb.h"
-Vysyx_25040129_top *Npc::top = NULL;
+VysyxSoCFull *Npc::top = NULL;
 long Sdb::load_img()
 {
 	if (img_file == NULL)
@@ -145,6 +145,7 @@ int Sdb::cmd_help(char *args)
 
 int Sdb::sdb_mainloop()
 {
+	printf("Welcome to NPC!\n");
 	for (char *str; (str = rl_gets()) != NULL;)
 	{
 		char *str_end = str + strlen(str);

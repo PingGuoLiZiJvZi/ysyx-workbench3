@@ -7,11 +7,95 @@ import "DPI-C" function void update_pc(int pc);
 import "DPI-C" function void update_inst(int inst);
 import "DPI-C" function void update_is_device(bit is_device);
 import "DPI-C" function void update_ifu_state(byte ifu_state);
-
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129_top(
-	input clk,
-	input rst
+	input clock,
+	input reset,
+  // --------------- master -----------------
+  input  io_interrupt,
+
+  // --------------- master 写地址 AW -----------------
+  input  io_master_awready,
+  output io_master_awvalid,
+  output [3:0]  io_master_awid,
+  output [31:0] io_master_awaddr,
+  output [7:0]  io_master_awlen,
+  output [2:0]  io_master_awsize,
+  output [1:0]  io_master_awburst,
+
+  // --------------- master 写数据 W -----------------
+  input  io_master_wready,
+  output io_master_wvalid,
+  output [31:0] io_master_wdata,
+  output [3:0]  io_master_wstrb,
+  output io_master_wlast,
+
+  // --------------- master 写响应 B -----------------
+  output io_master_bready,
+  input  io_master_bvalid,
+  input  [3:0] io_master_bid,
+  input  [1:0] io_master_bresp,
+
+  // --------------- master 读地址 AR -----------------
+  input  io_master_arready,
+  output io_master_arvalid,
+  output [3:0]  io_master_arid,
+  output [31:0] io_master_araddr,
+  output [7:0]  io_master_arlen,
+  output [2:0]  io_master_arsize,
+  output [1:0]  io_master_arburst,
+
+  // --------------- master 读数据 R -----------------
+  output io_master_rready,
+  input  io_master_rvalid,
+  input  [3:0]  io_master_rid,
+  input  [31:0] io_master_rdata,
+  input  [1:0]  io_master_rresp,
+  input  io_master_rlast,
+
+  // --------------- slave 写地址 AW -----------------
+  output io_slave_awready,
+  input  io_slave_awvalid,
+  input  [3:0]  io_slave_awid,
+  input  [31:0] io_slave_awaddr,
+  input  [7:0]  io_slave_awlen,
+  input  [2:0]  io_slave_awsize,
+  input  [1:0]  io_slave_awburst,
+
+  // --------------- slave 写数据 W -----------------
+  output io_slave_wready,
+  input  io_slave_wvalid,
+  input  [31:0] io_slave_wdata,
+  input  [3:0]  io_slave_wstrb,
+  input  io_slave_wlast,
+
+  // --------------- slave 写响应 B -----------------
+  input  io_slave_bready,
+  output io_slave_bvalid,
+  output [3:0] io_slave_bid,
+  output [1:0] io_slave_bresp,
+
+  // --------------- slave 读地址 AR -----------------
+  output io_slave_arready,
+  input  io_slave_arvalid,
+  input  [3:0]  io_slave_arid,
+  input  [31:0] io_slave_araddr,
+  input  [7:0]  io_slave_arlen,
+  input  [2:0]  io_slave_arsize,
+  input  [1:0]  io_slave_arburst,
+
+  // --------------- slave 读数据 R -----------------
+  input  io_slave_rready,
+  output io_slave_rvalid,
+  output [3:0]  io_slave_rid,
+  output [31:0] io_slave_rdata,
+  output [1:0]  io_slave_rresp,
+  output io_slave_rlast
 );
+	wire clk;
+	assign clk = clock;
+	wire rst;
+	assign rst = reset;
+
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
 		.rst(rst),
@@ -38,40 +122,27 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 		.bvalid(bvalid_to_lsu),
 		.bready(bready_from_lsu),
 
-		.mmem_araddr(araddr_to_mmem),
-		.mmem_arvalid(arvalid_to_mmem),
-		.mmem_arready(arready_from_mmem),
+		.soc_araddr(io_master_araddr),
+		.soc_arvalid(io_master_arvalid),
+		.soc_arready(io_master_arready),
 
-		.mmem_rdata(rdata_from_mmem),
-		.mmem_rresp(rresp_from_mmem),
-		.mmem_rvalid(rvalid_from_mmem),
-		.mmem_rready(rready_to_mmem),
+		.soc_rdata(io_master_rdata),
+		.soc_rresp(io_master_rresp),
+		.soc_rvalid(io_master_rvalid),
+		.soc_rready(io_master_rready),
 
-		.mmem_awaddr(awaddr_to_mmem),
-		.mmem_awvalid(awvalid_to_mmem),
-		.mmem_awready(awready_from_mmem),
+		.soc_awaddr(io_master_awaddr),
+		.soc_awvalid(io_master_awvalid),
+		.soc_awready(io_master_awready),
 
-		.mmem_wstrb(wstrb_to_mmem),
-		.mmem_wdata(wdata_to_mmem),
-		.mmem_wvalid(wvalid_to_mmem),
-		.mmem_wready(wready_from_mmem),
+		.soc_wstrb(io_master_wstrb),
+		.soc_wdata(io_master_wdata),
+		.soc_wvalid(io_master_wvalid),
+		.soc_wready(io_master_wready),
 
-		.mmem_bresp(bresp_from_mmem),
-		.mmem_bvalid(bvalid_from_mmem),
-		.mmem_bready(bready_to_mmem),
-
-		.uart_awaddr(awaddr_to_uart),
-		.uart_awvalid(awvalid_to_uart),
-		.uart_awready(awready_from_uart),
-
-		.uart_wstrb(wstrb_to_uart),
-		.uart_wdata(wdata_to_uart),
-		.uart_wvalid(wvalid_to_uart),
-		.uart_wready(wready_from_uart),
-
-		.uart_bresp(bresp_from_uart),
-		.uart_bvalid(bvalid_from_uart),
-		.uart_bready(bready_to_uart),
+		.soc_bresp(io_master_bresp),
+		.soc_bvalid(io_master_bvalid),
+		.soc_bready(io_master_bready),
 
 		.rtc_araddr(araddr_to_rtc),
 		.rtc_arvalid(arvalid_to_rtc),
@@ -106,59 +177,27 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 	);
 
 
- 	wire [31:0] araddr_to_mmem;
-	wire arvalid_to_mmem;
-	wire arready_from_mmem;
+ 	wire [31:0] araddr_to_soc;
+	wire arvalid_to_soc;
+	wire arready_from_soc;
 
-	wire [31:0] rdata_from_mmem;
-	wire [1:0] rresp_from_mmem;
-	wire rvalid_from_mmem;
-	wire rready_to_mmem;
+	wire [31:0] rdata_from_soc;
+	wire [1:0] rresp_from_soc;
+	wire rvalid_from_soc;
+	wire rready_to_soc;
 
-	wire [31:0] awaddr_to_mmem;
-	wire awvalid_to_mmem;
-	wire awready_from_mmem;
+	wire [31:0] awaddr_to_soc;
+	wire awvalid_to_soc;
+	wire awready_from_soc;
 
-	wire [1:0] wstrb_to_mmem;
-	wire [31:0] wdata_to_mmem;
-	wire wvalid_to_mmem;
-	wire wready_from_mmem;
+	wire [3:0] wstrb_to_soc;
+	wire [31:0] wdata_to_soc;
+	wire wvalid_to_soc;
+	wire wready_from_soc;
 
-	wire [1:0] bresp_from_mmem;
-	wire bvalid_from_mmem;
-	wire bready_to_mmem;
-
-	wire [31:0] awaddr_to_uart;
-	wire awvalid_to_uart;
-	wire awready_from_uart;
-
-	wire [1:0] wstrb_to_uart;
-	wire [31:0] wdata_to_uart;
-	wire wvalid_to_uart;
-	wire wready_from_uart;
-
-	wire [1:0] bresp_from_uart;
-	wire bvalid_from_uart;
-	wire bready_to_uart;
-	
-	ysyx_25040129_UART u_ysyx_25040129_UART (
-		.clk(clk),
-		.rst(rst),
-
-		.awaddr(awaddr_to_uart),
-		.awvalid(awvalid_to_uart),
-		.awready(awready_from_uart),
-
-		.wstrb(wstrb_to_uart),
-		.wdata(wdata_to_uart),
-		.wvalid(wvalid_to_uart),
-		.wready(wready_from_uart),
-
-		.bresp(bresp_from_uart),
-		.bvalid(bvalid_from_uart),
-		.bready(bready_to_uart)
-	);
-
+	wire [1:0] bresp_from_soc;
+	wire bvalid_from_soc;
+	wire bready_to_soc;
 
 
 	ysyx_25040129_BUSARB u_ysyx_25040129_BUSARB(
@@ -199,32 +238,6 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 	wire [1:0] rresp_from_xbar;
 	wire rvalid_from_xbar;
 	wire arready_from_xbar;
-	ysyx_25040129_MMEM u_ysyx_25040129_MMEM (
-		.clk(clk),
-		.rst(rst),
-
-		.araddr(araddr_to_mmem),
-		.arvalid(arvalid_to_mmem),
-		.arready(arready_from_mmem),
-
-		.rdata(rdata_from_mmem),
-		.rresp(rresp_from_mmem),
-		.rvalid(rvalid_from_mmem),
-		.rready(rready_to_mmem),
-
-		.awaddr(awaddr_to_mmem),
-		.awvalid(awvalid_to_mmem),
-		.awready(awready_from_mmem),
-
-		.wstrb(wstrb_to_mmem),
-		.wdata(wdata_to_mmem),
-		.wvalid(wvalid_to_mmem),
-		.wready(wready_from_mmem),
-
-		.bresp(bresp_from_mmem),
-		.bvalid(bvalid_from_mmem),
-		.bready(bready_to_mmem)
-	);
 	
 	/* verilator lint_off UNUSEDSIGNAL */
 	wire empty_awready;
@@ -495,7 +508,7 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 	wire awvalid_from_lsu;
 	wire awready_to_lsu;
 
-	wire [1:0] wstrb_from_lsu;
+	wire [3:0] wstrb_from_lsu;
 	wire [31:0] wdata_from_lsu;
 	wire wvalid_from_lsu;
 	wire wready_to_lsu;

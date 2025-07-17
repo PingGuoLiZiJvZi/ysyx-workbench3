@@ -86,3 +86,8 @@ extern "C" void paddr_write(uint32_t addr, int len, uint32_t data, int is_avail)
 	printf("paddr write addr=0x%08x len=%d data=0x%08x\n", addr, len, data);
 #endif
 }
+extern "C" void mrom_read(int32_t addr, int32_t *data)
+{
+
+	*data = paddr_read(addr, 4, 0, 1);
+}

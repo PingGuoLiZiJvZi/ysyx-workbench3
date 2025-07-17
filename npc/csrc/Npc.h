@@ -1,5 +1,5 @@
 #pragma once
-#include "Vysyx_25040129_top.h"
+#include "VysyxSoCFull.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 #include "Iringbuf.h"
@@ -23,7 +23,7 @@ public:
 	Npc(int argc, char **argv)
 	{
 		Verilated::commandArgs(argc, argv);
-		top = new Vysyx_25040129_top;
+		top = new VysyxSoCFull;
 #ifdef WAVE
 		tfp = new VerilatedVcdC;
 		Verilated::traceEverOn(true);
@@ -44,14 +44,14 @@ public:
 	}
 	void reset_top()
 	{
-		top->clk = 0;
-		top->rst = 1;
+		top->clock = 0;
+		top->reset = 1;
 		top->eval();
 		dump();
-		top->clk = 1;
+		top->clock = 1;
 		top->eval();
 		dump();
-		top->rst = 0;
+		top->reset = 0;
 #ifdef TRACE
 		update_messages();
 #endif
@@ -59,10 +59,10 @@ public:
 	void step_top()
 	{
 
-		top->clk = 0;
+		top->clock = 0;
 		top->eval();
 		dump();
-		top->clk = 1;
+		top->clock = 1;
 		top->eval();
 		dump();
 #ifdef TRACE
@@ -174,7 +174,7 @@ public:
 		sprintf(message, "pc 0x%08x inst 0x%08x %s\n", pc_before, inst, disasm);
 		pc_before = regs_val[0];
 	}
-	static Vysyx_25040129_top *top;
+	static VysyxSoCFull *top;
 #ifdef WAVE
 	uint32_t main_time = 0;
 	VerilatedVcdC *tfp;

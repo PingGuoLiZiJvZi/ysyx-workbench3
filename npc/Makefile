@@ -1,10 +1,10 @@
-TOPNAME = ysyx_25040129_top
+TOPNAME = ysyxSoCFull
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert
 
 THIS_DIR := ~/ysyx-workbench/npc
-SOC_PATH := ~/ysyx-workbench/ysyxSoC
+
 BUILD_DIR =${THIS_DIR}/build
 OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
@@ -34,10 +34,10 @@ CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
 #run规则为调用sim
 run:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module ysyxSoCFull \
-	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(find ~/ysyx-workbench/ysyxSoC/perip -name "*.v") $(SOC_PATH)/build/*.v ${THIS_DIR}/csrc/*.cpp  \
+	verilator --cc --exe --build -j  0 -O3 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
+	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v") $(SOC_HOME)/build/*.v ${THIS_DIR}/csrc/*.cpp ${THIS_DIR}/csrc/*.c \
 	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
-	-I$(SOC_PATH)/perip/uart16550/rtl -I$(SOC_PATH)/perip/spi/rtl \
+	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing
 		${BIN}
 

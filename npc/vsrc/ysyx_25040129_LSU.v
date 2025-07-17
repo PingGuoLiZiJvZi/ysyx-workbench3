@@ -34,7 +34,7 @@ module ysyx_25040129_LSU (
 	output awvalid,
 	input awready,
 	//---------------写数据---------------
-	output [1:0] wstrb,
+	output reg[3:0] wstrb,
 	output [31:0] wdata,
 	output wvalid,
 	input wready,
@@ -65,7 +65,14 @@ assign rd_out_lsu = rd_in_lsu;
 assign mret_out_lsu = mret_in_lsu;
 assign wdata = mmem_write_data_in_lsu; // 如果是写请求，则将计算结果传递出去，否则传递计算结果
 assign ecall_out_lsu = ecall_in_lsu; 
-assign wstrb = mmem_write_in_lsu; // 由从元件锁存
+always @(*) begin
+	case (mmem_write_in_lsu)
+		`NO_MEM_WRITE:wstrb = 4'b0000; // 不写
+		`MEM_WRITE_BYTE:wstrb = 4'b0001; // 写字
+		`MEM_WRITE_HALF:wstrb = 4'b0011; // 写半字
+		`MEM_WRITE_WORD:wstrb = 4'b1111; // 写字 
+	endcase
+end
 assign awaddr = result_in_lsu; // 由从元件锁存
 
 

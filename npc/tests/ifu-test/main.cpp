@@ -20,23 +20,23 @@ uint32_t rand_uint32()
 // 时钟周期函数
 void clock_cycle()
 {
-	top->clk = 0;
+	top->clock = 0;
 	top->eval();
 
-	top->clk = 1;
+	top->clock = 1;
 	top->eval();
 }
 
 // 重置系统
 void reset()
 {
-	top->rst = 1;
-	top->clk = 0;
+	top->reset = 1;
+	top->clock = 0;
 	top->eval();
-	top->rst = 1;
-	top->clk = 1;
+	top->reset = 1;
+	top->clock = 1;
 	top->eval();
-	top->rst = 0; // 释放复位
+	top->reset = 0; // 释放复位
 }
 
 // 打印状态名

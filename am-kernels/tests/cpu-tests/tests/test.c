@@ -1,6 +1,8 @@
 #include "trap.h"
 int main()
 {
+	putch('a');
+	putch('\n');
 	check(-1 / -1 == 1);
 	int res = -1 / -1;
 	printf("res == %d\n%d\n", -1 / -1, res);
