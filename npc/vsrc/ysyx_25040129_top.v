@@ -95,6 +95,11 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 	assign clk = clock;
 	wire rst;
 	assign rst = reset;
+	assign io_master_arlen = 8'b0;
+	assign io_master_arburst = 2'b01; // INCR
+	assign io_master_arid = 4'b0;
+	
+	
 
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
@@ -103,6 +108,7 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 		.araddr(araddr_to_xbar),
 		.arvalid(arvalid_to_xbar),
 		.arready(arready_from_xbar),
+		.arsize(arsize_to_xbar),
 
 		.rdata(rdata_from_xbar),
 		.rresp(rresp_from_xbar),
@@ -125,6 +131,7 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 		.soc_araddr(io_master_araddr),
 		.soc_arvalid(io_master_arvalid),
 		.soc_arready(io_master_arready),
+		.soc_arsize(io_master_arsize),
 
 		.soc_rdata(io_master_rdata),
 		.soc_rresp(io_master_rresp),
@@ -216,6 +223,7 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 		.lsu_araddr(araddr_from_lsu),
 		.lsu_arvalid(arvalid_from_lsu),
 		.lsu_arready(rready_to_lsu),
+		.lsu_arsize(arsize_from_lsu),
 
 		.lsu_rdata(rdata_to_lsu),
 		.lsu_rresp(rresp_to_lsu),
@@ -225,12 +233,14 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 		.araddr(araddr_to_xbar),
 		.arvalid(arvalid_to_xbar),
 		.arready(arready_from_xbar),
+		.arsize(arsize_to_xbar),
 
 		.rdata(rdata_from_xbar),
 		.rresp(rresp_from_xbar),
 		.rvalid(rvalid_from_xbar),
 		.rready(rready_to_xbar)
 	);	
+	wire [2:0] arsize_to_xbar;
 	wire [31:0] araddr_to_xbar;
 	wire arvalid_to_xbar;
 	wire rready_to_xbar;
@@ -464,6 +474,7 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 		.araddr(araddr_from_lsu),
 		.arvalid(arvalid_from_lsu),
 		.arready(rready_to_lsu),
+		.arsize(arsize_from_lsu),
 
 		.rdata(rdata_to_lsu),
 		.rresp(rresp_to_lsu),
@@ -497,6 +508,7 @@ import "DPI-C" function void update_ifu_state(byte ifu_state);
 	);
 	wire [31:0] araddr_from_lsu;
 	wire arvalid_from_lsu;
+	wire [2:0] arsize_from_lsu;
 	wire rready_to_lsu;
 
 	wire [31:0] rdata_to_lsu;

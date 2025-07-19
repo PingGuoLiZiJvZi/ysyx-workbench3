@@ -5,6 +5,7 @@ module ysyx_25040129_XBAR (
 	//---------------读地址---------------
 	input [31:0] araddr,
 	input arvalid,
+	input [2:0] arsize,
 	output reg arready,
 	//---------------读数据---------------
 	output reg[31:0] rdata,
@@ -29,6 +30,7 @@ module ysyx_25040129_XBAR (
 	//---------------读地址---------------
 	output reg [31:0] soc_araddr,
 	output reg soc_arvalid,
+	output reg [2:0] soc_arsize,
 	input soc_arready,
 	//---------------读数据---------------
 	input [31:0] soc_rdata,
@@ -82,6 +84,7 @@ always @(*) begin
 			soc_araddr = araddr;
 			soc_arvalid = arvalid;
 			arready = soc_arready;
+			soc_arsize = arsize;
 
 			rdata = soc_rdata;
 			rresp = soc_rresp;
@@ -110,6 +113,7 @@ always @(*) begin
 			soc_araddr = 32'b0;
 			soc_arvalid = 1'b0;
 			arready = 1'b0;
+			soc_arsize = 3'b000;
 
 			rdata = 32'b0;
 			rresp = 2'b00;
@@ -136,6 +140,7 @@ always @(*) begin
 		end
 		default: begin
 			arready = 1'b0;
+			soc_araddr = 32'b0;
 
 			rdata = 32'b0;
 			rresp = 2'b00;
@@ -206,6 +211,8 @@ always @(posedge clk) begin
 				is_device <= 1'b1;
 			else if(awaddr >= `SRAM_START && awaddr < `SRAM_START + `SRAM_SIZE)
 				is_device <= 1'b0;
+			else if(awaddr >= `SPI_ADDR && awaddr < `SPI_ADDR + `SPI_SIZE)
+				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
 				$error("XBAR: Invalid write address %h", awaddr);
@@ -216,14 +223,19 @@ always @(posedge clk) begin
 				is_device <= 1'b0;
 			else if(araddr >= `SRAM_START && araddr < `SRAM_START + `SRAM_SIZE)
 				is_device <= 1'b0;
+			else if(araddr >= `UART_REG_ADDR && araddr < `UART_REG_ADDR + `UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `FLASH_START && araddr < `FLASH_SIZE+`FLASH_START)
+				is_device <= 1'b0;
+			else if(araddr >= `SPI_ADDR && araddr < `SPI_ADDR + `SPI_SIZE)
+				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
 				$error("XBAR: Invalid read address %h", araddr);
 			end
 		end
-		else is_device <= 1'b0;
+		else is_device <= is_device;
 	end
-	else if(next_state == IDLE) is_device <= 1'b0;
 	else is_device <= is_device;
 end
 endmodule

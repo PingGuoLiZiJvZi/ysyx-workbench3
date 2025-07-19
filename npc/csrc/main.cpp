@@ -9,7 +9,6 @@ uint32_t Npc::inst = 0;
 bool Npc::is_device = false;
 uint8_t Npc::ifu_state = 0;
 NPC_STATE Sdb::npc_state = NPC_RUNNING;
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 
 extern "C" void ebreak_trigger()
 {

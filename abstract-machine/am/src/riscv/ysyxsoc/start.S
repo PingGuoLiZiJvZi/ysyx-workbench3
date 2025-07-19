@@ -3,6 +3,9 @@
 .type _start, @function
 
 _start:
-  mv s0, zero
   la sp, _stack_pointer
+  mv s0, zero
+  
+  call bootloader
+  call uart_init
   call _trm_init

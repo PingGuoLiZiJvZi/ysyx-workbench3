@@ -43,9 +43,11 @@ run:
 
 autorun:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wall -Wwarn-LATCH --trace --top-module $(TOPNAME) \
-	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v ${THIS_DIR}/csrc/*.c ${THIS_DIR}/csrc/*.cpp \
-	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include"
+	verilator --cc --exe --build -j  0 -O3 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
+	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v") $(SOC_HOME)/build/*.v ${THIS_DIR}/csrc/*.cpp ${THIS_DIR}/csrc/*.c \
+	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
+	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
+	--timescale "1ns/1ns" --no-timing
 	printf "c\nq\n" |${BIN}
 
 

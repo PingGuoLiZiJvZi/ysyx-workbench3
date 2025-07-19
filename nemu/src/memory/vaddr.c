@@ -25,20 +25,30 @@ word_t trans_check(vaddr_t addr, int len, int type)
 	else
 		panic("MMU check failed for vaddr %x,type %d\n", addr, type);
 }
+word_t map_to_rom_and_ram(word_t addr)
+{
+	if (addr >= 0x20000000 && addr < 0x20001000) // ROM
+		return addr + 0x60000000;
+	else if (addr >= 0x0f000000 && addr < 0x0f002000) // RAM
+		return addr + 0x80000000 - 0x0e000000;
+	else if (addr >= 0x30000000 && addr < 0x40000000) // Flash
+		return addr + 0x50000000;
+	return addr; // Other addresses remain unchanged
+}
 word_t vaddr_ifetch(vaddr_t addr, int len)
 {
-	addr = trans_check(addr, len, MEM_TYPE_IFETCH);
+	addr = map_to_rom_and_ram(addr);
 	return paddr_read(addr, len);
 }
 
 word_t vaddr_read(vaddr_t addr, int len)
 {
-	addr = trans_check(addr, len, MEM_TYPE_READ);
+	addr = map_to_rom_and_ram(addr);
 	return paddr_read(addr, len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data)
 {
-	addr = trans_check(addr, len, MEM_TYPE_WRITE);
+	addr = map_to_rom_and_ram(addr);
 	paddr_write(addr, len, data);
 }

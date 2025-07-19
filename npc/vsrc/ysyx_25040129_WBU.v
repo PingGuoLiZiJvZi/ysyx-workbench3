@@ -21,7 +21,7 @@ module ysyx_25040129_WBU (
 	output reg_write_out_wbu, // 该信号将被一路传递至WB阶段
 
 	input [31:0] branch_target_in_wbu,
-	output [31:0]branch_target_out_wbu,
+	output reg[31:0]branch_target_out_wbu,
 	input [31:0] target_from_csr_in_wbu, 
 
 	input ecall_in_wbu,
@@ -59,8 +59,13 @@ assign is_req_ready_to_lsu = (state == IDLE);
 
 assign mret_out_wbu = mret_in_wbu && is_req_valid_from_lsu; 
 assign ecall_out_wbu = ecall_in_wbu && is_req_valid_from_lsu; // 只有在LSU请求有效时才允许ecall信号
-assign is_branch_out_wbu = is_branch_in_wbu || mret_in_wbu || ecall_in_wbu; 
-assign branch_target_out_wbu = (mret_in_wbu || ecall_in_wbu )?target_from_csr_in_wbu:branch_target_in_wbu;
+assign is_branch_out_wbu = is_branch_in_wbu || mret_in_wbu || ecall_in_wbu;
+ 
+always @(posedge clk) begin
+	if(state == IDLE &&next_state == WRITE_BACK)
+		branch_target_out_wbu <= (mret_in_wbu || ecall_in_wbu )?target_from_csr_in_wbu:branch_target_in_wbu;
+end
+
 
 assign rd_out_wbu = rd_in_wbu; // 直接传递寄存器编号
 assign result_out_wbu = result_in_wbu; // 直接传递计算结果

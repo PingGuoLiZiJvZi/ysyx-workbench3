@@ -42,7 +42,7 @@ localparam WAIT_IDU_READY = 3'b011;
 // pc 更新逻辑
 always @(posedge clk) begin
 	if(rst)begin
-		pc <= `START_ADDR;
+		pc <= `FLASH_START;
 		inst_to_idu <= 32'b0; // 初始化指令
 	end
 	else begin

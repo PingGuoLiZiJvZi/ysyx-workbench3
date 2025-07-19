@@ -109,8 +109,11 @@ public:
 		if (is_skip_ref)
 		{
 			is_skip_ref = 0;
-			ref_difftest_memcpy(0, pmem, 0x8000000, DIFFTEST_TO_REF);
+
+			// ref_difftest_memcpy(0, pmem, 0x8000000, DIFFTEST_TO_REF);
+
 			ref_difftest_regcpy(regs_val, DIFFTEST_TO_REF);
+
 			return;
 		}
 		else

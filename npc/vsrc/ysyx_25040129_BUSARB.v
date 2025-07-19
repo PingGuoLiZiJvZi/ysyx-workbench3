@@ -17,6 +17,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 	input [31:0] lsu_araddr,
 	input lsu_arvalid,
 	output reg lsu_arready,
+	input [2:0] lsu_arsize,
 	//----------------读数据---------------
 	output reg [31:0] lsu_rdata,
 	output reg [1:0] lsu_rresp,
@@ -27,6 +28,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 	//----------------读地址---------------
 	output [31:0] araddr,
 	output arvalid,
+	output reg [2:0] arsize,
 	input arready,
 	//----------------读数据---------------
 	input [31:0] rdata,
@@ -71,6 +73,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 				araddr = 32'b0;
 				arvalid = 1'b0;
 				rready = 1'b0;
+				arsize = 3'b000; // 默认不读取
 			end
 			HANDLE_IFU: begin
 				ifu_arready = arready;
@@ -83,6 +86,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 				lsu_rvalid = 1'b0;
 				araddr = ifu_araddr;
 				arvalid = ifu_arvalid;
+				arsize = 3'b010; // 默认读取字
 				rready = ifu_rready;
 			end
 			HANDLE_LSU: begin
@@ -96,6 +100,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 				lsu_rvalid = rvalid;
 				araddr = lsu_araddr;
 				arvalid = lsu_arvalid;
+				arsize = lsu_arsize; // LSU的大小
 				rready = lsu_rready;
 			end
 			default: 
@@ -110,6 +115,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 				lsu_rvalid = 1'b0;
 				araddr = 32'b0;
 				arvalid = 1'b0;
+				arsize = 3'b000; // 默认不读取
 				rready = 1'b0;
 			end
 		endcase
