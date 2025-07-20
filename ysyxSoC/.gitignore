@@ -1,0 +1,4 @@
+build/
+out/
+rocket-chip/
+*.scala

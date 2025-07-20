@@ -1,0 +1,8 @@
+make: *** Deleting file 'Makefile.dummy'
+make[3]: *** [/usr/local/share/verilator/include/verilated.mk:272: VysyxSoCFull__ALL.o] Interrupt
+make[3]: *** Deleting intermediate file 'VysyxSoCFull__ALL.verilator_deplist.tmp'
+%Error: Internal Error: ../V3Os.cpp:471: system(make -C build/obj_dir -f VysyxSoCFull.mk -j 4) returned unexpected value of 2
+                        ... See the manual at https://verilator.org/verilator_doc.html for more assistance.
+make[2]: *** [Makefile:37: run] Interrupt
+make[1]: *** [/home/pglzjz/ysyx-workbench/abstract-machine/scripts/platform/npc.mk:29: run] Interrupt
+make: *** [Makefile:19: Makefile.dummy] Interrupt

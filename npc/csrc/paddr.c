@@ -97,5 +97,4 @@ extern "C" void flash_read(int32_t addr, int32_t *data)
 
 	addr += 0x20000000;
 	*data = paddr_read(addr & (~3), 4, 0, 1);
-	printf("flash_read addr = 0x%x,res = %x\n", addr, *data);
 }
