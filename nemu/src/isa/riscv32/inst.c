@@ -36,6 +36,10 @@ word_t csrr(word_t csr)
 		return cpu.satp;
 	case 0x340:
 		return cpu.mscratch; // Added for RISC-V
+	case 0x114:
+		return 0x79737978;
+	case 0x514:
+		return 92104052;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);

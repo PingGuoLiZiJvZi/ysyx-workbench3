@@ -3,6 +3,7 @@
 #include "npc.h"
 #include "riscv.h"
 extern char _heap_start;
+extern char _heap_end;
 int main(const char *args);
 extern char _data_lma[];	 // 数据段加载地址(MA)
 extern char _data_vma[];	 // 数据段运行地址(SA)
@@ -14,7 +15,7 @@ extern char _pmem_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
 #define PMEM_END ((uintptr_t)&_pmem_start + PMEM_SIZE)
 #define npc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
-Area heap = RANGE(&_heap_start, PMEM_END);
+Area heap = RANGE(&_heap_start, &_heap_end);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 #define UART_RBR (0) // 接收缓冲寄存器 (DLAB=0)
@@ -73,4 +74,31 @@ void bootloader()
 	{
 		*p = 0;
 	}
+}
+
+void display_message()
+{
+	unsigned int ysyx, id;
+
+	__asm__ volatile(
+		"csrr %0, 0x114\n"
+		"csrr %1, 0x514\n"
+		: "=r"(ysyx), "=r"(id) // 输出约束
+		:					   // 无输入
+		:					   // 无破坏寄存器
+	);
+
+	for (int i = 0; i < 4; i++)
+	{
+		putch((ysyx & 0xFF000000) >> 24);
+		ysyx <<= 8;
+	}
+	putch(':');
+	for (int i = 0; i < 8; i++)
+	{
+		unsigned char digit = id % 10;
+		putch('0' + digit);
+		id /= 10;
+	}
+	putch('\n');
 }

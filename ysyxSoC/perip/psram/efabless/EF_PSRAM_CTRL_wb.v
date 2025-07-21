@@ -39,8 +39,16 @@ module EF_PSRAM_CTRL_wb (
     output  wire [3:0]      douten
 );
 
-    localparam  ST_IDLE = 1'b0,
-                ST_WAIT = 1'b1;
+    localparam  TYPE0 = 4'b0000,
+				TYPE1 = 4'b0001,
+				TYPE2 = 4'b0010,
+				TYPE3 = 4'b0011,
+				TYPE4 = 4'b0100,
+				TYPE5 = 4'b0101,
+				TYPE6 = 4'b0110,
+				TYPE7 = 4'b0111,
+				ST_IDLE = 4'b1000,
+				ST_WAIT = 4'b1001;
 
     wire        mr_sck;
     wire        mr_ce_n;
@@ -69,15 +77,27 @@ module EF_PSRAM_CTRL_wb (
     //wire[3:0]   wb_byte_sel     =   sel_i & {4{wb_we}};
 
     // The FSM
-    reg         state, nstate;
+    reg      [3:0]   state, nstate;
+	reg delay = 0;
     always @ (posedge clk_i or posedge rst_i)
         if(rst_i)
-            state <= ST_IDLE;
+		begin
+			 state <= TYPE0;
+		end
+           
         else
             state <= nstate;
 
     always @* begin
         case(state)
+			TYPE0 :nstate = (~ delay)? TYPE1:TYPE0;
+			TYPE1 :nstate = (~ delay)? TYPE2:TYPE1;
+			TYPE2 :nstate = (~ delay)? TYPE3:TYPE2;
+			TYPE3 :nstate = (~ delay)? TYPE4:TYPE3;
+			TYPE4 :nstate = (~ delay)? TYPE5:TYPE4;
+			TYPE5 :nstate = (~ delay)? TYPE6:TYPE5;
+			TYPE6 :nstate = (~ delay)? TYPE7:TYPE6;
+			TYPE7 :nstate = (~ delay)? ST_IDLE:TYPE7;
             ST_IDLE :
                 if(wb_valid)
                     nstate = ST_WAIT;
@@ -89,9 +109,13 @@ module EF_PSRAM_CTRL_wb (
                     nstate = ST_IDLE;
                 else
                     nstate = ST_WAIT;
+			default :
+				nstate = TYPE0; // Default state to avoid latches
         endcase
     end
-
+	wire is_init = (state == TYPE0) | (state == TYPE1) | (state == TYPE2) |
+					(state == TYPE3) | (state == TYPE4) | (state == TYPE5) |
+					(state == TYPE6) | (state == TYPE7);
     wire [2:0]  size =  (sel_i == 4'b0001) ? 1 :
                         (sel_i == 4'b0010) ? 1 :
                         (sel_i == 4'b0100) ? 1 :
@@ -160,11 +184,63 @@ module EF_PSRAM_CTRL_wb (
         .dout(mw_dout),
         .douten(mw_doe)
     );
+	reg wb_init_sck;
+	// reg wb_init_ce_n;
+	reg [3:0] wb_init_dout;
+	always @ (posedge clk_i) begin
+		if(delay)
+					begin
+						wb_init_sck <= 1'b1;
+						delay <= 1'b0;
+					end
+				else
+					begin
+						wb_init_sck <= 1'b0;
+						delay <= 1'b1;
+					end
+		case (state)
+			TYPE0:begin
+				wb_init_dout <= 4'b0000;
+			end 
+			TYPE1:begin
 
-    assign sck  = wb_we ? mw_sck  : mr_sck;
-    assign ce_n = wb_we ? mw_ce_n : mr_ce_n;
-    assign dout = wb_we ? mw_dout : mr_dout;
-    assign douten  = wb_we ? {4{mw_doe}}  : {4{mr_doe}};
+				wb_init_dout <= 4'b0000;
+			end
+			TYPE2:begin
+
+				wb_init_dout <= 4'b0001;
+			end
+			TYPE3:begin
+
+				wb_init_dout <= 4'b0001;
+			end
+			TYPE4:begin
+
+				wb_init_dout <= 4'b0000;
+			end
+			TYPE5:begin
+
+				wb_init_dout <= 4'b0001;
+			end
+			TYPE6:begin
+
+				wb_init_dout <= 4'b0000;
+			end
+			TYPE7:begin
+
+				wb_init_dout <= 4'b0001;
+			end
+			default: begin
+
+				wb_init_dout <= 4'b0000;
+			end
+		endcase
+
+	end
+    assign sck  = (is_init)?wb_init_sck:wb_we ? mw_sck  : mr_sck;
+    assign ce_n = (is_init)?1'b0:wb_we ? mw_ce_n : mr_ce_n;
+    assign dout =(is_init)?wb_init_dout: wb_we ? mw_dout : mr_dout;
+    assign douten  = (is_init)?4'b1111:wb_we ? {4{mw_doe}}  : {4{mr_doe}};
 
     assign mw_din = din;
     assign mr_din = din;

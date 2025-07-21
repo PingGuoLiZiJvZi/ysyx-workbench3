@@ -17,8 +17,12 @@ module ysyx_25040129_CSR (
 	reg [31:0] mstatus;
 	reg [31:0] mcause;
 	reg [31:0] mtvec;
+	reg [31:0] mvendorid;
+	reg [31:0] marchid;
 	always @(*) begin
 		case (csr_read_addr)
+			12'h114: csr_out = mvendorid; // MVENDORID
+			12'h514: csr_out = marchid; // MARCHID
 			12'h300: csr_out = mstatus; // MSTATUS
 			12'h305: csr_out = mtvec; // MTVEC
 			12'h341: csr_out = mepc; // MEPC
@@ -32,6 +36,8 @@ module ysyx_25040129_CSR (
 			mtvec <= 32'b0;
 			mepc <= 32'b0;
 			mcause <= 32'b0;
+			mvendorid <= 32'h79737978; 
+			marchid <= 32'd92104052;
 		end
 		else begin
 			if(ecall)begin
@@ -47,6 +53,8 @@ module ysyx_25040129_CSR (
 			else begin
 					if (csr_write) begin
 						case (csr_write_addr)
+							12'h114: mvendorid <= csr_data; // MVENDORID
+							12'h514: marchid <= csr_data; // MARCHID
 							12'h300: mstatus <= csr_data; // MSTATUS
 							12'h305: mtvec <= csr_data; // MTVEC
 							12'h341: mepc <= csr_data; // MEPC

@@ -33,6 +33,8 @@ word_t map_to_rom_and_ram(word_t addr)
 		return addr + 0x80000000 - 0x0e000000;
 	else if (addr >= 0x30000000 && addr < 0x40000000) // Flash
 		return addr + 0x50000000;
+	else if (addr >= 0x80000000 && addr < 0x80100000)
+		return addr + 0x2000000;
 	return addr; // Other addresses remain unchanged
 }
 word_t vaddr_ifetch(vaddr_t addr, int len)

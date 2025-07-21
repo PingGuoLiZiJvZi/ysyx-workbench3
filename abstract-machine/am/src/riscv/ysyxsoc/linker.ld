@@ -1,5 +1,6 @@
 MEMORY {
-    mrom : ORIGIN = 0x30000000, LENGTH = 1M
+    mrom : ORIGIN = 0x30000000, LENGTH = 256M
+   /* psram : ORIGIN = 0x80000000, LENGTH = 4M */
     sram : ORIGIN = 0x0f000000, LENGTH = 8K
 }
 ENTRY(_start)
@@ -32,7 +33,7 @@ SECTIONS {
     .stack : {
         . = ALIGN(16);
         _stack_top = .;
-		 . = _stack_top + 0x1800;
+		 . = _stack_top + 0x1000;
 		_stack_pointer = .;
 		end = .;
 		_end = .;
@@ -40,4 +41,5 @@ SECTIONS {
 
 	. = ALIGN(16);
     _heap_start = .;
+	_heap_end = 0x0f002000;
 }

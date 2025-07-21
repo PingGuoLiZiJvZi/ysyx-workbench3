@@ -20,27 +20,27 @@ unsigned char data = 0xAA;
 
 int main()
 {
-	volatile unsigned int *base = (unsigned int *)SPI_BASE;
-	// 写入分频寄存器，最大频率
-	base[SPI_DIV] = 0;
-	base[SPI_CTRL] = ASS | DATA_BITS;
+	// volatile unsigned int *base = (unsigned int *)SPI_BASE;
+	// // 写入分频寄存器，最大频率
+	// base[SPI_DIV] = 0;
+	// base[SPI_CTRL] = ASS | DATA_BITS;
 
-	// 2. 选择slave (bitrev模块编号7)
-	base[SPI_SS] = (1 << SLAVE_ID);
+	// // 2. 选择slave (bitrev模块编号7)
+	// base[SPI_SS] = (1 << SLAVE_ID);
 
-	base[0] = data << 8;
+	// base[0] = data << 8;
 
-	// 5. 启动传输
-	base[SPI_CTRL] |= GO_BSY;
+	// // 5. 启动传输
+	// base[SPI_CTRL] |= GO_BSY;
 
-	// 6. 轮询等待传输完成
-	while (base[SPI_CTRL] & GO_BSY)
-		;
+	// // 6. 轮询等待传输完成
+	// while (base[SPI_CTRL] & GO_BSY)
+	// 	;
 
-	// 7. 读取接收数据
-	unsigned int res = base[0];
-	printf("data = %x ,res = %x\n", data, res);
-	check(res == answer);
+	// // 7. 读取接收数据
+	// unsigned int res = base[0];
+	// printf("data = %x ,res = %x\n", data, res);
+	// check(res == answer);
 
 	return 0;
 }

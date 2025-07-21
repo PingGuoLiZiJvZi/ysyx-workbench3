@@ -49,8 +49,9 @@ void load_char_test(unsigned int start)
 int main()
 {
 
-	load_char_test(0x18);
-	void (*test)(void) = (void (*)(void))func;
-	test();
-	char_test();
+	// load_char_test(0x18);
+	// void (*test)(void) = (void (*)(void))func;
+	// test();
+	// char_test();
+	return 0;
 }

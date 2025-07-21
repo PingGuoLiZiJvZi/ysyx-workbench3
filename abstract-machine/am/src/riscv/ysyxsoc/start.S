@@ -8,4 +8,5 @@ _start:
   
   call bootloader
   call uart_init
+  call display_message
   call _trm_init
