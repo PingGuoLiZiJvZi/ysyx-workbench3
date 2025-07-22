@@ -1,7 +1,5 @@
 #define RAM_BASE 0xa0000000
-#define RAM_SIZE 0x1000
-#define STACK_TOP (RAM_BASE + RAM_SIZE) // 栈顶在RAM末尾
-#define TEST_SIZE 0x400
+#define TEST_SIZE 0x02000000
 #include <klib.h>
 // 内存测试函数
 void mem_test_word()

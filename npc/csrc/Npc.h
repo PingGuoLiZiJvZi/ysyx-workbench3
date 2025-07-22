@@ -1,7 +1,7 @@
 #pragma once
 #include "VysyxSoCFull.h"
 #include "verilated.h"
-#include "verilated_fst_c.h"
+#include "verilated_vcd_c.h"
 #include "Iringbuf.h"
 #include "Difftest.h"
 #include "config.h"
@@ -25,10 +25,10 @@ public:
 		Verilated::commandArgs(argc, argv);
 		top = new VysyxSoCFull;
 #ifdef WAVE
-		tfp = new VerilatedFstC;
+		tfp = new VerilatedVcdC;
 		Verilated::traceEverOn(true);
 		top->trace(tfp, 99);
-		tfp->open("top.fst");
+		tfp->open("top.vcd");
 #endif
 		init_disasm();
 	}
@@ -180,7 +180,7 @@ public:
 	static VysyxSoCFull *top;
 #ifdef WAVE
 	uint32_t main_time = 0;
-	VerilatedFstC *tfp;
+	VerilatedVcdC *tfp;
 #endif
 	uint32_t pc_before = 0;
 	void (*ref_difftest_memcpy)(uint32_t addr, void *buf, size_t n, bool direction) = NULL;

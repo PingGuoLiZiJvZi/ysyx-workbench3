@@ -27,15 +27,17 @@ word_t trans_check(vaddr_t addr, int len, int type)
 }
 word_t map_to_rom_and_ram(word_t addr)
 {
-	if (addr >= 0x20000000 && addr < 0x20001000) // ROM
-		return addr + 0x60000000;
+	if (addr >= 0x20000000 && addr < 0x20001000)	  // ROM
+		return addr + 0x60000000;					  // 实际地址为0x80000000-0x80001000
 	else if (addr >= 0x0f000000 && addr < 0x0f002000) // RAM
-		return addr + 0x80000000 - 0x0e000000;
+		return addr + 0x81000000 - 0x0f000000;		  // 实际地址为0x81000000-0x81002000
 	else if (addr >= 0x30000000 && addr < 0x40000000) // Flash
-		return addr + 0x50000000;
-	else if (addr >= 0x80000000 && addr < 0x80100000)
-		return addr + 0x2000000;
-	return addr; // Other addresses remain unchanged
+		return addr + 0x50000000;					  // 实际地址为0x80000000-0x90000000
+	else if (addr >= 0x80000000 && addr < 0x80100000) // PSRAM
+		return addr + 0x2000000;					  // 实际地址为0x82000000-0x82010000
+	else if (addr >= 0xa0000000 && addr < 0xa2000000) // SDRAM
+		return addr - 0x1d000000;					  // 实际地址为0x83000000-0x85000000
+	return addr;									  // Other addresses remain unchanged
 }
 word_t vaddr_ifetch(vaddr_t addr, int len)
 {

@@ -15,6 +15,7 @@ module ysyx_25040129_REG (
 	assign src1 =  regs[src1_id*32 +: 32];
 	assign src2 =  regs[src2_id*32 +: 32];
 	always @(*) begin
+		`ifdef DEBUG
 		update_regs(
 			regs[0*32 +: 32],
 			regs[1*32 +: 32], 
@@ -33,6 +34,7 @@ module ysyx_25040129_REG (
 			regs[14*32 +: 32], 
 			regs[15*32 +: 32]
 		);
+		`endif
 	end
 	always @(posedge clk) begin
 		
