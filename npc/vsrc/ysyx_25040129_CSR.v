@@ -29,6 +29,7 @@ module ysyx_25040129_CSR (
 			12'h342: csr_out = mcause; // MCAUSE
 			default: csr_out = 32'b0;
 		endcase
+		target_from_csr = ecall ? mtvec : mepc; 
 	end
 	always @(posedge clk) begin
 		if (rst) begin
@@ -43,12 +44,12 @@ module ysyx_25040129_CSR (
 			if(ecall)begin
 				mepc <= mepc_data;
 				mcause <= mcause_data;
-				target_from_csr <= mtvec; 
+				
 			end
 			else begin 
 				if (mret) begin
 					mepc <= mepc_data;
-					target_from_csr <= mepc; 
+					
 				end
 			else begin
 					if (csr_write) begin

@@ -28,6 +28,8 @@ extern "C" void unknown_inst(int inst)
 	if (inst != 0)
 	{
 		printf("Unknown instruction %x\n", inst);
+		sdb->print_iringbuf();
+		sdb->npc.reg_display();
 #ifdef WAVE
 		sdb->npc.tfp->flush();
 #endif

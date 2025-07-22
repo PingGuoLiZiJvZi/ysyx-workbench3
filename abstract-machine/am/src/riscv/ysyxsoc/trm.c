@@ -5,12 +5,26 @@
 extern char _heap_start;
 extern char _heap_end;
 int main(const char *args);
+extern char _data_extra_lma[];	   // 数据段额外加载地址(MA)
+extern char _data_extra_vma[];	   // 数据段额外运行地址(SA)
+extern char _data_extra_vma_end[]; // 数据段额外结束地址(SA
+extern char _bss_extra_start[];
+extern char _bss_extra_end[];
+
 extern char _data_lma[];	 // 数据段加载地址(MA)
 extern char _data_vma[];	 // 数据段运行地址(SA)
 extern char _data_vma_end[]; // 数据段结束地址(SA)
 extern char _bss_start[];
 extern char _bss_end[];
-
+extern char _text_vma[];
+extern char _text_vma_end[];
+extern char _text_lma[];
+extern char _rodata_vma[];
+extern char _rodata_vma_end[];
+extern char _rodata_lma[];
+extern char _loader_vma[];
+extern char _loader_vma_end[];
+extern char _loader_lma[];
 extern char _pmem_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
 #define PMEM_END ((uintptr_t)&_pmem_start + PMEM_SIZE)
@@ -24,7 +38,52 @@ static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined 
 #define UART_DLM (1) // 除数锁存器 MSB (DLAB=1)
 #define UART_LCR (3) // 线路控制寄存器
 #define UART_LSR (5) // 线路状态寄存器
+void _trm_init();
+__attribute__((section("loader"), naked, used)) void _loader()
+{
+	for (unsigned i = 0; i < _text_vma_end - _text_vma; i++)
+	{
+		_text_vma[i] = _text_lma[i];
+	}
+	for (unsigned i = 0; i < _rodata_vma_end - _rodata_vma; i++)
+	{
+		_rodata_vma[i] = _rodata_lma[i];
+	}
+	for (unsigned i = 0; i < _data_extra_vma_end - _data_extra_vma; i++)
+	{
+		_data_extra_vma[i] = _data_extra_lma[i];
+	}
+	for (unsigned i = 0; i < _data_vma_end - _data_vma; i++)
+	{
+		_data_vma[i] = _data_lma[i];
+	}
+	for (char *p = _bss_start; p < _bss_end; p++)
+	{
+		*p = 0;
+	}
+	for (char *p = _bss_start; p < _bss_end; p++)
+	{
+		*p = 0;
+	}
+	_trm_init();
+	// should not reach here
+	while (1)
+		;
+}
+__attribute__((section("entry"), naked, used)) void _start()
+{
+	asm volatile(
+		"la sp, _stack_pointer\n"
+		"mv s0, zero\n");
 
+	for (unsigned i = 0; i < _loader_vma_end - _loader_vma; i++)
+	{
+		_loader_vma[i] = _loader_lma[i];
+	}
+	_loader();
+	while (1)
+		;
+}
 void putch(char ch)
 {
 	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
@@ -54,28 +113,6 @@ void halt(int code)
 	while (1)
 		;
 }
-
-void _trm_init()
-{
-	int ret = main(mainargs);
-	halt(ret);
-}
-
-void bootloader()
-{
-	/* 复制数据段到SRAM */
-	for (unsigned i = 0; i < _data_vma_end - _data_vma; i++)
-	{
-		_data_vma[i] = _data_lma[i];
-	}
-
-	/* 清零BSS段 */
-	for (char *p = _bss_start; p < _bss_end; p++)
-	{
-		*p = 0;
-	}
-}
-
 void display_message()
 {
 	unsigned int ysyx, id;
@@ -101,4 +138,11 @@ void display_message()
 		id /= 10;
 	}
 	putch('\n');
+}
+void _trm_init()
+{
+	uart_init();
+	display_message();
+	int ret = main(mainargs);
+	halt(ret);
 }
