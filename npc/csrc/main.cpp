@@ -20,7 +20,7 @@ extern "C" void ebreak_trigger()
 	else
 	{
 		printf("HIT BAD TRAP\n");
-		sdb->npc.reg_display();
+		// sdb->npc.reg_display();
 		Sdb::npc_state = NPC_ABORT;
 	}
 }

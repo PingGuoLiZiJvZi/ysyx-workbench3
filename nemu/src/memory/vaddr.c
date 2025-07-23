@@ -35,7 +35,7 @@ word_t map_to_rom_and_ram(word_t addr)
 		return addr + 0x50000000;					  // 实际地址为0x80000000-0x90000000
 	else if (addr >= 0x80000000 && addr < 0x80100000) // PSRAM
 		return addr + 0x2000000;					  // 实际地址为0x82000000-0x82010000
-	else if (addr >= 0xa0000000 && addr < 0xa2000000) // SDRAM
+	else if (addr >= 0xa0000000 && addr < 0xa5000000) // SDRAM
 		return addr - 0x1d000000;					  // 实际地址为0x83000000-0x85000000
 	return addr;									  // Other addresses remain unchanged
 }

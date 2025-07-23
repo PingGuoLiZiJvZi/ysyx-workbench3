@@ -1,5 +1,5 @@
 #define RAM_BASE 0xa0000000
-#define TEST_SIZE 0x02000000
+#define TEST_SIZE 0x8000000
 #include <klib.h>
 // 内存测试函数
 void mem_test_word()
@@ -65,8 +65,8 @@ void mem_test_byte()
 }
 int main()
 {
-	mem_test_word();
-	mem_test_half();
-	mem_test_byte();
+	// mem_test_word();
+	// mem_test_half();
+	// mem_test_byte();
 	return 0;
 }

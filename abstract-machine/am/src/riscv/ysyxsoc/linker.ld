@@ -2,6 +2,7 @@ MEMORY {
     mrom : ORIGIN = 0x30000000, LENGTH = 256M
     psram : ORIGIN = 0x80000000, LENGTH = 4M
     sram : ORIGIN = 0x0f000000, LENGTH = 8K
+	sdram : ORIGIN = 0xa0000000, LENGTH = 128M
 }
 ENTRY(_start)
 SECTIONS {
@@ -12,20 +13,20 @@ SECTIONS {
 		_loader_vma = .;
 		*(loader)
 		_loader_vma_end = .;
-	} >psram AT> mrom
+	} >sdram AT> mrom
 	_loader_lma = LOADADDR(.loader);
     .text : {
 		_text_vma = .;
         *(.text*) 
 		_text_vma_end = .;        
-    } > psram AT> mrom
+    } > sdram AT> mrom
 	 _text_lma = LOADADDR(.text);
 	.rodata : {
 		_rodata_vma = .;
 		*(.rodata*)
 		*(.srodata*)
 		_rodata_vma_end = .;
-	} > psram AT> mrom
+	} > sdram AT> mrom
 	_rodata_lma = LOADADDR(.rodata);
 
 	.data.extra : {
@@ -58,7 +59,7 @@ SECTIONS {
     __am_apps_data_end = .;
     . = ALIGN(8);
 	_data_extra_vma_end = .;
-  	}>psram AT> mrom
+  	}>sdram AT> mrom
 	
 	_data_extra_lma = LOADADDR(.data.extra);
 
@@ -67,7 +68,7 @@ SECTIONS {
 		*(.sdata*)
         *(.data*)
         _data_vma_end = .;
-    } > psram AT> mrom
+    } > sdram AT> mrom
 
     _data_lma = LOADADDR(.data);
 
@@ -81,7 +82,7 @@ SECTIONS {
     __am_apps_bss_end = .;
     . = ALIGN(8);
 	_bss_extra_end = .;
-  }>psram AT> mrom
+  }>sdram AT> mrom
   
   .bss : {
         _bss_start = .;
@@ -89,17 +90,17 @@ SECTIONS {
 		*(.sbss*)
 		*(.scommon)
         _bss_end = .;
-    } > psram AT> mrom
+    } >sdram AT> mrom
 
 
-    . = 0x0f000000;
+    . = 0x80000000;
 	_stack_top = .;
-	. = _stack_top + 0x2000;
+	. = _stack_top + 0x400000;
 	_stack_pointer =.;
 
   
 	. = _bss_end;
 	. = ALIGN(16);
     _heap_start = .;
-	_heap_end = 0x80400000;
+	_heap_end = 0xa8000000;
 }

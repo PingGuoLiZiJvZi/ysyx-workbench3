@@ -2046,10 +2046,12 @@ module APBSDRAM(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:87
                 sdram_bundle_ras,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
                 sdram_bundle_cas,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
                 sdram_bundle_we,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
+  output        sdram_bundle_choose_high,
+  output		sdram_bundle_choose_low,	
   output [12:0] sdram_bundle_a,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
   output [1:0]  sdram_bundle_ba,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
-                sdram_bundle_dqm,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
-  inout  [15:0] sdram_bundle_dq	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
+  output [3:0]  sdram_bundle_dqm,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
+  inout  [31:0] sdram_bundle_dq	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:89:26
 );
 
   sdram_top_apb msdram (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:91:24
@@ -2071,6 +2073,8 @@ module APBSDRAM(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:87
     .sdram_ras  (sdram_bundle_ras),
     .sdram_cas  (sdram_bundle_cas),
     .sdram_we   (sdram_bundle_we),
+	.sdram_choose_high (sdram_bundle_choose_high),
+	.sdram_choose_low (sdram_bundle_choose_low),
     .sdram_a    (sdram_bundle_a),
     .sdram_ba   (sdram_bundle_ba),
     .sdram_dqm  (sdram_bundle_dqm),
@@ -4243,8 +4247,10 @@ module ysyxSoCASIC(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
                 sdram_we,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
   output [12:0] sdram_a,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
   output [1:0]  sdram_ba,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-                sdram_dqm,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-  inout  [15:0] sdram_dq,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
+  output [3:0]  sdram_dqm,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
+  output		sdram_choose_high,
+  output        sdram_choose_low,	
+  inout  [31:0] sdram_dq,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
   output [15:0] gpio_out,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
   input  [15:0] gpio_in,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
   output [7:0]  gpio_seg_0,	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
@@ -4989,6 +4995,8 @@ module ysyxSoCASIC(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .sdram_bundle_ras (sdram_ras),
     .sdram_bundle_cas (sdram_cas),
     .sdram_bundle_we  (sdram_we),
+	.sdram_bundle_choose_high (sdram_choose_high),	
+	.sdram_bundle_choose_low  (sdram_choose_low),
     .sdram_bundle_a   (sdram_a),
     .sdram_bundle_ba  (sdram_ba),
     .sdram_bundle_dqm (sdram_dqm),
@@ -5283,11 +5291,13 @@ module ysyxSoCFull(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
   wire        _asic_sdram_ras;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
   wire        _asic_sdram_cas;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
   wire        _asic_sdram_we;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  wire        _asic_sdram_choose_high;
+  wire        _asic_sdram_choose_low;
   wire [12:0] _asic_sdram_a;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
   wire [1:0]  _asic_sdram_ba;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire [1:0]  _asic_sdram_dqm;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  wire [3:0]  _asic_sdram_dqm;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
   wire [3:0]  _dio_wire;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:143:23
-  wire [15:0] _dq_wire;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+  wire [31:0] _dq_wire;	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
   ysyxSoCASIC asic (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .clock      (clock),
     .reset      (reset),
@@ -5309,6 +5319,8 @@ module ysyxSoCFull(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
     .sdram_a    (_asic_sdram_a),
     .sdram_ba   (_asic_sdram_ba),
     .sdram_dqm  (_asic_sdram_dqm),
+	.sdram_choose_high (_asic_sdram_choose_high),
+	.sdram_choose_low  (_asic_sdram_choose_low),
     .sdram_dq   (_dq_wire),
     .gpio_out   (externalPins_gpio_out),
     .gpio_in    (externalPins_gpio_in),
@@ -5346,17 +5358,54 @@ module ysyxSoCFull(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
     .ce_n (_asic_psram_ce_n),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .dio  (_dio_wire)
   );	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:143:23
-  sdram sdram (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+  sdram sdram1_0 (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
     .clk (_asic_sdram_clk),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .cke (_asic_sdram_cke),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .cs  (_asic_sdram_cs),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ras (_asic_sdram_ras),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cas (_asic_sdram_cas),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .we  (_asic_sdram_we),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (_asic_sdram_ras|~_asic_sdram_choose_low),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (_asic_sdram_cas|~_asic_sdram_choose_low),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (_asic_sdram_we |~_asic_sdram_choose_low),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .a   (_asic_sdram_a),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
     .ba  (_asic_sdram_ba),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dqm (_asic_sdram_dqm),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dq  (_dq_wire)
+    .dqm (_asic_sdram_dqm[3:2]),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dq  (_dq_wire[31:16])
+  );	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+
+    sdram sdram1_1 (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+    .clk (_asic_sdram_clk),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cke (_asic_sdram_cke),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (_asic_sdram_cs),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (_asic_sdram_ras|~_asic_sdram_choose_high),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (_asic_sdram_cas|~_asic_sdram_choose_high),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (_asic_sdram_we |~_asic_sdram_choose_high),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .a   (_asic_sdram_a),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ba  (_asic_sdram_ba),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[3:2]),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dq  (_dq_wire[31:16])
+  );	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+    sdram sdram0_0 (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+    .clk (_asic_sdram_clk),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cke (_asic_sdram_cke),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (_asic_sdram_cs),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (_asic_sdram_ras|~_asic_sdram_choose_low),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (_asic_sdram_cas|~_asic_sdram_choose_low),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (_asic_sdram_we |~_asic_sdram_choose_low),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .a   (_asic_sdram_a),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ba  (_asic_sdram_ba),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[1:0]),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dq  (_dq_wire[15:0])
+  );	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+      sdram sdram0_1 (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+    .clk (_asic_sdram_clk),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cke (_asic_sdram_cke),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cs  (_asic_sdram_cs),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ras (_asic_sdram_ras|~_asic_sdram_choose_high),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .cas (_asic_sdram_cas|~_asic_sdram_choose_high),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .we  (_asic_sdram_we |~_asic_sdram_choose_high),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .a   (_asic_sdram_a),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .ba  (_asic_sdram_ba),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dqm (_asic_sdram_dqm[1:0]),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+    .dq  (_dq_wire[15:0])
   );	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
 endmodule
 
