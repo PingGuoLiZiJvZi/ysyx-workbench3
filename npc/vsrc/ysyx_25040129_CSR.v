@@ -38,7 +38,7 @@ module ysyx_25040129_CSR (
 			mepc <= 32'b0;
 			mcause <= 32'b0;
 			mvendorid <= 32'h79737978; 
-			marchid <= 32'd92104052;
+			marchid <= 32'd25040129;
 		end
 		else begin
 			if(ecall)begin

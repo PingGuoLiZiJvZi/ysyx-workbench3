@@ -6,13 +6,14 @@
 #include "Difftest.h"
 #include "config.h"
 #include <stdio.h>
+#include <nvboard.h>
 #define DIFFTEST_TO_REF 1
 #define DIFFTEST_TO_DUT 0
 
 extern uint8_t pmem[];
 extern void init_disasm();
 extern void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-
+void nvboard_bind_all_pins(VysyxSoCFull *top);
 static char regs[16][8] = {
 	"$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
 	"s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5"};
@@ -24,6 +25,7 @@ public:
 	{
 		Verilated::commandArgs(argc, argv);
 		top = new VysyxSoCFull;
+		printf("top->uart_tx is at %p\n", &top->externalPins_uart_tx);
 #ifdef WAVE
 		tfp = new VerilatedVcdC;
 		Verilated::traceEverOn(true);
@@ -31,6 +33,8 @@ public:
 		tfp->open("top.vcd");
 #endif
 		init_disasm();
+		nvboard_init();
+		nvboard_bind_all_pins(top);
 	}
 	~Npc()
 	{
@@ -46,12 +50,15 @@ public:
 	{
 		top->clock = 0;
 		top->reset = 1;
+		top->externalPins_uart_rx = 1;	// reset uart rx
+		top->externalPins_ps2_data = 1; // reset ps2 data
 		top->eval();
 		dump();
 		top->clock = 1;
 		top->eval();
 		dump();
 		top->reset = 0;
+		nvboard_update();
 #ifdef TRACE
 		update_messages();
 #endif
@@ -65,6 +72,7 @@ public:
 		top->clock = 1;
 		top->eval();
 		dump();
+		nvboard_update();
 #ifdef TRACE
 		update_messages();
 #endif

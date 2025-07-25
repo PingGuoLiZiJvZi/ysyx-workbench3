@@ -219,6 +219,8 @@ always @(posedge clk) begin
 				is_device <= 1'b0;
 			else if(awaddr >= `SDRAM_ADDR && awaddr < `SDRAM_ADDR + `SDRAM_SIZE)
 				is_device <= 1'b0;
+			else if(awaddr >= `GPIO_ADDR && awaddr < `GPIO_ADDR + `GPIO_SIZE)
+				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
 				$error("XBAR: Invalid write address %h", awaddr);
@@ -239,6 +241,10 @@ always @(posedge clk) begin
 				is_device <= 1'b0;
 			else if(araddr >= `SDRAM_ADDR && araddr < `SDRAM_ADDR + `SDRAM_SIZE)
 				is_device <= 1'b0;
+			else if(araddr >= `GPIO_ADDR && araddr < `GPIO_ADDR + `GPIO_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `PS2_ADDR && araddr < `PS2_ADDR + `PS2_SIZE)
+				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
 				$error("XBAR: Invalid read address %h", araddr);

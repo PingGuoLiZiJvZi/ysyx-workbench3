@@ -1,5 +1,5 @@
 #include <amtest.h>
-
+#include <stdio.h>
 #define NAMEINIT(key) [AM_KEY_##key] = #key,
 static const char *names[] = {
 	AM_KEYS(NAMEINIT)};
@@ -8,17 +8,13 @@ static bool has_uart, has_kbd;
 
 static void drain_keys()
 {
-	printf("circle\n");
 	if (has_uart)
 	{
 		while (1)
 		{
 			char ch = io_read(AM_UART_RX).data;
 			if (ch == (char)-1)
-			{
-				printf("uart none\n");
 				break;
-			}
 			printf("Got (uart): %c (%d)\n", ch, ch & 0xff);
 		}
 	}
@@ -29,9 +25,7 @@ static void drain_keys()
 		{
 			AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
 			if (ev.keycode == AM_KEY_NONE)
-			{
-				printf("keyboard none\n") break;
-			}
+				break;
 			printf("Got  (kbd): %s (%d) %s\n", names[ev.keycode], ev.keycode, ev.keydown ? "DOWN" : "UP");
 		}
 	}
@@ -46,4 +40,10 @@ void keyboard_test()
 	{
 		drain_keys();
 	}
+}
+int main()
+{
+	IOE;
+	printf("Keyboard test started...\n");
+	keyboard_test();
 }

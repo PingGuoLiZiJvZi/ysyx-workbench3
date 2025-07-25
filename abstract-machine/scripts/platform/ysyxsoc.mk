@@ -5,7 +5,8 @@ AM_SRCS := riscv/ysyxsoc/trm.c \
            riscv/ysyxsoc/cte.c \
            riscv/ysyxsoc/trap.S \
            platform/dummy/vme.c \
-           platform/dummy/mpe.c
+           platform/dummy/mpe.c \
+		   riscv/ysyxsoc/uart.c \
 
 CFLAGS    += -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld

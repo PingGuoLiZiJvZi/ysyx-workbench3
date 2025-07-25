@@ -31,7 +31,8 @@ extern char _pmem_start;
 #define npc_trap(code) asm volatile("mv a0, %0; ebreak" : : "r"(code))
 Area heap = RANGE(&_heap_start, &_heap_end);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
-
+#define GPIO_BASE 0x10002000
+#define GPIO_SEG_OFFSET 0x8
 #define UART_RBR (0) // 接收缓冲寄存器 (DLAB=0)
 #define UART_THR (0) // 发送保持寄存器 (DLAB=0)
 #define UART_DLL (0) // 除数锁存器 LSB (DLAB=1)
@@ -84,10 +85,20 @@ __attribute__((section("entry"), naked, used)) void _start()
 	while (1)
 		;
 }
-void putch(char ch)
+unsigned char getch()
 {
 	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
 
+	if (uart[UART_LSR] & 0x01)
+	{
+		return uart[0] & 0xFF; // 地址0就是 UART_RBR
+	}
+	return -1; // 无数据
+}
+void putch(char ch)
+{
+
+	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
 	while ((uart[UART_LSR] & 0x40) == 0)
 		;
 	outb(SERIAL_PORT, ch);
@@ -96,12 +107,10 @@ void uart_init()
 {
 	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
 
-	// 1. 设置DLAB=1以访问除数寄存器
-	uart[UART_LCR] = 0x80; // 设置LCR的bit7(DLAB)=1
+	uart[UART_LCR] = 0x80;
 
-	// 2. 设置波特率除数 (示例值，实际值需计算)
-	uart[UART_DLM] = 0x00; // 除数高位
-	uart[UART_DLL] = 0x03; // 除数低位 (115200 baud @ 1.8432MHz)
+	uart[UART_DLM] = 0x00;
+	uart[UART_DLL] = 0x01;
 
 	// 3. 设置通信参数并清除DLAB
 	// 8位数据，无校验，1位停止位 (0b00000011)
@@ -116,7 +125,6 @@ void halt(int code)
 void display_message()
 {
 	unsigned int ysyx, id;
-
 	__asm__ volatile(
 		"csrr %0, 0x114\n"
 		"csrr %1, 0x514\n"
@@ -124,18 +132,23 @@ void display_message()
 		:					   // 无输入
 		:					   // 无破坏寄存器
 	);
-
 	for (int i = 0; i < 4; i++)
 	{
 		putch((ysyx & 0xFF000000) >> 24);
 		ysyx <<= 8;
 	}
+	*(unsigned int *)(GPIO_BASE + GPIO_SEG_OFFSET) = id; // 显示ysyx
 	putch(':');
+	char id_str[8];
 	for (int i = 0; i < 8; i++)
 	{
 		unsigned char digit = id % 10;
-		putch('0' + digit);
+		id_str[7 - i] = ('0' + digit);
 		id /= 10;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		putch(id_str[i]);
 	}
 	putch('\n');
 }

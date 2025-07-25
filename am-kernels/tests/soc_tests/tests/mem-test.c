@@ -65,8 +65,8 @@ void mem_test_byte()
 }
 int main()
 {
-	// mem_test_word();
-	// mem_test_half();
-	// mem_test_byte();
+	mem_test_word();
+	mem_test_half();
+	mem_test_byte();
 	return 0;
 }
