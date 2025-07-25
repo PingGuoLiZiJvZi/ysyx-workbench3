@@ -1,5 +1,0 @@
-# Building keyboard-run [riscv32e-ysyxsoc]
-# Building am-archive [riscv32e-ysyxsoc]
-# Building klib-archive [riscv32e-ysyxsoc]
-+ OBJCOPY -> build/keyboard-riscv32e-ysyxsoc.bin
-mainargs=

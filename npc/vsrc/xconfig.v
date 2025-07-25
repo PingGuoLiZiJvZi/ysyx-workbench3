@@ -1,4 +1,4 @@
-`define DEBUG 1
+// `define DEBUG 1
 `define WORD_T 4
 `define START_ADDR 32'h20000000
 `define I_TYPE_IMM 7'b0010011
@@ -69,3 +69,5 @@
 `define GPIO_SIZE 32'h00000010
 `define PS2_ADDR 32'h10011000
 `define PS2_SIZE 32'h00000008
+`define VGA_ADDR 32'h21000000
+`define VGA_SIZE 32'h140000

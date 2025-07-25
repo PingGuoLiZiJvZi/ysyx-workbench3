@@ -33,8 +33,8 @@ public:
 		tfp->open("top.vcd");
 #endif
 		init_disasm();
-		nvboard_init();
 		nvboard_bind_all_pins(top);
+		nvboard_init();
 	}
 	~Npc()
 	{

@@ -221,6 +221,8 @@ always @(posedge clk) begin
 				is_device <= 1'b0;
 			else if(awaddr >= `GPIO_ADDR && awaddr < `GPIO_ADDR + `GPIO_SIZE)
 				is_device <= 1'b1;
+			else if(awaddr >= `VGA_ADDR && awaddr < `VGA_ADDR + `VGA_SIZE)
+				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
 				$error("XBAR: Invalid write address %h", awaddr);
