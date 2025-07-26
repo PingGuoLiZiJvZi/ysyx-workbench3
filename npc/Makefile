@@ -43,22 +43,20 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 
 
-#run规则为调用sim
-run: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
+build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS)  $(CSRCS) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing --autoflush
+#run规则为调用sim
+
+run: build
 	${BIN}
 
-autorun:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE) \
-	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
-	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
-	--timescale "1ns/1ns" --no-timing --autoflush
+autorun: build
 	printf "c\nq\n" |${BIN}
+
 
 
 gdb:

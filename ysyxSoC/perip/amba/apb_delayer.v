@@ -40,7 +40,7 @@ reg [21:0] device_counter;
 reg [1:0]state;
 reg [31:0] prdata_latch;
 reg pslverr_latch;
-
+reg delay_done;
 always @(posedge clock) begin
 	if(reset)begin
 		state <= IDLE;
@@ -52,9 +52,18 @@ always @(posedge clock) begin
 else begin
 	case (state)
 		IDLE: begin
+			delay_done <= 1;
 			if (in_psel && in_penable) begin
-				state <= WAIT;
+				if(out_pready)begin
+					state <= DELAY;
+				    prdata_latch <= out_prdata;
+					pslverr_latch <= out_pslverr;
+					delay_done <= 0;
+				end
+				else
+					state <= WAIT;
 				counter <= 0;
+				device_counter <= 0;
 			end
 		end
 		WAIT: begin
@@ -71,6 +80,7 @@ else begin
 			if(device_counter == counter[31:10]) begin
 				state <= IDLE;
 				device_counter <= 0;
+				delay_done <= 0;
 			end
 		end
 		default: begin
@@ -85,8 +95,8 @@ end
 end
   
   assign out_paddr   = in_paddr;
-  assign out_psel    = in_psel&&(state != DELAY);
-  assign out_penable = in_penable&&(state != DELAY);
+  assign out_psel    = in_psel&&((state != DELAY));
+  assign out_penable = in_penable&&(state != DELAY)&&delay_done;
   assign out_pprot   = in_pprot;
   assign out_pwrite  = in_pwrite;
   assign out_pwdata  = in_pwdata;
