@@ -3,24 +3,31 @@
 #include <assert.h>
 #include "verilated.h"
 #include "Sdb.h"
+#include "performance_counter.h"
 Sdb *sdb = NULL;
 uint32_t Npc::regs_val[17] = {0};
 uint32_t Npc::inst = 0;
 bool Npc::is_device = false;
 uint8_t Npc::ifu_state = 0;
 NPC_STATE Sdb::npc_state = NPC_RUNNING;
-
 extern "C" void ebreak_trigger()
 {
 	if (Npc::regs_val[11] == 0)
 	{
 		printf("HIT GOOD TRAP\n");
+		print_performance_counters();
+		exit(0);
 		Sdb::npc_state = NPC_STOP;
 	}
 	else
 	{
 		printf("HIT BAD TRAP\n");
-		// sdb->npc.reg_display();
+		sdb->npc.reg_display();
+		sdb->print_iringbuf();
+#ifdef WAVE
+		sdb->npc.tfp->flush();
+#endif
+		exit(-1);
 		Sdb::npc_state = NPC_ABORT;
 	}
 }

@@ -54,11 +54,10 @@ run: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 
 autorun:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j  0 -O3 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
-	--Mdir build/obj_dir ${THIS_DIR}/vsrc/*.v $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v") $(SOC_HOME)/build/*.v ${THIS_DIR}/csrc/*.cpp ${THIS_DIR}/csrc/*.c \
-	--LDFLAGS "-lreadline" --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE) \
+	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
-	--timescale "1ns/1ns" --no-timing
+	--timescale "1ns/1ns" --no-timing --autoflush
 	printf "c\nq\n" |${BIN}
 
 

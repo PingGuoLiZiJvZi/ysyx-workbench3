@@ -6,7 +6,7 @@
 	input [31:0] pc,
 	output [4:0] src1_id,
 	output [4:0] src2_id,
-	output reg[11:0] csr_id_out_idu,
+	output [11:0] csr_id_out_idu,
 	input [31:0] src1_in_idu,
 	input [31:0] src2_in_idu,
 	input [31:0] csr_in_idu,
@@ -69,6 +69,13 @@
 	assign rd_out_idu = inst[11:7];
 	assign src1_id = inst[19:15];
 	assign src2_id = inst[24:20];
+//---------------调试信号---------------
+always @(posedge clk) begin
+	`ifdef DEBUG
+	track_inst_in_idu({5'b0,state},{1'b0,opcode});
+	`endif
+end
+//--------------综合时删除---------------
 	always @(*) begin
 		reg_write_out_idu = 1'b0;
 		is_jump_out_idu = 1'b0;
@@ -101,7 +108,9 @@
 					3'b111: alu_opcode = `GEU; // BGEU
 					default: begin
 						alu_opcode = 4'b0000; // 默认值
+						`ifdef DPI
 						unknown_inst(inst); // Unknown instruction
+						`endif
 					 end
 				endcase			
 			end// B-type branch
@@ -170,7 +179,9 @@
 								ecall_out_idu = 1'b1;
 							end
 							default: begin
+								`ifdef DPI
 								unknown_inst(inst); // Unknown instruction
+								`endif
 							end
 						endcase
 						
@@ -190,7 +201,9 @@
 						alu_opcode = `OR; 
 					end
 					default: begin
+						`ifdef DPI
 						unknown_inst(inst); // Unknown instruction
+						`endif
 						alu_opcode = 4'b0000; // 默认值
 					end
 				endcase
@@ -216,7 +229,9 @@
 			end
 			default: begin
 				imm = 32'b0;
+				`ifdef DPI
 				unknown_inst(inst); // Unknown instruction
+				`endif
 			end
 		endcase
 	end

@@ -7,6 +7,10 @@ import "DPI-C" function void update_pc(int pc);
 import "DPI-C" function void update_inst(int inst);
 import "DPI-C" function void update_is_device(bit is_device);
 import "DPI-C" function void update_ifu_state(byte ifu_state);
+import "DPI-C" function void fetch_count_inc(byte ifu_state);
+import "DPI-C" function void execute_count_inc(byte exu_state);
+import "DPI-C" function void load_store_count_inc(byte lsu_state);
+import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129_top(
 	input clock,
 	input reset,

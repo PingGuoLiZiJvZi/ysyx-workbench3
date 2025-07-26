@@ -40,9 +40,8 @@ module ysyx_25040129_CLINT (
 	assign rresp = `OKAY;
 	always @(posedge clk) begin
 		if(next_state == HANDLE_READ) begin
-			if(araddr == `RTC_PORT_ADDR) rdata <= mtime[31:0]; // 返回低32位
-			else if(araddr == `RTC_PORT_ADDR + 4) rdata <= mtime[63:32]; // 返回高32位
-			else rdata <= 32'b0; // 未知地址返回0
+			if(~araddr[2]) rdata <= mtime[31:0]; // 返回低32位
+			else rdata <= mtime[63:32]; // 返回高32位
 		end
 	end
 

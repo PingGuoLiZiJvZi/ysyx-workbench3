@@ -23,16 +23,76 @@ module apb_delayer(
   input  [31:0] out_prdata,
   input         out_pslverr
 );
+//CPU主频为569.39MHZ//507
+//APB时钟为100MHZ
+//频率比r = 569.39 / 100 = 5.6939
+//APB中的一个周期对应CPU中的5.6939个周期
+//此模块负责将APB的时序延迟5.6939个周期
+//放大系数s=1024
+localparam s = 1024;
+localparam DELAY_CYCLE = 5191; // 5.07 * 1024 = 5830.4, 取整为5830
+localparam IDLE = 2'b00;
+localparam WAIT = 2'b01;
+localparam DELAY = 2'b10;
+reg [31:0] counter;
+reg [21:0] device_counter;
 
+reg [1:0]state;
+reg [31:0] prdata_latch;
+reg pslverr_latch;
+
+always @(posedge clock) begin
+	if(reset)begin
+		state <= IDLE;
+		counter <= 0;
+		device_counter <= 0;
+		prdata_latch <= 0;
+		pslverr_latch <= 0;
+	end
+else begin
+	case (state)
+		IDLE: begin
+			if (in_psel && in_penable) begin
+				state <= WAIT;
+				counter <= 0;
+			end
+		end
+		WAIT: begin
+			counter <= counter + DELAY_CYCLE;
+			if (out_pready) begin
+				state <= DELAY;
+				device_counter <= 0;
+				prdata_latch <= out_prdata;
+				pslverr_latch <= out_pslverr;
+			end
+		end
+		DELAY: begin
+			device_counter <= device_counter + 1;
+			if(device_counter == counter[31:10]) begin
+				state <= IDLE;
+				device_counter <= 0;
+			end
+		end
+		default: begin
+			state <= IDLE; // 默认状态
+			counter <= 0;
+			device_counter <= 0;
+			prdata_latch <= 0;
+			pslverr_latch <= 0;
+		end
+	endcase
+end
+end
+  
   assign out_paddr   = in_paddr;
-  assign out_psel    = in_psel;
-  assign out_penable = in_penable;
+  assign out_psel    = in_psel&&(state != DELAY);
+  assign out_penable = in_penable&&(state != DELAY);
   assign out_pprot   = in_pprot;
   assign out_pwrite  = in_pwrite;
   assign out_pwdata  = in_pwdata;
   assign out_pstrb   = in_pstrb;
-  assign in_pready   = out_pready;
-  assign in_prdata   = out_prdata;
-  assign in_pslverr  = out_pslverr;
+  assign in_pready   = (state == DELAY && device_counter == counter[31:10]);
+  assign in_prdata   = prdata_latch;
+  assign in_pslverr  = pslverr_latch;
 
 endmodule

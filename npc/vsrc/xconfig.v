@@ -1,4 +1,5 @@
-// `define DEBUG 1
+`define DEBUG 1
+`define DPI 1
 `define WORD_T 4
 `define START_ADDR 32'h20000000
 `define I_TYPE_IMM 7'b0010011

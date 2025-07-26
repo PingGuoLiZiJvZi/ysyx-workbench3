@@ -2,6 +2,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "Sdb.h"
+uint64_t cycle_count = 0;
+uint64_t pc_count = 0;
 VysyxSoCFull *Npc::top = NULL;
 long Sdb::load_img()
 {
@@ -261,10 +263,16 @@ int Sdb::run(uint32_t n)
 		}
 
 		while (npc.ifu_state == 1)
+		{
 			npc.step_top();
+			cycle_count++;
+		}
 		while (npc.ifu_state != 1)
+		{
 			npc.step_top();
-
+			cycle_count++;
+		}
+		pc_count++;
 #ifdef TRACE
 		if (n < 12)
 			printf("%s", npc.message);

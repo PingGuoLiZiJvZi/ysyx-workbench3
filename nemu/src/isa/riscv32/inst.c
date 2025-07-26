@@ -39,7 +39,7 @@ word_t csrr(word_t csr)
 	case 0x114:
 		return 0x79737978;
 	case 0x514:
-		return 92104052;
+		return 25040129;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);

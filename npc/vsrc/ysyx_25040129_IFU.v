@@ -59,13 +59,21 @@ end
 assign is_req_ready_to_wbu = (state == IDLE);
 
 assign is_req_valid_to_idu = (state == WAIT_IDU_READY);
-// next state 逻辑 
+//--------------------调试接口---------------------
+always @(posedge clk) begin
+	`ifdef DEBUG
+	fetch_count_inc({5'b0,state});
+	`endif
+end
 always @(*) begin
 	`ifdef DEBUG
 	update_pc(pc);
 	update_inst(inst_to_idu);
 	update_ifu_state({5'b0,state});
 	`endif
+end
+//-------------------综合时直接删除-------------------
+always @(*) begin
 	case (state)
 		IDLE: next_state = is_req_valid_from_wbu ? WAIT_MMEM_READY : IDLE;
 		WAIT_MMEM_READY: next_state = arready ? WAIT_MMEM_REQ : WAIT_MMEM_READY;

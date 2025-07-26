@@ -183,9 +183,13 @@ always @(posedge clk) begin
 		default: processed_rdata = processed_rdata;
 	endcase
 end
-
-
-
+//---------------调试信号---------------
+always @(posedge clk) begin
+	`ifdef DEBUG
+	load_store_count_inc({5'b0,state});
+	`endif
+end
+//---------------综合时删除---------------
 always @(posedge clk) begin
 	if (rst) state <= IDLE;
 	else state <= next_state;

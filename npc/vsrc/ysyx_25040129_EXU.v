@@ -54,7 +54,13 @@ always @(posedge clk) begin
 		state <= next_state;
 	end
 end
-
+//--------------调试信号----------------
+always @(posedge clk) begin
+	`ifdef DEBUG
+	execute_count_inc({5'b0,state});
+	`endif
+end
+//-------------综合时删除----------------
 always @(*) begin
 	case (state)
 		IDLE:next_state = is_req_valid_from_idu ? EXECUTE : IDLE;
@@ -84,7 +90,9 @@ assign reg_write_out_exu = reg_write_in_exu; // 直接传递寄存器写使能�
 always @(*) begin
 	result_out_exu = 32'b0;
 	is_branch = 1'b0; 
+	`ifdef DPI
 	if (ebreak_in_exu)ebreak_trigger();
+	`endif
 	case (alu_opcode)
 		`ADD: result_out_exu = (is_jalr_in_exu)?pc+`WORD_T:src1 + src2;
 		`SUB: result_out_exu = src1 - src2;

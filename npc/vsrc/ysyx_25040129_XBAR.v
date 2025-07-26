@@ -189,22 +189,27 @@ always @(*) begin
 		end
 		HANDLE_SOC: if(rready && soc_rvalid || bready && soc_bvalid) begin 
 						next_state = IDLE;
+					`ifdef DPI
 					if(rresp != `OKAY && rready && soc_rvalid) 
 						$error("XBAR: Invalid response %b %b", rresp, bresp);
 					if(bresp != `OKAY && bready && soc_bvalid)
 						$error("XBAR: Invalid response %b %b", rresp, bresp);
+					`endif
 		end
 					 else next_state = HANDLE_SOC;
 		HANDLE_RTC: if(rready && rtc_rvalid)begin
 			 next_state = IDLE;
+			 `ifdef DPI
 			 if(rtc_rresp != `OKAY && rready && rtc_rvalid) 
 					$error("XBAR: Invalid RTC response %b", rtc_rresp);
+			`endif
 		end
 					 else next_state = HANDLE_RTC;
 		default: next_state = IDLE;
 	endcase
 end
 //-----------------------调试信号产生逻辑-----------------------
+`ifdef DEBUG
 always @(posedge clk) begin
 	if(state == IDLE && next_state == HANDLE_RTC)is_device <= 1'b1;
 	else if(state == IDLE && next_state == HANDLE_SOC)begin
@@ -256,5 +261,6 @@ always @(posedge clk) begin
 	end
 	else is_device <= is_device;
 end
+`endif 
 endmodule
 
