@@ -30,11 +30,10 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = ${THIS_DIR}/vsrc/*.v
-VSRCS += $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v")
-VSRCS += $(SOC_HOME)/build/*.v
+SOC_VSRCS = $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v")
+SOC_VSRCS += $(SOC_HOME)/build/*.v
 CSRCS = ${THIS_DIR}/csrc/*.cpp
 CSRCS += ${THIS_DIR}/csrc/*.c
-CSRCS += $(SRC_AUTO_BIND)
 
 LIBCAPSTONE = ~/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5
 CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
@@ -45,11 +44,18 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS)  $(CSRCS) $(NVBOARD_ARCHIVE) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing --autoflush
 #run规则为调用sim
+
+npc_build:
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
+	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
+	--CFLAGS "-DIS_NPC=1" \
+	--timescale "1ns/1ns" --no-timing --autoflush
 
 run: build
 	${BIN}
@@ -57,7 +63,16 @@ run: build
 autorun: build
 	printf "c\nq\n" |${BIN}
 
+npc_run: npc_build
+	${BIN}
 
+npc_autorun: npc_build
+	printf "c\nq\n" |${BIN}
+
+#perf需要做两件事：1. 在sta目录下调用make sta，生成综合报告；2. 在microbench目录下调用make run ARCH=riscv32e-ysyxsoc,生成性能报告
+perf: 
+	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
+	$(MAKE) -C $(SOC_HOME)/../am-kernels/benchmarks/microbench autorun ARCH=riscv32e-ysyxsoc mainargs=train
 
 gdb:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!

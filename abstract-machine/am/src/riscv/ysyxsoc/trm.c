@@ -33,13 +33,10 @@ Area heap = RANGE(&_heap_start, &_heap_end);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 #define GPIO_BASE 0x10002000
 #define GPIO_SEG_OFFSET 0x8
-#define UART_RBR (0) // 接收缓冲寄存器 (DLAB=0)
-#define UART_THR (0) // 发送保持寄存器 (DLAB=0)
-#define UART_DLL (0) // 除数锁存器 LSB (DLAB=1)
-#define UART_DLM (1) // 除数锁存器 MSB (DLAB=1)
-#define UART_LCR (3) // 线路控制寄存器
-#define UART_LSR (5) // 线路状态寄存器
+
 void _trm_init();
+extern void putch(char ch);
+extern void uart_init();
 __attribute__((section("loader"), naked, used)) void _loader()
 {
 	for (unsigned i = 0; i < _text_vma_end - _text_vma; i++)
@@ -85,37 +82,7 @@ __attribute__((section("entry"), naked, used)) void _start()
 	while (1)
 		;
 }
-unsigned char getch()
-{
-	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
 
-	if (uart[UART_LSR] & 0x01)
-	{
-		return uart[0] & 0xFF; // 地址0就是 UART_RBR
-	}
-	return -1; // 无数据
-}
-void putch(char ch)
-{
-
-	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
-	while ((uart[UART_LSR] & 0x40) == 0)
-		;
-	outb(SERIAL_PORT, ch);
-}
-void uart_init()
-{
-	volatile uint8_t *uart = (volatile uint8_t *)SERIAL_PORT;
-
-	uart[UART_LCR] = 0x80;
-
-	uart[UART_DLM] = 0x00;
-	uart[UART_DLL] = 0x01;
-
-	// 3. 设置通信参数并清除DLAB
-	// 8位数据，无校验，1位停止位 (0b00000011)
-	uart[UART_LCR] = 0x03;
-}
 void halt(int code)
 {
 	npc_trap(code);

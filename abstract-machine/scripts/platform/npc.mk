@@ -1,15 +1,13 @@
-AM_SRCS := riscv/npc/start.S \
-           riscv/npc/trm.c \
+AM_SRCS := riscv/npc/trm.c \
            riscv/npc/ioe.c \
            riscv/npc/timer.c \
            riscv/npc/input.c \
            riscv/npc/cte.c \
-           riscv/npc/trap.S \
            platform/dummy/vme.c \
-           platform/dummy/mpe.c
+           platform/dummy/mpe.c \
 
 CFLAGS    += -fdata-sections -ffunction-sections
-LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
+LDSCRIPTS += $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld
 LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
 
@@ -26,10 +24,10 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
-	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) npc_run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 autorun: insert-arg
-	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) autorun ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) npc_autorun ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin

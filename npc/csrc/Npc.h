@@ -6,7 +6,9 @@
 #include "Difftest.h"
 #include "config.h"
 #include <stdio.h>
+#ifndef IS_NPC
 #include <nvboard.h>
+#endif
 #define DIFFTEST_TO_REF 1
 #define DIFFTEST_TO_DUT 0
 
@@ -25,7 +27,6 @@ public:
 	{
 		Verilated::commandArgs(argc, argv);
 		top = new VysyxSoCFull;
-		printf("top->uart_tx is at %p\n", &top->externalPins_uart_tx);
 #ifdef WAVE
 		tfp = new VerilatedVcdC;
 		Verilated::traceEverOn(true);
@@ -33,8 +34,10 @@ public:
 		tfp->open("top.vcd");
 #endif
 		init_disasm();
+#ifndef IS_NPC
 		nvboard_bind_all_pins(top);
 		nvboard_init();
+#endif
 	}
 	~Npc()
 	{
@@ -50,15 +53,19 @@ public:
 	{
 		top->clock = 0;
 		top->reset = 1;
+#ifndef IS_NPC
 		top->externalPins_uart_rx = 1;	// reset uart rx
 		top->externalPins_ps2_data = 1; // reset ps2 data
+#endif
 		top->eval();
 		dump();
 		top->clock = 1;
 		top->eval();
 		dump();
 		top->reset = 0;
+#ifndef IS_NPC
 		nvboard_update();
+#endif
 #ifdef TRACE
 		update_messages();
 #endif
@@ -72,7 +79,9 @@ public:
 		top->clock = 1;
 		top->eval();
 		dump();
+#ifndef IS_NPC
 		nvboard_update();
+#endif
 #ifdef TRACE
 		update_messages();
 #endif
