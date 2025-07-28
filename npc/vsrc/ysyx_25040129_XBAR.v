@@ -7,11 +7,14 @@ module ysyx_25040129_XBAR (
 	input arvalid,
 	input [2:0] arsize,
 	output reg arready,
+	input [7:0] arlen, 
+	input [1:0] arburst,
 	//---------------读数据---------------
 	output reg[31:0] rdata,
 	output reg [1:0]rresp,
 	output reg rvalid,
 	input rready,
+	output rlast,
 	//---------------写地址---------------
 	input [31:0] awaddr,
 	input awvalid,
@@ -32,11 +35,14 @@ module ysyx_25040129_XBAR (
 	output reg soc_arvalid,
 	output reg [2:0] soc_arsize,
 	input soc_arready,
+	output [7:0]soc_arlen,
+	output [1:0] soc_arburst,
 	//---------------读数据---------------
 	input [31:0] soc_rdata,
 	input [1:0]soc_rresp,
 	input soc_rvalid,
 	output reg soc_rready,
+	input soc_rlast,
 	//---------------写地址---------------
 	output reg [31:0] soc_awaddr,
 	output reg soc_awvalid,
@@ -62,6 +68,9 @@ module ysyx_25040129_XBAR (
 	input rtc_rvalid,
 	output reg rtc_rready
 );
+assign soc_arlen = arlen; // 直接转发
+assign soc_arburst = arburst; // 直接转发
+assign rlast = soc_rlast; // 直接转发
 localparam IDLE = 3'b000;
 localparam HANDLE_SOC = 3'b001;
 localparam HANDLE_RTC = 3'b011;
@@ -187,7 +196,7 @@ always @(*) begin
 			end
 			else next_state = IDLE;
 		end
-		HANDLE_SOC: if(rready && soc_rvalid || bready && soc_bvalid) begin 
+		HANDLE_SOC: if(rready && soc_rvalid && soc_rlast || bready && soc_bvalid) begin 
 						next_state = IDLE;
 					`ifdef DPI
 					if(rresp != `OKAY && rready && soc_rvalid) 

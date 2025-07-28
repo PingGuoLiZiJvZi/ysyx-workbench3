@@ -31,7 +31,7 @@ ysyx_25040129_top u_top (
     .io_master_arvalid      (arvalid),
     .io_master_arid    (/* unused */),
     .io_master_araddr  (araddr),
-    .io_master_arlen   (/* unused */),
+    .io_master_arlen   (arlen),
     .io_master_arsize  (/* unused */),
     .io_master_arburst (/* unused */),
     .io_master_rready       (rready),
@@ -39,7 +39,7 @@ ysyx_25040129_top u_top (
     .io_master_rid     (4'b0),
     .io_master_rdata   (rdata),
     .io_master_rresp   (rresp),
-    .io_master_rlast   (1'b0),
+    .io_master_rlast   (rlast),
     .io_slave_awready       (/* unused */),
     .io_slave_awvalid       (1'h0),	//:35:23, :36:19, :38:21
     .io_slave_awid     (4'h0),	//:36:19, :38:21
@@ -73,11 +73,14 @@ ysyx_25040129_top u_top (
 wire [31:0] araddr;
 wire arvalid;
 wire arready;
+wire [7:0] arlen;
+wire [1:0] arburst;
 //-------------------读数据-----------------------
 reg [31:0] rdata;
 wire [1:0] rresp;
 wire rvalid;
 wire rready;
+reg rlast;
 //-------------------写地址-----------------------
 wire [31:0] awaddr;
 wire awvalid;
@@ -105,83 +108,91 @@ localparam  W_WRITING = 3'b100;
 localparam  W_WAIT_B_READY = 3'b101;
 /* verilator lint_off UNUSEDSIGNAL */
 reg [31:0] read_addr_store;
+reg [7:0] read_len_store;
 reg [31:0] write_addr_store;
 reg [31:0] write_data_store;
 reg [3:0] write_strb_store;
 /* verilator lint_on UNUSEDSIGNAL */
 reg [2:0] r_state;
-reg [2:0] next_r_state;
 reg [2:0] w_state;
-reg [2:0] next_w_state;
-reg [4:0] r_delay_cnt;
-reg [4:0] r_delay;
-reg [4:0] w_delay_cnt;
-reg [4:0] w_delay;
-always @(*) begin
-	case (r_state)
-		R_IDLE: next_r_state = arvalid ?R_READING : R_IDLE;
-		R_READING: next_r_state = (r_delay_cnt == r_delay) ? R_WAIT_R_READY : R_READING;
-		R_WAIT_R_READY: next_r_state = rready ? R_IDLE : R_WAIT_R_READY;
-		default: next_r_state = R_IDLE;
-	endcase
-	case (w_state)
-		W_IDLE: next_w_state = awvalid ? (wvalid?W_WRITING:W_WAIT_W_VALID) : (wvalid?W_WAIT_AW_VALID:W_IDLE);
-		W_WAIT_AW_VALID: next_w_state = awvalid ?W_WRITING : W_WAIT_AW_VALID;
-		W_WAIT_W_VALID: next_w_state = wvalid ?W_WRITING: W_WAIT_W_VALID;
-		W_WRITING: next_w_state = (w_delay_cnt == w_delay) ? W_WAIT_B_READY : W_WRITING;
-		W_WAIT_B_READY: next_w_state = bready ? W_IDLE : W_WAIT_B_READY;
-		default: next_w_state = W_IDLE;
+reg [7:0] r_len_cnt;
+always @(posedge clock) begin
+	case(r_state)
+		R_IDLE:begin
+			if(arvalid)begin
+				r_state <= R_READING;
+				read_addr_store <= araddr;
+				read_len_store <= arlen;
+				r_len_cnt <= 0;
+				rdata <= soc_read(araddr);
+				if(arlen == 0)
+					rlast <= 1'b1; 
+			end
+		end
+		R_READING:begin
+			if(rready)begin
+				if(r_len_cnt == read_len_store) begin
+					r_state <= R_IDLE;
+					rlast <= 1'b0;
+				end else begin
+					if(r_len_cnt + 1 == read_len_store)begin
+						rlast <= 1'b1; 
+					end
+					rdata <= soc_read(read_addr_store +  4);
+					r_len_cnt <= r_len_cnt + 1;
+					read_addr_store <= read_addr_store + 4;
+				end
+			end
+		end
+		default: r_state <= R_IDLE;
 endcase
 end
-
+always @(posedge clock) begin
+	case(w_state)
+		W_IDLE:begin
+			if(awvalid)begin
+				write_addr_store <= awaddr;
+				if(wvalid)begin
+					w_state <= W_WRITING;
+					write_data_store <= wdata;
+					write_strb_store <= wstrb;
+				end else begin
+					w_state <= W_WAIT_AW_VALID;
+				end
+			end
+		end
+		W_WAIT_AW_VALID:begin
+			if(awvalid)begin
+				w_state <= W_WRITING;
+				write_addr_store <= awaddr;
+			end
+		end
+		W_WAIT_W_VALID:begin
+			if(wvalid)begin
+				write_data_store <= wdata;
+				write_strb_store <= wstrb;
+				w_state <= W_WRITING;
+			end
+		end
+		W_WRITING:begin
+			soc_write(write_addr_store, {4'b0,write_strb_store}, write_data_store);
+			w_state <= W_WAIT_B_READY;
+		end
+		W_WAIT_B_READY:begin
+			if(bready) begin
+				w_state <= W_IDLE;
+			end 
+		end
+		default: w_state <= W_IDLE;
+	endcase
+end
 assign arready = (r_state == R_IDLE);
-assign rvalid = (r_state == R_WAIT_R_READY);
 assign rresp = 2'b00; // OKAY
+assign rvalid = (r_state == R_READING) ;
 assign awready = (w_state == W_IDLE) || (w_state == W_WAIT_AW_VALID);
 assign wready = (w_state == W_WAIT_W_VALID) || (w_state == W_IDLE);
 assign bvalid = (w_state == W_WAIT_B_READY);
 assign bresp = 2'b00; // OKAY
 
-always @(posedge clock) begin
-	if(reset)begin
-		r_state <= R_IDLE;
-		w_state <= W_IDLE;
-	end else begin
-		r_state <= next_r_state;
-		if((r_state !=R_READING)&&(next_r_state == R_READING))begin
-			r_delay <= delay; 
-			r_delay_cnt <= 1; 
-		end
-		else r_delay_cnt <= r_delay_cnt + 1;
-		w_state <= next_w_state;
-		if(w_state!= W_WRITING&&next_w_state == W_WRITING) begin
-			w_delay <= delay; 
-			w_delay_cnt <= 1;
-		end
-		else w_delay_cnt <= w_delay_cnt + 1;
-	end
-end
 
-always @(posedge clock) begin
-	if(next_r_state == R_WAIT_R_READY)begin
-		rdata <= soc_read(read_addr_store);
-	end
-	else if(next_w_state == W_WAIT_B_READY) begin
-		soc_write(write_addr_store, {4'b0,write_strb_store}, write_data_store);
-	end
-end
-//在进入对应状态时，锁存必要数据
-always @(posedge clock) begin
-	if(r_state == R_IDLE && arvalid) read_addr_store <= araddr;
-	if(w_state == W_IDLE && awvalid && wvalid) begin 
-		write_addr_store <= awaddr;
-		write_data_store <= wdata;
-		write_strb_store <= wstrb;
-	end
-	else if(w_state == W_WAIT_AW_VALID && awvalid) write_addr_store <= awaddr;
-	else if(w_state == W_WAIT_W_VALID && wvalid) begin
-		write_data_store <= wdata;
-		write_strb_store <= wstrb;
-	end
-end
 endmodule

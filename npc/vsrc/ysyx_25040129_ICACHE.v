@@ -1,6 +1,6 @@
 module ysyx_25040129_ICACHE #(
-	parameter BLOCK_SIZE_WORD_DIG = 1,//2^BLOCK_SIZE_DIG = 4, // block size = 4B 
-	parameter BLOCK_NUM_DIG = 4//2^BLOCK_NUM_DIG = 16, // block number = 16
+	parameter BLOCK_SIZE_WORD_DIG = 3,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
+	parameter BLOCK_NUM_DIG = 6//2^BLOCK_NUM_DIG = 16, // block number = 16
 )(
 	input clk,
 	input rst,
@@ -19,35 +19,46 @@ module ysyx_25040129_ICACHE #(
 	output [31:0] out_araddr,
 	output out_arvalid,
 	input out_arready,
+	output [7:0] out_arlen, // 突发传输大小
+	output [1:0] out_arburst, 
 	//---------------读数据---------------
 	input [31:0] out_rdata,
 	input [1:0] out_rresp,
 	input out_rvalid,
-	output out_rready
+	output out_rready,
+	input out_rlast
 );
-	localparam BLOCK_SIZE_DIG = BLOCK_SIZE_WORD_DIG + 1;
+	localparam BLOCK_SIZE_WORD = 1 << BLOCK_SIZE_WORD_DIG; 
+	assign out_arlen = BLOCK_SIZE_WORD - 1; 
+	assign out_arburst = 2'b01; 
+	localparam BLOCK_SIZE_DIG = BLOCK_SIZE_WORD_DIG + 2;
 	localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
 	localparam BLOCK_NUM = 1 << (BLOCK_NUM_DIG); 
 	reg [31:0] ifu_araddr_latch;
-	reg [BLOCK_SIZE*8-1:0] cache_data[BLOCK_NUM-1:0];
+	reg [31:0] cache_data[BLOCK_NUM-1:0][BLOCK_SIZE_WORD-1:0]; 
 	reg [BLOCK_NUM-1:0]cache_valid;
 	reg [31:BLOCK_SIZE_DIG+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
 	reg [1:0] state;
+	reg [BLOCK_SIZE_WORD_DIG-1:0] burst_count;
+	//--------------------------------------------------------------------------------
 	wire [BLOCK_NUM_DIG-1:0] index;
 	wire [BLOCK_NUM_DIG-1:0] p_index;
-	wire [BLOCK_SIZE_DIG-1:0] offset;
-	wire [BLOCK_SIZE_DIG-1:0] p_offset;
+	wire [BLOCK_SIZE_WORD_DIG-1:0] offset;
+	wire [BLOCK_SIZE_WORD_DIG-1:0] p_offset;
 	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] tag;
 	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] p_tag;
+	//--------------------------------------------------------------------------------
 	assign p_index = ifu_araddr[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
-	assign p_offset = ifu_araddr[BLOCK_SIZE_DIG-1:0];
+	assign p_offset = ifu_araddr[BLOCK_SIZE_WORD_DIG+1:2];
 	assign p_tag = ifu_araddr[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	assign index = ifu_araddr_latch[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
-	assign offset = ifu_araddr_latch[BLOCK_SIZE_DIG-1:0];
+	assign offset = ifu_araddr_latch[BLOCK_SIZE_WORD_DIG+1:2];
 	assign tag = ifu_araddr_latch[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
+	//--------------------------------------------------------------------------------
 	assign ifu_arready = (state == IDLE);
+	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
 	//31--------block_size_dig+block_num_dig-1--------------block_size_dig-1--------------0
-	//---tag--------------------------------------index-----------------------offset---
+	//---tag--------------------------------------index-----------------------offset------
 	localparam IDLE = 2'b00;
 	localparam WAIT_IFU_READY = 2'b01;
 	localparam WAIT_OUT_READY = 2'b10;
@@ -69,10 +80,11 @@ module ysyx_25040129_ICACHE #(
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
 						if(cache_valid[p_index] && cache_tag[p_index] == p_tag) begin
-							ifu_rdata <= cache_data[p_index];
+							ifu_rdata <= cache_data[p_index][p_offset];
 							state <= WAIT_IFU_READY; // 命中，直接返回数据
 						end else begin
 							state <= WAIT_OUT_READY; // 未命中，准备向外界请求数据
+							burst_count <= 0; 
 						end
 					end
 				end 
@@ -87,23 +99,30 @@ module ysyx_25040129_ICACHE #(
 				end
 				WAIT_OUT_REQ:begin
 					if(out_rvalid) begin
-						cache_data[index] <= out_rdata;
-						cache_tag[index] <= tag;
-						cache_valid[index] <= 1'b1; //标记该cache块有效
-						ifu_rdata <= out_rdata; //将数据返回给IFU
-						state <= WAIT_IFU_READY;
+						cache_data[index][burst_count] <= out_rdata;
+						burst_count <= burst_count + 1;
+						if(burst_count == offset)begin
+							ifu_rdata <= out_rdata;
+						end
+						if(out_rlast) begin
+							cache_tag[index] <= tag;
+							cache_valid[index] <= 1'b1; //标记该cache块有效
+							state <= WAIT_IFU_READY;
+						end
 					end
 				end
 				default: state <= IDLE; 
 			endcase
 		end
 	end
-	assign out_araddr = ifu_araddr_latch;
+	assign out_araddr = {ifu_araddr_latch[31:BLOCK_SIZE_DIG], {BLOCK_SIZE_DIG{1'b0}}};
 	assign out_arvalid = (state == WAIT_OUT_READY);
 	assign out_rready = (state == WAIT_OUT_REQ);
 	assign ifu_rresp = `OKAY;
 	assign ifu_rvalid = (state == WAIT_IFU_READY); 
-
+	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
+	//31--------block_size_dig+block_num_dig-1--------------block_size_dig-1--------------0
+	//---tag--------------------------------------index-----------------------offset------
 	//icache的每个块都需要有一个valid位,id位目前直接对addr取模得到
 	//tag位目前表示为addr/blocksize(这是地址addr对应的tag位)
 	//对于内存地址为addr的数据块, 它将被读入编号为(addr / blocksize) % blocknum的cache块.

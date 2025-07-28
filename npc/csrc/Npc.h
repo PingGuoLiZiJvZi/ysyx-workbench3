@@ -85,6 +85,9 @@ public:
 #ifdef TRACE
 		update_messages();
 #endif
+#ifdef WAVE
+		tfp->flush();
+#endif
 	}
 
 	void reg_display()

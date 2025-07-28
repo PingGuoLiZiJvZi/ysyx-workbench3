@@ -114,11 +114,14 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.arvalid(arvalid_to_xbar),
 		.arready(arready_from_xbar),
 		.arsize(arsize_to_xbar),
+		.arlen(arlen_to_xbar),
+		.arburst(arburst_to_xbar),
 
 		.rdata(rdata_from_xbar),
 		.rresp(rresp_from_xbar),
 		.rvalid(rvalid_from_xbar),
 		.rready(rready_to_xbar),
+		.rlast(rlast_from_xbar),
 
 		.awaddr(awaddr_from_lsu),
 		.awvalid(awvalid_from_lsu),
@@ -137,11 +140,14 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.soc_arvalid(io_master_arvalid),
 		.soc_arready(io_master_arready),
 		.soc_arsize(io_master_arsize),
+		.soc_arlen(io_master_arlen),
+		.soc_arburst(io_master_arburst),
 
 		.soc_rdata(io_master_rdata),
 		.soc_rresp(io_master_rresp),
 		.soc_rvalid(io_master_rvalid),
 		.soc_rready(io_master_rready),
+		.soc_rlast(io_master_rlast),
 
 		.soc_awaddr(io_master_awaddr),
 		.soc_awvalid(io_master_awvalid),
@@ -216,14 +222,17 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.clk(clk),
 		.rst(rst),
 
-		.ifu_araddr(araddr_from_icache),
-		.ifu_arvalid(arvalid_from_icache),
-		.ifu_arready(arready_to_icache),
+		.icache_araddr(araddr_from_icache),
+		.icache_arvalid(arvalid_from_icache),
+		.icache_arready(arready_to_icache),
+		.icache_arlen(arlen_from_icache),
+		.icache_arburst(arburst_from_icache),
 
-		.ifu_rdata(rdata_to_icache),
-		.ifu_rresp(rresp_to_icache),
-		.ifu_rvalid(rvalid_to_icache),
-		.ifu_rready(rready_from_icache),
+		.icache_rdata(rdata_to_icache),
+		.icache_rresp(rresp_to_icache),
+		.icache_rvalid(rvalid_to_icache),
+		.icache_rready(rready_from_icache),
+		.icache_rlast(rlast_to_icache),
 
 		.lsu_araddr(araddr_from_lsu),
 		.lsu_arvalid(arvalid_from_lsu),
@@ -239,12 +248,18 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.arvalid(arvalid_to_xbar),
 		.arready(arready_from_xbar),
 		.arsize(arsize_to_xbar),
+		.arlen(arlen_to_xbar),
+		.arburst(arburst_to_xbar),
 
 		.rdata(rdata_from_xbar),
 		.rresp(rresp_from_xbar),
 		.rvalid(rvalid_from_xbar),
-		.rready(rready_to_xbar)
+		.rready(rready_to_xbar),
+		.rlast(rlast_from_xbar)
 	);	
+	wire [7:0] arlen_to_xbar;
+	wire [1:0] arburst_to_xbar;
+	wire rlast_from_xbar;
 	wire [2:0] arsize_to_xbar;
 	wire [31:0] araddr_to_xbar;
 	wire arvalid_to_xbar;
@@ -276,12 +291,17 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.out_araddr(araddr_from_icache),
 		.out_arvalid(arvalid_from_icache),
 		.out_arready(arready_to_icache),
+		.out_arlen(arlen_from_icache),
+		.out_arburst(arburst_from_icache),
 
 		.out_rdata(rdata_to_icache),
 		.out_rresp(rresp_to_icache),
 		.out_rvalid(rvalid_to_icache),
-		.out_rready(rready_from_icache)
+		.out_rready(rready_from_icache),
+		.out_rlast(rlast_to_icache)
 	);
+	wire [7:0] arlen_from_icache;
+	wire [1:0] arburst_from_icache;
 	wire [31:0] araddr_from_icache;
 	wire arvalid_from_icache;
 	wire arready_to_icache;
@@ -289,6 +309,7 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 	wire [1:0] rresp_to_icache;
 	wire rvalid_to_icache;
 	wire rready_from_icache;
+	wire rlast_to_icache;
 	ysyx_25040129_IFU u_ysyx_25040129_IFU (
 		.pc(pc_from_ifu),
 		.is_branch(is_branch_out_wbu),
