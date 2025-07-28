@@ -11,6 +11,7 @@ import "DPI-C" function void fetch_count_inc(byte ifu_state);
 import "DPI-C" function void execute_count_inc(byte exu_state);
 import "DPI-C" function void load_store_count_inc(byte lsu_state);
 import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
+import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,bit is_hit);
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129_top(
 	input clock,
 	input reset,
@@ -215,14 +216,14 @@ import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 		.clk(clk),
 		.rst(rst),
 
-		.ifu_araddr(araddr_from_ifu),
-		.ifu_arvalid(arvalid_from_ifu),
-		.ifu_arready(rready_to_ifu),
+		.ifu_araddr(araddr_from_icache),
+		.ifu_arvalid(arvalid_from_icache),
+		.ifu_arready(arready_to_icache),
 
-		.ifu_rdata(rdata_to_ifu),
-		.ifu_rresp(rresp_to_ifu),
-		.ifu_rvalid(rvalid_to_ifu),
-		.ifu_rready(rready_from_ifu),
+		.ifu_rdata(rdata_to_icache),
+		.ifu_rresp(rresp_to_icache),
+		.ifu_rvalid(rvalid_to_icache),
+		.ifu_rready(rready_from_icache),
 
 		.lsu_araddr(araddr_from_lsu),
 		.lsu_arvalid(arvalid_from_lsu),
@@ -259,8 +260,35 @@ import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 	wire empty_bvalid;
 	wire [1:0] empty_bresp;
 	/* verilator lint_on UNUSEDSIGNAL */
+	ysyx_25040129_ICACHE u_ysyx_25040129_ICACHE (
+		.clk(clk),
+		.rst(rst),
 
+		.ifu_araddr(araddr_from_ifu),
+		.ifu_arvalid(arvalid_from_ifu),
+		.ifu_arready(rready_to_ifu),
 
+		.ifu_rdata(rdata_to_ifu),
+		.ifu_rresp(rresp_to_ifu),
+		.ifu_rvalid(rvalid_to_ifu),
+		.ifu_rready(rready_from_ifu),
+
+		.out_araddr(araddr_from_icache),
+		.out_arvalid(arvalid_from_icache),
+		.out_arready(arready_to_icache),
+
+		.out_rdata(rdata_to_icache),
+		.out_rresp(rresp_to_icache),
+		.out_rvalid(rvalid_to_icache),
+		.out_rready(rready_from_icache)
+	);
+	wire [31:0] araddr_from_icache;
+	wire arvalid_from_icache;
+	wire arready_to_icache;
+	wire [31:0] rdata_to_icache;
+	wire [1:0] rresp_to_icache;
+	wire rvalid_to_icache;
+	wire rready_from_icache;
 	ysyx_25040129_IFU u_ysyx_25040129_IFU (
 		.pc(pc_from_ifu),
 		.is_branch(is_branch_out_wbu),
@@ -300,11 +328,7 @@ import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 	wire [1:0] rresp_to_ifu;
 	wire rvalid_to_ifu;
 	wire rready_from_ifu;
-	// wire is_req_valid_from_ifu_to_mmem;
-	// wire is_rsp_ready_from_ifu_to_mmem;
-	// wire is_rsp_valid_from_mmem_to_ifu;
 	wire is_req_ready_from_idu_to_ifu;
-	// wire is_req_ready_from_mmem_to_ifu;
 	wire is_req_valid_from_ifu_to_idu;
 	wire is_req_ready_from_ifu_to_wbu;
 

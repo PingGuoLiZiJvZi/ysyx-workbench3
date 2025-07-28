@@ -28,6 +28,10 @@ uint64_t branch_inst_count = 0;
 uint64_t branch_inst_cycle = 0;
 uint64_t csr_inst_count = 0;
 uint64_t csr_inst_cycle = 0;
+uint64_t icache_miss_count = 0;
+uint64_t icache_miss_cycle = 0;
+uint64_t icache_hit_count = 0;
+uint64_t icache_hit_cycle = 0;
 
 void print_performance_counters()
 {
@@ -56,6 +60,19 @@ void print_performance_counters()
 	printf("%-22s %10lu, %-20s %10lu, per %10.6lf cycles\n",
 		   "csr inst count:", csr_inst_count, "csr cycle:", csr_inst_cycle,
 		   (double)csr_inst_cycle / csr_inst_count);
+	printf("%-22s %10lu, %-20s %10lu, per %10.6lf cycles\n",
+		   "icache hit count:", icache_hit_count, "icache hit cycle:", icache_hit_cycle,
+		   (double)icache_hit_cycle / icache_hit_count);
+	printf("%-22s %10lu, %-20s %10lu, per %10.6lf cycles\n",
+		   "icache miss count:", icache_miss_count, "icache miss cycle:", icache_miss_cycle,
+		   (double)icache_miss_cycle / icache_miss_count);
+	printf("%-22s %10lu, %-20s %10lu, per %10.6lf cycles\n",
+		   "icache aver count:", (icache_hit_count + icache_miss_count),
+		   "icache aver cycle:", (icache_hit_cycle + icache_miss_cycle),
+		   (double)(icache_hit_cycle + icache_miss_cycle) / (icache_hit_count + icache_miss_count));
+	printf("%-22s %%%10.2lf\n",
+		   "icache miss rate:",
+		   (double)icache_miss_count * 100 / (icache_hit_count + icache_miss_count));
 	// printf("calculate inst count: %10lu, calculate inst cycle: %10lu, per %10lf cycles\n", calculate_inst_count, calculate_inst_cycle, (double)calculate_inst_cycle / calculate_inst_count);
 	// printf("load/store inst count: %10lu, load/store inst cycle: %10lu, per %10lf cycles\n", load_store_inst_count, load_store_inst_cycle, (double)load_store_inst_cycle / load_store_inst_count);
 	// printf("branch inst count: %10lu, branch inst cycle: %10lu, per %10lf cycles\n", branch_inst_count, branch_inst_cycle, (double)branch_inst_cycle / branch_inst_count);
@@ -65,6 +82,35 @@ void print_performance_counters()
 #define IFU_WAIT_MMEM_READY 1
 #define IFU_WAIT_MMEM_REQ 2
 #define IFU_WAIT_IDU_READY 3
+#define ICACHE_IDLE 0
+extern "C" void icache_count_inc(char icache_state, bool ifu_arvalid, bool is_hit)
+{
+	static int is_icache_working = 0;
+	static int is_icache_hit = 0;
+	if (is_icache_working)
+	{
+		if (is_icache_hit)
+			icache_hit_cycle++;
+		else
+			icache_miss_cycle++;
+		if (icache_state == ICACHE_IDLE)
+		{
+			is_icache_working = 0;
+			if (is_icache_hit)
+				icache_hit_count++;
+			else
+				icache_miss_count++;
+		}
+	}
+	else
+	{
+		if (icache_state == ICACHE_IDLE & ifu_arvalid)
+		{
+			is_icache_working = 1;
+			is_icache_hit = is_hit;
+		}
+	}
+}
 extern "C" void fetch_count_inc(char ifu_state)
 {
 	static int is_ifu_working = 0;

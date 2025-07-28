@@ -81,3 +81,4 @@ gdb:
 
 clean:
 	rm -rf $(BUILD_DIR)
+.PHONY: clean run perf npc_build npc_run npc_autorun autorun build npc_build
