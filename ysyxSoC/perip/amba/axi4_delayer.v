@@ -89,7 +89,8 @@ module axi4_delayer(
 	.in_rdata(),
 	.out_rvalid(out_bvalid),
 	.out_rready(out_bready),
-	.out_rdata(0)
+	.out_rdata(0),
+	.handshaked(in_awready|in_wready)
  );
   //---------------------------------------------------	
   //----------------------读逻辑延迟----------------------
@@ -110,7 +111,8 @@ module axi4_delayer(
 	.in_rdata({in_rid, in_rdata,in_rresp,in_rlast}),
 	.out_rvalid(out_rvalid),
 	.out_rready(out_rready),
-	.out_rdata({out_rid, out_rdata,out_rresp,out_rlast})
+	.out_rdata({out_rid, out_rdata,out_rresp,out_rlast}),
+	.handshaked(in_arready)
 );
 
   assign out_arid = in_arid;
@@ -202,7 +204,8 @@ module handshake_delayer_back (
   output reg[38:0] in_rdata,
   input    out_rvalid,
   output         out_rready,
-  input  [38:0] out_rdata
+  input  [38:0] out_rdata,
+  input 	   handshaked
 );
   reg [1:0] state;
   localparam WAIT_VALID = 2'b00;
@@ -221,21 +224,24 @@ module handshake_delayer_back (
 	  device_counter <= 0;
   end
   else begin
+	if(handshaked && state == DELAY && state == DONE)$error("handshaked should not be true when state is DELAY");
+	if(handshaked)counter<=0;
+	else if(state==DELAY) counter <= counter;
+	else counter <= counter + EXTRA_DELAY;
 	case (state)
 	  WAIT_READY: begin
 		if(in_rready) begin
 		  if (out_rvalid) begin
-			state <= DONE;
+			state <= (counter == 0) ? DONE : DELAY;
 			in_rdata <= out_rdata;
+			device_counter <=0;
 		  end
 		  else begin
 			state <= WAIT_VALID;
-			counter <= 0;
 		  end
 		end
 	  end
 	  WAIT_VALID: begin
-		counter <= counter + EXTRA_DELAY;
 		if(~in_rready)begin
 			state <= WAIT_READY;
 		end 
