@@ -103,7 +103,7 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 	assign io_master_arlen = 8'b0;
 	assign io_master_arburst = 2'b01; // INCR
 	assign io_master_arid = 4'b0;
-	
+	assign io_master_wlast = 1'b1;
 	
 
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(

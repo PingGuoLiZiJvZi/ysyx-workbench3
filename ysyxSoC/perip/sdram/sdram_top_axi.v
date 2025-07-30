@@ -39,13 +39,15 @@ module sdram_top_axi(
   output        sdram_we,
   output [12:0] sdram_a,
   output [ 1:0] sdram_ba,
-  output [ 1:0] sdram_dqm,
-  inout  [15:0] sdram_dq
+  output [ 3:0] sdram_dqm,
+  inout  [31:0] sdram_dq,
+  output		sdram_choose_high,
+  output        sdram_choose_low
 );
 
   wire sdram_dout_en;
-  wire [15:0] sdram_dout;
-  assign sdram_dq = sdram_dout_en ? sdram_dout : 16'bz;
+  wire [31:0] sdram_dout;
+  assign sdram_dq = sdram_dout_en ? sdram_dout : 32'bz;
   sdram_axi #(
     .SDRAM_MHZ(100),
     .SDRAM_ADDR_W(24),
@@ -93,7 +95,9 @@ module sdram_top_axi(
     .sdram_ba_o(sdram_ba),
     .sdram_data_input_i(sdram_dq),
     .sdram_data_output_o(sdram_dout),
-    .sdram_data_out_en_o(sdram_dout_en)
+    .sdram_data_out_en_o(sdram_dout_en),
+	.sdram_choose_high_o(sdram_choose_high),
+	.sdram_choose_low_o(sdram_choose_low)
   );
 
 endmodule

@@ -68,12 +68,19 @@ module sdram(
           end
           
           4'b0100: if (bank_active[ba]) begin
-            burst_active <= 1'b1;
-            burst_write <= 1'b1;
+			if(burst_length == 1)begin
+				burst_active <= 1'b0; 
+				burst_write <= 1'b0; 
+				burst_cnt <= 3'd0; 
+			end
+			else begin
+				burst_active <= 1'b1;
+            	burst_write <= 1'b1;
+				burst_cnt <= 3'd0;
+			end
+           
             burst_bank <= ba;
             burst_col <= a[8:0];    // 列地址 A0-A8
-            burst_cnt <= 3'd0;
-            
             if (!dqm[0]) memory[ba][active_row[ba]][a[8:0]][7:0] <= dq[7:0];
             if (!dqm[1]) memory[ba][active_row[ba]][a[8:0]][15:8] <= dq[15:8];
             burst_cnt <= burst_cnt + 1;

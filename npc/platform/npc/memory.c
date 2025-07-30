@@ -18,6 +18,8 @@ uint8_t sdram[SDRAM_SIZE];
 extern "C" void flash_read(int32_t addr, int32_t *data);
 extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 {
+	if (addr == 0x803fffdc)
+		printf("soc_write: addr=0x%08x, strb=0x%02x, data=0x%08x\n", addr, strb, data);
 	addr = addr & ~0x3; // 对齐到4字节
 	uint8_t *write_addr = NULL;
 	if (addr >= PSRAM_START && addr < PSRAM_START + PSRAM_SIZE)
@@ -75,6 +77,7 @@ extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 }
 extern "C" uint32_t soc_read(uint32_t addr)
 {
+
 	addr = addr & ~0x3;
 	uint8_t *read_addr = NULL;
 	if (addr >= PSRAM_START && addr < PSRAM_START + PSRAM_SIZE)
@@ -101,6 +104,7 @@ extern "C" uint32_t soc_read(uint32_t addr)
 		assert(0 && "Invalid address for soc_read");
 		return 0;
 	}
-
+	if (addr == 0x803fffdc)
+		printf("soc_read: addr=0x%08x, data=0x%08x\n", addr, *(uint32_t *)read_addr);
 	return *(uint32_t *)read_addr;
 }

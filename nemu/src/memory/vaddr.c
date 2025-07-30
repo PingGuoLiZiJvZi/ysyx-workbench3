@@ -48,6 +48,7 @@ word_t vaddr_ifetch(vaddr_t addr, int len)
 word_t vaddr_read(vaddr_t addr, int len)
 {
 	addr = map_to_rom_and_ram(addr);
+
 	return paddr_read(addr, len);
 }
 
