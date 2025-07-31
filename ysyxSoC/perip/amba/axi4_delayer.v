@@ -232,7 +232,7 @@ module handshake_delayer_back (
 	  WAIT_READY: begin
 		if(in_rready) begin
 		  if (out_rvalid) begin
-			state <= (counter == 0) ? DONE : DELAY;
+			state <=  DELAY;
 			in_rdata <= out_rdata;
 			device_counter <=0;
 		  end
@@ -261,7 +261,7 @@ module handshake_delayer_back (
 	  DONE: begin
 		if(in_rready) begin
 		  state <= WAIT_READY; 
-		  counter <= EXTRA_DELAY;
+		  counter <= 0;
 		end
 	  end
 	endcase

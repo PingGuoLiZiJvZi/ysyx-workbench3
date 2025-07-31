@@ -1,12 +1,15 @@
 `ifdef SIMULATE
 	`define DEBUG 1
 	`define DPI 1
+	// `define GENERATE_PC_QUEUE 1
+	// `define GENERATE_LOAD_STORE_QUEUE 1
 `endif
 `define WORD_T 4
 `define START_ADDR 32'h20000000
 `define I_TYPE_IMM 7'b0010011
 `define B_TYPE 7'b1100011
 `define I_TYPE_LOAD 7'b0000011
+`define I_TYPE_FENCE 7'b0001111
 `define S_TYPE 7'b0100011
 `define J_TYPE 7'b1101111
 `define I_TYPE_JALR 7'b1100111

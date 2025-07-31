@@ -188,6 +188,11 @@ always @(posedge clk) begin
 	`ifdef DEBUG
 	load_store_count_inc({5'b0,state});
 	`endif
+	`ifdef GENERATE_LOAD_STORE_QUEUE
+	if(next_state == WAIT_REQ_READ || next_state == WAIT_REQ_WRITE) begin
+		record_load_store(result_in_lsu, (mmem_read_in_lsu != `NO_MEM_READ) ?32'b1:32'b0);
+		end
+	`endif
 end
 //---------------综合时删除---------------
 always @(posedge clk) begin

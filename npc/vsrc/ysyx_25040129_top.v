@@ -12,6 +12,8 @@ import "DPI-C" function void execute_count_inc(byte exu_state);
 import "DPI-C" function void load_store_count_inc(byte lsu_state);
 import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,bit is_hit);
+import "DPI-C" function void record_pc(int pc);
+import "DPI-C" function void record_load_store(int addr, int is_load);
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129_top(
 	input clock,
 	input reset,
@@ -100,11 +102,11 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 	assign clk = clock;
 	wire rst;
 	assign rst = reset;
-	assign io_master_arlen = 8'b0;
-	assign io_master_arburst = 2'b01; // INCR
+	// assign io_master_arlen = 8'b0;
+	// assign io_master_arburst = 2'b01; // INCR
 	assign io_master_arid = 4'b0;
 	assign io_master_wlast = 1'b1;
-	
+	wire fence_i;
 
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
@@ -298,7 +300,8 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.out_rresp(rresp_to_icache),
 		.out_rvalid(rvalid_to_icache),
 		.out_rready(rready_from_icache),
-		.out_rlast(rlast_to_icache)
+		.out_rlast(rlast_to_icache),
+		.fence_i(fence_i)
 	);
 	wire [7:0] arlen_from_icache;
 	wire [1:0] arburst_from_icache;
@@ -387,7 +390,8 @@ import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,
 		.is_req_valid_from_ifu(is_req_valid_from_ifu_to_idu),
 		.is_req_ready_to_ifu(is_req_ready_from_idu_to_ifu),
 		.is_req_valid_to_exu(is_req_valid_from_idu_to_exu),
-		.is_req_ready_from_exu(is_req_ready_from_exu_to_idu)
+		.is_req_ready_from_exu(is_req_ready_from_exu_to_idu),
+		.fence_i(fence_i)
 	);
 	wire is_jalr_out_idu;
 	wire is_req_valid_from_idu_to_exu;

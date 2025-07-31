@@ -32,7 +32,8 @@
 	input is_req_valid_from_ifu,
 	output is_req_ready_to_ifu,
 	output is_req_valid_to_exu,
-	input is_req_ready_from_exu
+	input is_req_ready_from_exu,
+	output reg fence_i
 );
 	reg [2:0] state;
 	reg [2:0] next_state;
@@ -131,6 +132,10 @@ end
 				endcase
 
 			end // I-type load
+			`I_TYPE_FENCE: begin
+				imm = {{20{inst[31]}},inst[31:20]}; 
+				fence_i = 1'b1; 
+			end
 			`S_TYPE: begin
 				imm = {{20{inst[31]}},inst[31:25],inst[11:7]}; // S-type store
 				src2_out_idu= imm;

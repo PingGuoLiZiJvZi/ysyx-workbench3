@@ -74,7 +74,9 @@ assign rlast = soc_rlast; // 直接转发
 localparam IDLE = 3'b000;
 localparam HANDLE_SOC = 3'b001;
 localparam HANDLE_RTC = 3'b011;
-reg is_device; 
+`ifdef DEBUG
+reg is_device;
+`endif 
 reg [2:0] state;
 reg [2:0] next_state;
 always @(posedge clk) begin

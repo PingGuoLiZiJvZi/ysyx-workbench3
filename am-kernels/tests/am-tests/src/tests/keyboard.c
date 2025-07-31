@@ -14,11 +14,6 @@ static void drain_keys()
 		while (1)
 		{
 			char ch = io_read(AM_UART_RX).data;
-			if (ch == (char)-1)
-			{
-				printf("uart none\n");
-				break;
-			}
 			printf("Got (uart): %c (%d)\n", ch, ch & 0xff);
 		}
 	}
@@ -28,10 +23,6 @@ static void drain_keys()
 		while (1)
 		{
 			AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
-			if (ev.keycode == AM_KEY_NONE)
-			{
-				printf("keyboard none\n") break;
-			}
 			printf("Got  (kbd): %s (%d) %s\n", names[ev.keycode], ev.keycode, ev.keydown ? "DOWN" : "UP");
 		}
 	}

@@ -64,6 +64,9 @@ always @(posedge clk) begin
 	`ifdef DEBUG
 	fetch_count_inc({5'b0,state});
 	`endif
+	`ifdef GENERATE_PC_QUEUE
+		if(state==IDLE && next_state == WAIT_MMEM_READY)record_pc(pc);
+	`endif
 end
 always @(*) begin
 	`ifdef DEBUG

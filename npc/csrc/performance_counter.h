@@ -83,6 +83,14 @@ void print_performance_counters()
 #define IFU_WAIT_MMEM_REQ 2
 #define IFU_WAIT_IDU_READY 3
 #define ICACHE_IDLE 0
+extern "C" void record_pc(uint32_t pc)
+{
+	fprintf(stderr, "%x\n", pc);
+}
+extern "C" void record_load_store(uint32_t addr, int is_load)
+{
+	fprintf(stderr, "%c %x\n", is_load ? 'L' : 'S', addr);
+}
 extern "C" void icache_count_inc(char icache_state, bool ifu_arvalid, bool is_hit)
 {
 	static int is_icache_working = 0;
@@ -199,6 +207,7 @@ extern "C" void load_store_count_inc(char lsu_state)
 #define R_TYPE 0b0110011
 #define U_TYPE_LUI 0b0110111
 #define U_TYPE_AUIPC 0b0010111
+#define I_TYPE_FENCE 0b0001111
 extern "C" void track_inst_in_idu(char idu_state, char inst_type)
 {
 	static int inst = OTHER;
@@ -227,6 +236,8 @@ extern "C" void track_inst_in_idu(char idu_state, char inst_type)
 		case I_TYPE_SYSTEM:
 			csr_inst_count++;
 			inst = CSR;
+			break;
+		case I_TYPE_FENCE:
 			break;
 		default:
 			inst = OTHER;

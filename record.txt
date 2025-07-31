@@ -1,2 +1,44 @@
 the debug result now shows that when icache tried to read from flash at 0x3000040,it never gets rlast reply and dead locked here
 答案是,没发last信号导致soc一直认为没写完，同时复位可能也有影响
+(npc) c
+ysyx:25040129
+======= Running MicroBench [input *train*] =======
+[qsort] Quick sort: * Passed.
+  min time: 166108.829 ms [0]
+[queen] Queen placement: * Passed.
+  min time: 618847.240 ms [0]
+[bf] Brainf**k interpreter: * Passed.
+  min time: 238858.773 ms [0]
+[fib] Fibonacci number: * Passed.
+  min time: 2402716.157 ms [0]
+[sieve] Eratosthenes sieve: * Passed.
+  min time: 158523.655 ms [0]
+[15pz] A* 15-puzzle search: * Passed.
+  min time: 423769.458 ms [0]
+[dinic] Dinic's maxflow algorithm: * Passed.
+  min time: 252898.949 ms [0]
+[lzip] Lzip compression: * Passed.
+  min time: 217879.670 ms [0]
+[ssort] Suffix sort: * Passed.
+  min time: 291343.926 ms [0]
+[md5] MD5 digest: * Passed.
+  min time: 394309.692 ms [0]
+==================================================
+MicroBench PASS
+Scored time: 5165256.349 ms
+Total  time: 5621038.040 ms
+HIT GOOD TRAP
+total inst:             195317536, total cycles:        5651711008, per  28.936014 cycles
+fetch act count:        195317536, fetch cycle:         1778148726, per   9.103887 cycles
+execute act count:      195317536, execute cycle:        195317536, per   1.000000 cycles
+load act count:          15620692, load cycle:          2267370952, per 145.151761 cycles
+store act count:          7179103, store cycle:          847720981, per 118.081741 cycles
+calculate count:        115926721, calculate cycle:     1273555273, per  10.985865 cycles
+load/store inst count:   22799795, load/store cycle:    3485729275, per 152.884238 cycles
+branch inst count:       56591018, branch cycle:         892422778, per  15.769689 cycles
+csr inst count:                 2, csr cycle:                   66, per  33.000000 cycles
+icache hit count:       168881394, icache hit cycle:     337762788, per   2.000000 cycles
+icache miss count:       26436142, icache miss cycle:   1245068402, per  47.097205 cycles
+icache aver count:      195317536, icache aver cycle:   1582831190, per   8.103887 cycles
+icache miss rate:      %     13.53
+make[1]: Leaving directory '/home/pglzjz/ysyx-workbench/npc'使用psram作为栈

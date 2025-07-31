@@ -1,7 +1,9 @@
 module ysyx_25040129_ICACHE #(
-	parameter BLOCK_SIZE_WORD_DIG = 3,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
-	parameter BLOCK_NUM_DIG = 6//2^BLOCK_NUM_DIG = 16, // block number = 16
+	parameter BLOCK_SIZE_WORD_DIG = 2,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
+	parameter BLOCK_NUM_DIG = 1//2^BLOCK_NUM_DIG = 16, // block number = 16
 )(
+	//目前16指令缓存参数最佳为1 3
+	//8指令缓存参数最佳为2 1
 	input clk,
 	input rst,
 	//---------------来自IFU的AXI-Lite信号---------------
@@ -26,7 +28,9 @@ module ysyx_25040129_ICACHE #(
 	input [1:0] out_rresp,
 	input out_rvalid,
 	output out_rready,
-	input out_rlast
+	input out_rlast,
+	//---------------fence.i冲刷---------------
+	input fence_i
 );
 	localparam BLOCK_SIZE_WORD = 1 << BLOCK_SIZE_WORD_DIG; 
 	assign out_arlen = BLOCK_SIZE_WORD - 1; 
@@ -77,6 +81,8 @@ module ysyx_25040129_ICACHE #(
 		else begin
 			case (state)
 				IDLE:begin
+					if(fence_i && (|cache_valid != 1'b0))cache_valid <= {BLOCK_NUM{1'b0}}; 
+					else begin
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
 						if(cache_valid[p_index] && cache_tag[p_index] == p_tag) begin
@@ -86,6 +92,7 @@ module ysyx_25040129_ICACHE #(
 							state <= WAIT_OUT_READY; // 未命中，准备向外界请求数据
 							burst_count <= 0; 
 						end
+					end
 					end
 				end 
 				WAIT_IFU_READY:begin
