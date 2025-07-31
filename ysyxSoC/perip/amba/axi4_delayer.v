@@ -260,7 +260,8 @@ module handshake_delayer_back (
 	  end
 	  DONE: begin
 		if(in_rready) begin
-		  state <= WAIT_READY; // Reset to wait for next valid input
+		  state <= WAIT_READY; 
+		  counter <= EXTRA_DELAY;
 		end
 	  end
 	endcase
