@@ -8,7 +8,7 @@ Sdb *sdb = NULL;
 uint32_t Npc::regs_val[17] = {0};
 uint32_t Npc::inst = 0;
 bool Npc::is_device = false;
-uint8_t Npc::ifu_state = 0;
+bool Npc::wbu_state = 0;
 NPC_STATE Sdb::npc_state = NPC_RUNNING;
 extern "C" void ebreak_trigger()
 {
@@ -75,9 +75,9 @@ extern "C" void update_is_device(bool is_device)
 {
 	Npc::is_device = is_device;
 }
-extern "C" void update_ifu_state(uint8_t ifu_state)
+extern "C" void update_wbu_state(bool wbu_state)
 {
-	Npc::ifu_state = ifu_state;
+	Npc::wbu_state = wbu_state;
 }
 int main(int argc, char **argv)
 {

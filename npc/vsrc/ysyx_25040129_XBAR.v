@@ -88,9 +88,7 @@ assign soc_bready = bready;
 localparam IDLE = 3'b000;
 localparam HANDLE_SOC = 3'b001;
 localparam HANDLE_RTC = 3'b011;
-`ifdef DEBUG
-reg is_device;
-`endif 
+
 reg [2:0] state;
 reg [2:0] next_state;
 always @(posedge clk) begin
@@ -103,9 +101,6 @@ end
 //-----------------------信号转接-----------------------
 //---------------------目前已经接入
 always @(*) begin
-	`ifdef DEBUG
-	update_is_device(is_device);
-	`endif
 	case (state)
 		HANDLE_SOC:begin
 			soc_araddr = araddr;
@@ -190,63 +185,6 @@ always @(*) begin
 		default: next_state = IDLE;
 	endcase
 end
-//-----------------------调试信号产生逻辑-----------------------
-`ifdef DEBUG
-always @(posedge clk) begin
-	if(state == IDLE && next_state == HANDLE_RTC)is_device <= 1'b1;
-	else if(state == IDLE && next_state == HANDLE_SOC)begin
-		if(arvalid)begin
-			if(araddr >= `ROM_START && araddr < `ROM_START + `ROM_SIZE)
-				is_device <= 1'b0;
-			else if(araddr >= `SRAM_START && araddr < `SRAM_START + `SRAM_SIZE)
-				is_device <= 1'b0;
-			else if(araddr >= `UART_REG_ADDR && araddr < `UART_REG_ADDR + `UART_REG_SIZE)
-				is_device <= 1'b1;
-			else if(araddr >= `FLASH_START && araddr < `FLASH_SIZE+`FLASH_START)
-				is_device <= 1'b0;
-			else if(araddr >= `SPI_ADDR && araddr < `SPI_ADDR + `SPI_SIZE)
-				is_device <= 1'b1;
-			else if(araddr >= `PSRAM_ADDR && araddr < `PSRAM_ADDR + `PSRAM_SIZE)
-				is_device <= 1'b0;
-			else if(araddr >= `SDRAM_ADDR && araddr < `SDRAM_ADDR + `SDRAM_SIZE)
-				is_device <= 1'b0;
-			else if(araddr >= `GPIO_ADDR && araddr < `GPIO_ADDR + `GPIO_SIZE)
-				is_device <= 1'b1;
-			else if(araddr >= `PS2_ADDR && araddr < `PS2_ADDR + `PS2_SIZE)
-				is_device <= 1'b1;
-			else begin
-				is_device <= 1'b0;
-				$error("XBAR: Invalid read address %h", araddr);
-			end
-		end
-		else is_device <= is_device;
-	end
-	else if(state == IDLE && awvalid)begin 
-		if(awvalid)begin
-			if(awaddr >= `UART_REG_ADDR && awaddr < `UART_REG_ADDR + `UART_REG_SIZE)
-				is_device <= 1'b1;
-			else if(awaddr >= `SRAM_START && awaddr < `SRAM_START + `SRAM_SIZE)
-				is_device <= 1'b0;
-			else if(awaddr >= `SPI_ADDR && awaddr < `SPI_ADDR + `SPI_SIZE)
-				is_device <= 1'b1;
-			else if(awaddr >= `PSRAM_ADDR && awaddr < `PSRAM_ADDR + `PSRAM_SIZE)
-				is_device <= 1'b0;
-			else if(awaddr >= `SDRAM_ADDR && awaddr < `SDRAM_ADDR + `SDRAM_SIZE)
-				is_device <= 1'b0;
-			else if(awaddr >= `GPIO_ADDR && awaddr < `GPIO_ADDR + `GPIO_SIZE)
-				is_device <= 1'b1;
-			else if(awaddr >= `VGA_ADDR && awaddr < `VGA_ADDR + `VGA_SIZE)
-				is_device <= 1'b1;
-			else begin
-				is_device <= 1'b0;
-				$error("XBAR: Invalid write address %h", awaddr);
-			end
-		end
-		else is_device <= is_device;
-	end
-	else if (state == IDLE)is_device<=1'b0;
-	else is_device <= is_device;
-end
-`endif 
+
 endmodule
 

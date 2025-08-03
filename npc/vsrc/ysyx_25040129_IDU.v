@@ -88,11 +88,12 @@
 
 	always @(*) begin
 		if(opcode == `I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ECALL)begin 
-			csr_read_id_out_idu = `MCAUSE; 
+			csr_read_id_out_idu = `MTVEC; 
 			csr_write_id_out_idu = `MEPC;
 		end 
 		else if(opcode == `I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `MRET)begin
 			csr_read_id_out_idu = `MEPC;
+			csr_write_id_out_idu = `CSR_ERROR; 
 		end
 		else begin
 		case(inst[31:20])
@@ -104,6 +105,7 @@
 		12'h342: csr_read_id_out_idu = `MCAUSE;
 		default: csr_read_id_out_idu = `CSR_ERROR; 
 		endcase
+		csr_write_id_out_idu = csr_read_id_out_idu;
 		end
 	end
 	//-----------------------------------------------------
@@ -161,9 +163,7 @@
 					3'b111: alu_opcode = `GEU; // BGEU
 					default: begin
 						alu_opcode = 4'b0000; // 默认值
-						`ifdef DPI
-						unknown_inst(inst); // Unknown instruction
-						`endif
+						
 					 end
 				endcase			
 			end// B-type branch
@@ -234,7 +234,8 @@
 							`MRET:begin
 								mret_out_idu = 1'b1;
 								src1_out_idu = csr_in_idu; 
-								src2_out_idu = 32'b0; 
+								src2_out_idu = 32'b0;
+								alu_opcode = `ADD;  
 							end
 							`ECALL: begin
 								ecall_out_idu = 1'b1;
@@ -244,9 +245,7 @@
 								is_jalr_out_idu = 1'b1;
 							end
 							default: begin
-								`ifdef DPI
-								unknown_inst(inst); // Unknown instruction
-								`endif
+								
 							end
 						endcase
 						
@@ -254,11 +253,13 @@
 					3'b001:begin
 						csr_write_out_idu = 1'b1;
 						reg_write_out_idu = 1'b0;
+						is_src1_from_reg = 1'b1;
 						src2_out_idu= 32'b0; 
 						alu_opcode = `ADD; 
 					end
 					3'b010:begin
 						is_csrr = 1'b1;
+						is_src1_from_reg = 1'b1;
 						reg_write_out_idu = 1'b1;
 						src2_out_idu= csr_in_idu;
 						alu_opcode = `OR; 
@@ -294,9 +295,7 @@
 			end
 			default: begin
 				imm = 32'b0;
-				`ifdef DPI
-				unknown_inst(inst); // Unknown instruction
-				`endif
+				
 			end
 		endcase
 	end

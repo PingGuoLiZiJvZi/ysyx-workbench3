@@ -7,6 +7,7 @@ module ysyx_25040129_WBU (
 	/* verilator lint_off UNUSEDSIGNAL */
 	input [31:0] pc_in_wbu,
 	input [31:0] inst_in_wbu,
+	input is_device_in_wbu,
 	/* verilator lint_on UNUSEDSIGNAL */
 	`endif 
 	input [31:0] result_in_wbu,
@@ -21,8 +22,8 @@ module ysyx_25040129_WBU (
 );
 `ifdef DEBUG
 always @(*) begin
-	// write_back_happening(is_req_valid_from_lsu);
-	update_pc(pc_in_wbu);
+	update_wbu_state(is_req_valid_from_lsu);
+	update_is_device(is_device_in_wbu);
 	update_inst(inst_in_wbu);
 end
 `endif 

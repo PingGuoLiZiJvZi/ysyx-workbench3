@@ -122,7 +122,10 @@ public:
 		// a value of type "void *" cannot be used to initialize an entity of type "void (*)(int)"
 		ref_difftest_init(port);
 		ref_difftest_memcpy(0, pmem, img_size, DIFFTEST_TO_REF);
-		ref_difftest_regcpy(regs_val, DIFFTEST_TO_REF);
+		uint32_t regs[17];
+		memcpy(regs, regs_val, sizeof(regs_val));
+		regs[0] = 0x30000000;
+		ref_difftest_regcpy(regs, DIFFTEST_TO_REF);
 	}
 	void difftest_step()
 	{
@@ -213,6 +216,6 @@ public:
 	static uint32_t regs_val[17];
 	static uint32_t inst;
 	static bool is_device;
-	static uint8_t ifu_state;
+	static bool wbu_state;
 	int is_skip_ref = 0;
 };

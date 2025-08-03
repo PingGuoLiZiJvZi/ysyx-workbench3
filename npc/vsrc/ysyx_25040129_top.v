@@ -6,7 +6,7 @@ import "DPI-C" function void update_regs(int reg1, int reg2, int reg3, int reg4,
 import "DPI-C" function void update_pc(int pc);
 import "DPI-C" function void update_inst(int inst);
 import "DPI-C" function void update_is_device(bit is_device);
-import "DPI-C" function void update_ifu_state(byte ifu_state);
+import "DPI-C" function void update_wbu_state(bit wbu_state);
 import "DPI-C" function void fetch_count_inc(byte ifu_state);
 import "DPI-C" function void execute_count_inc(byte exu_state);
 import "DPI-C" function void load_store_count_inc(byte lsu_state);
@@ -14,6 +14,8 @@ import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,bit is_hit);
 import "DPI-C" function void record_pc(int pc);
 import "DPI-C" function void record_load_store(int addr, int is_load);
+`define CSR_DIG 3
+`define REGS_DIG 4
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129_top(
 	// verilator lint_off UNUSED
 	/* verilator lint_off UNDRIVEN */
@@ -642,6 +644,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.pc_out_lsu(debug_pc_from_lsu_to_wbu),
 		.inst_in_lsu(debug_inst_from_exu_to_lsu_pip),
 		.inst_out_lsu(debug_inst_from_lsu_to_wbu),
+		.is_device(debug_is_device_lsu_to_wbu),
 		`endif
 		
 		.mmem_read_in_lsu(lsu_read_out_exu_pip),
@@ -710,6 +713,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] debug_pc_from_exu_to_lsu;
 	wire [31:0] debug_inst_from_exu_to_lsu_pip;
 	wire [31:0] debug_inst_from_exu_to_lsu;
+	wire debug_is_device_lsu_to_wbu;
+	wire debug_is_device_lsu_to_wbu_pip;
 	`endif
 	wire fence_i_out_lsu;
 	wire reg_write_out_lsu;
@@ -752,7 +757,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 	ysyx_25040129_PIPELINE #(41
 	`ifdef DEBUG
-		+ 64
+		+ 65
 	`endif
 	) u_ysyx_25040129_PIPELINE_LSU_TO_WBU(
 		.clk(clk),
@@ -767,6 +772,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`ifdef DEBUG
 		debug_pc_from_lsu_to_wbu,
 		debug_inst_from_lsu_to_wbu,
+		debug_is_device_lsu_to_wbu,
 		`endif
 		csr_addr_out_lsu}),
 
@@ -777,6 +783,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`ifdef DEBUG
 		debug_pc_from_lsu_to_wbu_pip,
 		debug_inst_from_lsu_to_wbu_pip,
+		debug_is_device_lsu_to_wbu_pip,
 		`endif
 		csr_addr_out_lsu_pip})
 	);
@@ -792,7 +799,21 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	assign pipeline_flush_signal = is_req_valid_from_lsu_to_wbu && 
 		(is_branch_out_lsu || ecall_out_lsu || mret_out_lsu || fence_i_out_lsu );
 	assign flush_reset_pc = branch_target_out_lsu;
-
+	//-----------------difftest适配-----------------
+	`ifdef DEBUG
+	reg [31:0] difftest_pc;
+	reg [31:0] flush_latch;
+	always @(posedge clk) begin
+		flush_latch <= pipeline_flush_signal? flush_reset_pc : 32'h0;
+	end
+		always @(posedge is_req_valid_from_pipeline_lsu_to_wbu) begin
+			difftest_pc <= (flush_latch != 32'h0)? flush_latch : debug_pc_from_lsu_to_wbu_pip + 4;
+		end
+		always @(*) begin
+			update_pc(difftest_pc);
+		end
+	`endif
+	//------------------------------------------------------
 	wire is_req_valid_from_pipeline_lsu_to_wbu;
 	wire is_req_ready_from_pipeline_wbu_to_lsu;
 	wire [31:0] result_out_lsu_pip;
@@ -805,6 +826,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`ifdef DEBUG
 		.pc_in_wbu(debug_pc_from_lsu_to_wbu_pip),
 		.inst_in_wbu(debug_inst_from_lsu_to_wbu_pip),
+		.is_device_in_wbu(debug_is_device_lsu_to_wbu_pip),
 		`endif
 		.is_req_valid_from_lsu(is_req_valid_from_pipeline_lsu_to_wbu),
 		.is_req_ready_to_lsu(is_req_ready_from_wbu_to_lsu),

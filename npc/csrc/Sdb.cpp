@@ -262,13 +262,13 @@ int Sdb::run(uint32_t n)
 			return -1;
 		}
 		unsigned int is_device = 0;
-		while (npc.ifu_state == 1)
+		while (npc.wbu_state == 0)
 		{
 			npc.step_top();
 			cycle_count++;
 			is_device |= npc.is_device;
 		}
-		while (npc.ifu_state != 1)
+		while (npc.wbu_state == 1)
 		{
 			npc.step_top();
 			cycle_count++;

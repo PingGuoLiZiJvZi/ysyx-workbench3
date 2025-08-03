@@ -11,6 +11,7 @@ module ysyx_25040129_LSU (
 	output [31:0] pc_out_lsu,
 	input [31:0] inst_in_lsu,
 	output [31:0] inst_out_lsu,
+	output reg is_device,
 	`endif
 
 	input [2:0] mmem_read_in_lsu, 
@@ -237,5 +238,66 @@ always @(*) begin
 	endcase
 end
 
+`ifdef DEBUG
+always @(posedge clk) begin
+	if(state == IDLE && next_state == WAIT_WBU_READY)is_device <= 1'b0;
+	else if(state == IDLE && next_state != IDLE && next_state != WAIT_WBU_READY)begin
+		if(arvalid)begin
+			if(araddr >= `ROM_START && araddr < `ROM_START + `ROM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `SRAM_START && araddr < `SRAM_START + `SRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `UART_REG_ADDR && araddr < `UART_REG_ADDR + `UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `FLASH_START && araddr < `FLASH_SIZE+`FLASH_START)
+				is_device <= 1'b0;
+			else if(araddr >= `SPI_ADDR && araddr < `SPI_ADDR + `SPI_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `PSRAM_ADDR && araddr < `PSRAM_ADDR + `PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `SDRAM_ADDR && araddr < `SDRAM_ADDR + `SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `GPIO_ADDR && araddr < `GPIO_ADDR + `GPIO_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `PS2_ADDR && araddr < `PS2_ADDR + `PS2_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
+				is_device <= 1'b1;
+			else begin
+				is_device <= 1'b0;
+				$error("XBAR: Invalid read address %h", araddr);
+			end
+		end
+		else if(awvalid) begin
+			if(awaddr >= `UART_REG_ADDR && awaddr < `UART_REG_ADDR + `UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `SRAM_START && awaddr < `SRAM_START + `SRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `SPI_ADDR && awaddr < `SPI_ADDR + `SPI_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `PSRAM_ADDR && awaddr < `PSRAM_ADDR + `PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `SDRAM_ADDR && awaddr < `SDRAM_ADDR + `SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `GPIO_ADDR && awaddr < `GPIO_ADDR + `GPIO_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `VGA_ADDR && awaddr < `VGA_ADDR + `VGA_SIZE)
+				is_device <= 1'b1;
+			else begin
+				is_device <= 1'b0;
+				$error("XBAR: Invalid write address %h", awaddr);
+			end
+		end
+		else begin 
+			is_device <= is_device;
+			$error("XBAR: Invalid state transition from %b to %b", state, next_state);
+			end
+	end
+	else if(state == WAIT_WBU_READY && next_state == IDLE)begin 
+		is_device <= 1'b0; 
+	end
+	else is_device <= is_device;
+end
+`endif 
 
 endmodule

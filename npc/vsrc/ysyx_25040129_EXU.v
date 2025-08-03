@@ -70,7 +70,7 @@ assign lsu_write_data_out_exu =  lsu_write_data_in_exu; // 如果是写请求，
 assign rd_out_exu = rd_in_exu;
 
 assign is_branch_out_exu = is_jump_in_exu || is_branch; 
-assign branch_target_out_exu =(is_jalr_in_exu)? src1+src2 : pc + imm; 
+assign branch_target_out_exu =(is_jalr_in_exu || mret_in_exu)? src1+src2 : pc + imm; 
 assign lsu_read_out_exu = lsu_read_in_exu; // 直接传递MEM阶段的读请求
 assign lsu_write_out_exu = lsu_write_in_exu; // 直接传递
 
@@ -86,7 +86,7 @@ always @(*) begin
 	if (ebreak_in_exu)ebreak_trigger();
 	`endif
 	case (alu_opcode)
-		`ADD: result_out_exu = (is_jalr_in_exu)?pc+`WORD_T:src1 + src2;
+		`ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc:pc+`WORD_T):src1 + src2;
 		`SUB: result_out_exu = src1 - src2;
 		`SLL: result_out_exu = src1 << src2[4:0];
 		`SLT: result_out_exu = ($signed(src1) < $signed(src2)) ? 32'b1 : 32'b0;
