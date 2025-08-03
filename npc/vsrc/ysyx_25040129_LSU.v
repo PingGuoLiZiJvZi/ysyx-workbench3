@@ -3,11 +3,15 @@ module ysyx_25040129_LSU (
 	input clk,
 	input rst,
 
-	input [31:0] pc_in_lsu,
-	output [31:0] pc_out_lsu,
-
 	input [31:0] branch_target_in_lsu,
 	output [31:0] branch_target_out_lsu,
+
+	`ifdef DEBUG
+	input [31:0] pc_in_lsu,
+	output [31:0] pc_out_lsu,
+	input [31:0] inst_in_lsu,
+	output [31:0] inst_out_lsu,
+	`endif
 
 	input [2:0] mmem_read_in_lsu, 
 	input [1:0] mmem_write_in_lsu, 
@@ -50,17 +54,31 @@ module ysyx_25040129_LSU (
 	input ecall_in_lsu,
 	output ecall_out_lsu,
 
-	input [4:0] rd_in_lsu,
-	output [4:0] rd_out_lsu,
+	input reg_write_in_lsu,
+	output reg_write_out_lsu,
+	input [`REGS_DIG-1:0] rd_in_lsu,
+	output [`REGS_DIG-1:0] rd_out_lsu,
+	input csr_write_in_lsu,
+	output csr_write_out_lsu,
+	input [`CSR_DIG-1:0] csr_addr_in_lsu,
+	output [`CSR_DIG-1:0] csr_addr_out_lsu,
 	input mret_in_lsu,
 	output mret_out_lsu,
 	input is_branch_in_lsu,
-	output is_branch_out_lsu
+	output is_branch_out_lsu,
+	input fence_i_in_lsu,
+	output fence_i_out_lsu
 );
 //---------------信号转发---------------
-assign pc_out_lsu = pc_in_lsu; 
+`ifdef DEBUG
+assign pc_out_lsu = pc_in_lsu;
+assign inst_out_lsu = inst_in_lsu;
+`endif
+assign csr_write_out_lsu = csr_write_in_lsu;
+assign fence_i_out_lsu = fence_i_in_lsu;
+assign reg_write_out_lsu = reg_write_in_lsu; 
 assign branch_target_out_lsu = branch_target_in_lsu;
-
+assign csr_addr_out_lsu = csr_addr_in_lsu; 
 assign is_branch_out_lsu = is_branch_in_lsu ; 
 assign rd_out_lsu = rd_in_lsu;
 assign mret_out_lsu = mret_in_lsu;
@@ -121,17 +139,16 @@ localparam WAIT_REQ_WRITE = 3'b111;
 
 reg [2:0] state;
 reg [2:0] next_state;
-reg [2:0] mmem_read_store;
 reg [31:0] processed_rdata;
 //---------------请求信号产生逻辑---------------
-assign is_req_ready_to_exu = (state == IDLE);
-assign arvalid = (state == WAIT_REQ_READ);
-assign awvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_AW_WRITE);
-assign wvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_W_WRITE);
+assign is_req_ready_to_exu = (state == WAIT_WBU_READY);
+assign arvalid = (state == WAIT_REQ_READ)||(state == IDLE && mmem_read_in_lsu != `NO_MEM_READ && is_req_valid_from_exu);
+assign awvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_AW_WRITE)||(state == IDLE && mmem_write_in_lsu != `NO_MEM_WRITE && is_req_valid_from_exu);
+assign wvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_W_WRITE)||(state == IDLE && mmem_write_in_lsu != `NO_MEM_WRITE && is_req_valid_from_exu);
 assign rready = state == WAIT_RSP_READ;
 assign bready = (state == WAIT_RSP_WRITE);
-assign is_req_valid_to_wbu = (state == WAIT_WBU_READY);
-assign result_out_lsu = (mmem_read_store != `NO_MEM_READ) ? processed_rdata : result_in_lsu; // 如果是读请求，则将读数据传递出去，否则传递计算结果
+assign is_req_valid_to_wbu = (state == WAIT_WBU_READY) ;
+assign result_out_lsu = (mmem_read_in_lsu != `NO_MEM_READ) ? processed_rdata : result_in_lsu; // 如果是读请求，则将读数据传递出去，否则传递计算结果
 assign araddr = result_in_lsu;
 wire [1:0] offset;
 assign offset = result_in_lsu[1:0];
@@ -149,7 +166,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-	case (mmem_read_store)
+	case (mmem_read_in_lsu)
 		`NO_MEM_READ: processed_rdata <= processed_rdata; // 不处理数据
 		`MEM_READ_BYTE: begin
 			case (offset) // 根据地址的低2位决定读取哪个字节
@@ -203,25 +220,22 @@ end
 always @(*) begin
 	case(state)
 		IDLE: if(is_req_valid_from_exu) begin
-			if (mmem_read_in_lsu != `NO_MEM_READ) next_state = WAIT_REQ_READ;
-			else if (mmem_write_in_lsu != `NO_MEM_WRITE) next_state = WAIT_REQ_WRITE;
+			if (mmem_read_in_lsu != `NO_MEM_READ) next_state =  arready ? WAIT_RSP_READ : WAIT_REQ_READ;
+			else if (mmem_write_in_lsu != `NO_MEM_WRITE) next_state =  awready ? (wready?WAIT_RSP_WRITE:WAIT_REQ_W_WRITE) :(wready?WAIT_REQ_AW_WRITE:WAIT_REQ_WRITE);
 			else next_state = WAIT_WBU_READY;
 		end else next_state = IDLE;
 		WAIT_REQ_READ: next_state = arready ? WAIT_RSP_READ : WAIT_REQ_READ;
-		WAIT_RSP_READ: next_state = rvalid &&(rresp == `OKAY) ? WAIT_WBU_READY : WAIT_RSP_READ;
+		WAIT_RSP_READ: next_state = rvalid &&(rresp == `OKAY) ? (WAIT_WBU_READY) : WAIT_RSP_READ;
 
 		WAIT_REQ_WRITE: next_state =  awready ? (wready?WAIT_RSP_WRITE:WAIT_REQ_W_WRITE) :(wready?WAIT_REQ_AW_WRITE:WAIT_REQ_WRITE);
 		WAIT_REQ_AW_WRITE: next_state = awready ? WAIT_RSP_WRITE : WAIT_REQ_AW_WRITE;
 		WAIT_REQ_W_WRITE: next_state = wready ? WAIT_RSP_WRITE : WAIT_REQ_W_WRITE;
-		WAIT_RSP_WRITE: next_state = bvalid && (bresp == `OKAY) ? WAIT_WBU_READY : WAIT_RSP_WRITE;
+		WAIT_RSP_WRITE: next_state = bvalid && (bresp == `OKAY) ? (WAIT_WBU_READY) : WAIT_RSP_WRITE;
 		
 		WAIT_WBU_READY: next_state = is_req_ready_from_wbu ? IDLE : WAIT_WBU_READY;
 		default: next_state = IDLE;
 	endcase
 end
 
-always @(posedge clk) begin
-	if(state == IDLE && next_state == WAIT_REQ_READ) mmem_read_store <= mmem_read_in_lsu;
-	else if(state == WAIT_WBU_READY && next_state == IDLE) mmem_read_store <= `NO_MEM_READ;
-end
+
 endmodule

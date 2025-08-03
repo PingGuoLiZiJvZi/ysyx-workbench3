@@ -52,7 +52,7 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 
 npc_build:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
+	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
 	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
 	--CFLAGS "-DIS_NPC=1" \
 	--timescale "1ns/1ns" --no-timing --autoflush

@@ -71,6 +71,20 @@ module ysyx_25040129_XBAR (
 assign soc_arlen = arlen; // 直接转发
 assign soc_arburst = arburst; // 直接转发
 assign rlast = soc_rlast; // 直接转发
+
+assign soc_awaddr = awaddr;
+assign soc_awvalid = awvalid;
+assign awready = soc_awready;
+
+assign soc_wstrb = wstrb;
+assign soc_wdata = wdata;
+assign soc_wvalid = wvalid;
+assign wready = soc_wready;
+
+assign bresp = soc_bresp;
+assign bvalid = soc_bvalid;
+assign soc_bready = bready;
+
 localparam IDLE = 3'b000;
 localparam HANDLE_SOC = 3'b001;
 localparam HANDLE_RTC = 3'b011;
@@ -104,19 +118,6 @@ always @(*) begin
 			rvalid = soc_rvalid;
 			soc_rready = rready;
 
-			soc_awaddr = awaddr;
-			soc_awvalid = awvalid;
-			awready = soc_awready;
-
-			soc_wstrb = wstrb;
-			soc_wdata = wdata;
-			soc_wvalid = wvalid;
-			wready = soc_wready;
-
-			bresp = soc_bresp;
-			bvalid = soc_bvalid;
-			soc_bready = bready;
-
 			rtc_araddr = 32'b0;
 			rtc_arvalid = 1'b0;
 
@@ -132,15 +133,6 @@ always @(*) begin
 			rresp = 2'b00;
 			rvalid = 1'b0;
 			soc_rready = 1'b0;
-
-			soc_awaddr = 32'b0;
-			soc_awvalid = 1'b0;
-			awready = 1'b0;
-
-			soc_wstrb = 4'b0;
-			soc_wdata = 32'b0;
-			soc_wvalid = 1'b0;
-			wready = 1'b0;
 
 			rtc_araddr = araddr;
 			rtc_arvalid = arvalid;
@@ -159,26 +151,10 @@ always @(*) begin
 			rresp = 2'b00;
 			rvalid = 1'b0;
 
-			awready = 1'b0;
-
-			wready = 1'b0;
-
-			bresp = 2'b00;
-			bvalid = 1'b0;
-
 			soc_araddr = 32'b0;
 			soc_arvalid = 1'b0;
 
 			soc_rready = 1'b0;
-
-			soc_awaddr = 32'b0;
-			soc_awvalid = 1'b0;
-
-			soc_wstrb = 4'b0;
-			soc_wdata = 32'b0;
-			soc_wvalid = 1'b0;
-
-			soc_bready = 1'b0;
 		end
 	endcase
 end
@@ -186,19 +162,14 @@ end
 always @(*) begin
 	case (state)
 		IDLE: begin
-			if((awvalid&&wvalid)||arvalid)begin
-				if(arvalid)begin
-					if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
-					next_state = HANDLE_RTC;
-					else next_state = HANDLE_SOC;
-				end
-				else begin
-					next_state = HANDLE_SOC;
-				end
+			if(arvalid)begin
+			if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
+				next_state = HANDLE_RTC;
+				else next_state = HANDLE_SOC;
 			end
 			else next_state = IDLE;
 		end
-		HANDLE_SOC: if(rready && soc_rvalid && soc_rlast || bready && soc_bvalid) begin 
+		HANDLE_SOC: if(rready && soc_rvalid && soc_rlast) begin 
 						next_state = IDLE;
 					`ifdef DPI
 					if(rresp != `OKAY && rready && soc_rvalid) 
@@ -215,7 +186,7 @@ always @(*) begin
 					$error("XBAR: Invalid RTC response %b", rtc_rresp);
 			`endif
 		end
-					 else next_state = HANDLE_RTC;
+		else next_state = HANDLE_RTC;
 		default: next_state = IDLE;
 	endcase
 end
@@ -224,27 +195,7 @@ end
 always @(posedge clk) begin
 	if(state == IDLE && next_state == HANDLE_RTC)is_device <= 1'b1;
 	else if(state == IDLE && next_state == HANDLE_SOC)begin
-		if(awvalid && wvalid)begin
-			if(awaddr >= `UART_REG_ADDR && awaddr < `UART_REG_ADDR + `UART_REG_SIZE)
-				is_device <= 1'b1;
-			else if(awaddr >= `SRAM_START && awaddr < `SRAM_START + `SRAM_SIZE)
-				is_device <= 1'b0;
-			else if(awaddr >= `SPI_ADDR && awaddr < `SPI_ADDR + `SPI_SIZE)
-				is_device <= 1'b1;
-			else if(awaddr >= `PSRAM_ADDR && awaddr < `PSRAM_ADDR + `PSRAM_SIZE)
-				is_device <= 1'b0;
-			else if(awaddr >= `SDRAM_ADDR && awaddr < `SDRAM_ADDR + `SDRAM_SIZE)
-				is_device <= 1'b0;
-			else if(awaddr >= `GPIO_ADDR && awaddr < `GPIO_ADDR + `GPIO_SIZE)
-				is_device <= 1'b1;
-			else if(awaddr >= `VGA_ADDR && awaddr < `VGA_ADDR + `VGA_SIZE)
-				is_device <= 1'b1;
-			else begin
-				is_device <= 1'b0;
-				$error("XBAR: Invalid write address %h", awaddr);
-			end
-		end
-		else if(arvalid)begin
+		if(arvalid)begin
 			if(araddr >= `ROM_START && araddr < `ROM_START + `ROM_SIZE)
 				is_device <= 1'b0;
 			else if(araddr >= `SRAM_START && araddr < `SRAM_START + `SRAM_SIZE)
@@ -270,6 +221,30 @@ always @(posedge clk) begin
 		end
 		else is_device <= is_device;
 	end
+	else if(state == IDLE && awvalid)begin 
+		if(awvalid)begin
+			if(awaddr >= `UART_REG_ADDR && awaddr < `UART_REG_ADDR + `UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `SRAM_START && awaddr < `SRAM_START + `SRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `SPI_ADDR && awaddr < `SPI_ADDR + `SPI_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `PSRAM_ADDR && awaddr < `PSRAM_ADDR + `PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `SDRAM_ADDR && awaddr < `SDRAM_ADDR + `SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `GPIO_ADDR && awaddr < `GPIO_ADDR + `GPIO_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `VGA_ADDR && awaddr < `VGA_ADDR + `VGA_SIZE)
+				is_device <= 1'b1;
+			else begin
+				is_device <= 1'b0;
+				$error("XBAR: Invalid write address %h", awaddr);
+			end
+		end
+		else is_device <= is_device;
+	end
+	else if (state == IDLE)is_device<=1'b0;
 	else is_device <= is_device;
 end
 `endif 

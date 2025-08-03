@@ -36,9 +36,11 @@ module ysyx_25040129_ICACHE #(
 	assign out_arlen = BLOCK_SIZE_WORD - 1; 
 	assign out_arburst = 2'b01; 
 	localparam BLOCK_SIZE_DIG = BLOCK_SIZE_WORD_DIG + 2;
-	localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
+	// localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
 	localparam BLOCK_NUM = 1 << (BLOCK_NUM_DIG); 
+	// verilator lint_off UNUSED
 	reg [31:0] ifu_araddr_latch;
+	// verilator lint_on UNUSED
 	reg [31:0] cache_data[BLOCK_NUM-1:0][BLOCK_SIZE_WORD-1:0]; 
 	reg [BLOCK_NUM-1:0]cache_valid;
 	reg [31:BLOCK_SIZE_DIG+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
@@ -70,6 +72,7 @@ module ysyx_25040129_ICACHE #(
 	`ifdef DEBUG
 	always @(posedge clk) begin
 		icache_count_inc({6'b0,state},ifu_arvalid, cache_valid[p_index] && cache_tag[p_index] == p_tag);
+		if(out_rresp != `OKAY)$error("ICACHE: out_rresp != OKAY, resp = %b", out_rresp);
 	end
 	`endif
 	always @(posedge clk) begin

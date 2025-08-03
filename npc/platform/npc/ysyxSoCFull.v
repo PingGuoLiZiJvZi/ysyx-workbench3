@@ -6,7 +6,8 @@ module ysyxSoCFull (
 );
 //这是脱离了soc的功能验证模块
 //所有从top中传出的AXI-Lite信号都在这里被DPI-C瞬间处理
-
+// verilator lint_off UNUSED
+/* verilator lint_off PINCONNECTEMPTY */
 ysyx_25040129_top u_top (
 	.clock                   (clock),
     .reset                   (reset),
@@ -194,5 +195,6 @@ assign wready = (w_state == W_WAIT_W_VALID) || (w_state == W_IDLE);
 assign bvalid = (w_state == W_WAIT_B_READY);
 assign bresp = 2'b00; // OKAY
 
-
+// verilator lint_on UNUSED
+/* verilator lint_on PINCONNECTEMPTY */
 endmodule

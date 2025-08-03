@@ -1,22 +1,24 @@
  module ysyx_25040129_IDU (
-	input rst,
-	input clk,
-
 	input [31:0] inst,
 	input [31:0] pc,
-	output [4:0] src1_id,
-	output [4:0] src2_id,
-	output [11:0] csr_id_out_idu,
+	output [31:0] pc_out_idu,
+	output [`REGS_DIG-1:0] src1_id,
+	output [`REGS_DIG-1:0] src2_id,
+	output reg[`CSR_DIG-1:0] csr_read_id_out_idu,
+	output reg[`CSR_DIG-1:0] csr_write_id_out_idu,
 	input [31:0] src1_in_idu,
 	input [31:0] src2_in_idu,
 	input [31:0] csr_in_idu,
+	`ifdef DEBUG
+	output [31:0] inst_out_idu,
+	`endif
 	
 	output reg[31:0] src1_out_idu,
 	output reg[31:0] src2_out_idu,
 	output [31:0] lsu_write_data_out_idu,
 	output reg is_jalr_out_idu,
 	output reg[31:0] imm,
-	output [4:0] rd_out_idu,//该信号将被一路传递至WB阶段
+	output [`REGS_DIG-1:0] rd_out_idu,//该信号将被一路传递至WB阶段
 	output reg[3:0] alu_opcode, // 该信号将被一路传递至ALU阶段
 	
 	output reg reg_write_out_idu,//该信号将被一路传递至WB阶段
@@ -33,49 +35,93 @@
 	output is_req_ready_to_ifu,
 	output is_req_valid_to_exu,
 	input is_req_ready_from_exu,
-	output reg fence_i
+	output reg fence_i,
+//---------------数据冒险控制--------------------
+	input [`REGS_DIG-1:0] rd_idu_pip_exu,
+	input valid_rd_write_idu_pip_exu,
+	input [`REGS_DIG-1:0] rd_exu_pip_lsu,
+	input valid_rd_write_exu_pip_lsu,
+	input [`REGS_DIG-1:0] rd_lsu_pip_wbu,
+	input valid_rd_write_lsu_pip_wbu,
+
+	input [`CSR_DIG-1:0] csr_addr_idu_pip_exu,
+	input valid_csr_addr_write_idu_pip_exu,
+	input [`CSR_DIG-1:0] csr_addr_exu_pip_lsu,
+	input valid_csr_addr_write_exu_pip_lsu,
+	input [`CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
+	input valid_csr_addr_write_lsu_pip_wbu
 );
-	reg [2:0] state;
-	reg [2:0] next_state;
-	localparam IDLE = 3'b000;
-	localparam DECODE = 3'b001;
+`ifdef DEBUG
+	assign inst_out_idu = inst;
+`endif
+	wire is_src1_raw;
+	wire is_src2_raw;
+	wire is_csr_raw;
+	wire raw;
+	reg is_csrr;
+	reg is_src1_from_reg;
+	reg is_src2_from_reg;
 
-	always @(posedge clk) begin
+	assign is_src1_raw = is_src1_from_reg && (|src1_id) && (
+		((rd_idu_pip_exu == src1_id) && valid_rd_write_idu_pip_exu) ||
+		((rd_exu_pip_lsu == src1_id) && valid_rd_write_exu_pip_lsu) ||
+		((rd_lsu_pip_wbu == src1_id) && valid_rd_write_lsu_pip_wbu)
+		);
+	assign is_src2_raw = is_src2_from_reg && (|src2_id) && (
+		((rd_idu_pip_exu == src2_id) && valid_rd_write_idu_pip_exu) ||
+		((rd_exu_pip_lsu == src2_id) && valid_rd_write_exu_pip_lsu) ||
+		((rd_lsu_pip_wbu == src2_id) && valid_rd_write_lsu_pip_wbu)
+		);
+	assign is_csr_raw = is_csrr && (|csr_read_id_out_idu) && (
+		((csr_addr_idu_pip_exu == csr_read_id_out_idu) && valid_csr_addr_write_idu_pip_exu) ||
+		((csr_addr_exu_pip_lsu == csr_read_id_out_idu) && valid_csr_addr_write_exu_pip_lsu) ||
+		((csr_addr_lsu_pip_wbu == csr_read_id_out_idu) && valid_csr_addr_write_lsu_pip_wbu)
+		);
+	assign raw = is_src1_raw || is_src2_raw || is_csr_raw ;
+//---------------我滴妈好长一段代码--------------------
 
-		if (rst) begin
-			state <= IDLE;
-		end else begin
-			state <= next_state;
-		end
-	end
+	assign pc_out_idu = pc; 
+	assign lsu_write_data_out_idu = src2_in_idu; 
+	assign is_req_ready_to_ifu = is_req_ready_from_exu && !raw; 
+	assign is_req_valid_to_exu = (is_req_valid_from_ifu && is_req_ready_from_exu && !raw);
+
 
 	always @(*) begin
-		case (state)
-			IDLE: next_state = is_req_valid_from_ifu ? DECODE : IDLE;
-			DECODE: next_state = is_req_ready_from_exu ? IDLE : DECODE; 
-			default: next_state = IDLE;
+		if(opcode == `I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ECALL)begin 
+			csr_read_id_out_idu = `MCAUSE; 
+			csr_write_id_out_idu = `MEPC;
+		end 
+		else if(opcode == `I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `MRET)begin
+			csr_read_id_out_idu = `MEPC;
+		end
+		else begin
+		case(inst[31:20])
+		12'h114: csr_read_id_out_idu = `MVENDORID; 
+		12'h514: csr_read_id_out_idu = `MARCHID;
+		12'h300: csr_read_id_out_idu = `MSTATUS;
+		12'h305: csr_read_id_out_idu = `MTVEC;
+		12'h341: csr_read_id_out_idu = `MEPC;
+		12'h342: csr_read_id_out_idu = `MCAUSE;
+		default: csr_read_id_out_idu = `CSR_ERROR; 
 		endcase
+		end
 	end
-	assign lsu_write_data_out_idu = src2_in_idu; // 如果是写请求，则将计算结果传递出去，否则传递计算结果
-	assign is_req_ready_to_ifu = (state == IDLE);
-	assign is_req_valid_to_exu = (state == DECODE);
-
-	assign csr_id_out_idu = inst[31:20]; // CSR ID直接从指令中获取
+	//-----------------------------------------------------
 	wire  funct7_5;
 	wire [2:0] funct3;
 	wire [6:0] opcode;
 	assign funct7_5 = inst[30];
 	assign funct3 = inst[14:12];
 	assign opcode = inst[6:0];
-	assign rd_out_idu = inst[11:7];
-	assign src1_id = inst[19:15];
-	assign src2_id = inst[24:20];
+	assign rd_out_idu = inst[10:7];
+	assign src1_id = inst[18:15];
+	assign src2_id = inst[23:20];
 //---------------调试信号---------------
-always @(posedge clk) begin
-	`ifdef DEBUG
-	track_inst_in_idu({5'b0,state},{1'b0,opcode});
-	`endif
-end
+// always @(posedge clk) begin
+// 	`ifdef DEBUG
+// 	track_inst_in_idu({5'b0,state},{1'b0,opcode});
+// 	`endif
+// end
 //--------------综合时删除---------------
 	always @(*) begin
 		reg_write_out_idu = 1'b0;
@@ -87,7 +133,10 @@ end
 		csr_write_out_idu = 1'b0;
 		lsu_write_out_idu = `NO_MEM_WRITE;
 		lsu_read_out_idu = `NO_MEM_READ;
-		
+		is_csrr = 1'b0;
+		fence_i = 1'b0;
+		is_src1_from_reg = 1'b0;
+		is_src2_from_reg = 1'b0;
 		
 		src1_out_idu = src1_in_idu;
 		src2_out_idu = src2_in_idu;
@@ -97,9 +146,12 @@ end
 				 src2_out_idu= imm;
 				 reg_write_out_idu = 1'b1;
 				 alu_opcode = {(funct3==3'b101)?funct7_5:1'b0,funct3};
+				 is_src1_from_reg = 1'b1; 
 			end // I-type immediate
 			`B_TYPE: begin 
 				imm = {{20{inst[31]}},inst[7], inst[30:25], inst[11:8], 1'b0};
+				is_src1_from_reg = 1'b1;
+				is_src2_from_reg = 1'b1;
 				case (funct3)
 					3'b000: alu_opcode = `EQ; // BEQ
 					3'b001: alu_opcode = `NEQ; // BNE
@@ -121,7 +173,7 @@ end
 				src2_out_idu= imm; 
 				reg_write_out_idu = 1'b1;
 				alu_opcode = `ADD; // LOAD指令的ALU操作是加法
-
+				is_src1_from_reg = 1'b1;
 				case (funct3)
 					3'b000: lsu_read_out_idu = `MEM_READ_BYTE; // LB
 					3'b001: lsu_read_out_idu = `MEM_READ_HALF; // LH
@@ -139,7 +191,8 @@ end
 			`S_TYPE: begin
 				imm = {{20{inst[31]}},inst[31:25],inst[11:7]}; // S-type store
 				src2_out_idu= imm;
-				
+				is_src1_from_reg = 1'b1;
+				is_src2_from_reg = 1'b1;
 				alu_opcode = `ADD; // STORE指令的ALU操作是加法
 
 				case (funct3)
@@ -163,6 +216,7 @@ end
 			`I_TYPE_JALR: begin 
 				imm = {{20{inst[31]}},inst[31:20]}; // JALR
 				src2_out_idu= imm;
+				is_src1_from_reg = 1'b1;
 				alu_opcode = `ADD; // JALR指令的ALU操作是加法
 				is_jump_out_idu = 1'b1;
 				is_jalr_out_idu = 1'b1;
@@ -179,9 +233,15 @@ end
 							end
 							`MRET:begin
 								mret_out_idu = 1'b1;
+								src1_out_idu = csr_in_idu; 
+								src2_out_idu = 32'b0; 
 							end
 							`ECALL: begin
 								ecall_out_idu = 1'b1;
+								csr_write_out_idu = 1'b1;
+								src1_out_idu = csr_in_idu;
+								src2_out_idu = 32'b0; // ECALL指令不需要src2 
+								is_jalr_out_idu = 1'b1;
 							end
 							default: begin
 								`ifdef DPI
@@ -192,17 +252,15 @@ end
 						
 					end
 					3'b001:begin
-					 // CSR操作
 						csr_write_out_idu = 1'b1;
 						reg_write_out_idu = 1'b0;
-						src2_out_idu= 32'b0; // CSR write
+						src2_out_idu= 32'b0; 
 						alu_opcode = `ADD; 
 					end
 					3'b010:begin
-		 // CSR操作
-						
+						is_csrr = 1'b1;
 						reg_write_out_idu = 1'b1;
-						src2_out_idu= csr_in_idu; // CSR read
+						src2_out_idu= csr_in_idu;
 						alu_opcode = `OR; 
 					end
 					default: begin
@@ -216,6 +274,8 @@ end
 			`R_TYPE: begin 
 				imm = 32'b0; // R-type
 				reg_write_out_idu = 1'b1;
+				is_src1_from_reg = 1'b1;
+				is_src2_from_reg = 1'b1;
 				alu_opcode = {(funct7_5), funct3}; // 根据funct7的第6位决定是加法还是减法
 			end
 			`U_TYPE_LUI: begin 

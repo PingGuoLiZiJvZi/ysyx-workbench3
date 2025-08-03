@@ -1,7 +1,7 @@
 #pragma once
 // #define MEMTRACE 1
-// #define TRACE 1
-// #define WAVE 1
+#define TRACE 1
+#define WAVE 1
 #ifdef TRACE
 #define FTRACE 1
 #define ITRACE 1

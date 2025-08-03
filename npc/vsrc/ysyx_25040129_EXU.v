@@ -1,13 +1,15 @@
 module ysyx_25040129_EXU (
-	input clk,
-	input rst,
-
 	input [31:0] pc,
-	output [31:0] pc_out_exu,
 	input [31:0] src1,
 	input [31:0] src2,
 	input [31:0] imm,
 	input [3:0] alu_opcode, // 该信号将被一路传递至ALU阶段
+
+	`ifdef DEBUG
+	output [31:0] pc_out_exu,
+	input [31:0] inst_in_exu,
+	output [31:0] inst_out_exu,
+	`endif
 
 	input [31:0] lsu_write_data_in_exu, // 该信号将被一路传递至MEM阶段
 
@@ -18,14 +20,16 @@ module ysyx_25040129_EXU (
 	input is_jalr_in_exu,
 
 	input ebreak_in_exu,
-	input [4:0]rd_in_exu,
+	input [`REGS_DIG-1:0]rd_in_exu,
 	input csr_write_in_exu,
+	input [`CSR_DIG-1:0] csr_write_addr_in_exu, 
 	input ecall_in_exu,
 	input mret_in_exu,
 	input reg_write_in_exu,
 
-	output [4:0] rd_out_exu,
+	output [`REGS_DIG-1:0] rd_out_exu,
 	output csr_write_out_exu,
+	output [`CSR_DIG-1:0] csr_write_addr_out_exu, 
 	output ecall_out_exu,
 	output mret_out_exu,
 	output reg_write_out_exu,
@@ -39,39 +43,27 @@ module ysyx_25040129_EXU (
 	input is_req_valid_from_idu,
 	output is_req_ready_to_idu,
 	output is_req_valid_to_lsu,
-	input is_req_ready_from_lsu
+	input is_req_ready_from_lsu,
+	input fence_i_in_exu,
+	output fence_i_out_exu
 
 );	
-reg [2:0] state;
-reg [2:0] next_state;
-localparam IDLE = 3'b000;
-localparam EXECUTE = 3'b001;
 
-always @(posedge clk) begin
-	if (rst) begin
-		state <= IDLE;
-	end else begin
-		state <= next_state;
-	end
-end
 //--------------调试信号----------------
-always @(posedge clk) begin
-	`ifdef DEBUG
-	execute_count_inc({5'b0,state});
-	`endif
-end
+// always @(posedge clk) begin
+// 	`ifdef DEBUG
+// 	execute_count_inc({5'b0,state});
+// 	`endif
+// end
 //-------------综合时删除----------------
-always @(*) begin
-	case (state)
-		IDLE:next_state = is_req_valid_from_idu ? EXECUTE : IDLE;
-		EXECUTE: next_state = is_req_ready_from_lsu ? IDLE : EXECUTE; 
-		default: next_state = IDLE;
-	endcase
-end
-
-assign is_req_valid_to_lsu = (state == EXECUTE); 
-assign is_req_ready_to_idu = (state == IDLE); 
-assign pc_out_exu = pc; // 直接传递PC
+`ifdef DEBUG
+assign pc_out_exu = pc;
+assign inst_out_exu = inst_in_exu;
+`endif
+assign csr_write_addr_out_exu = csr_write_addr_in_exu;
+assign fence_i_out_exu = fence_i_in_exu ;
+assign is_req_valid_to_lsu = (is_req_valid_from_idu && is_req_ready_from_lsu);
+assign is_req_ready_to_idu = is_req_ready_from_lsu;
 
 reg is_branch;
 assign lsu_write_data_out_exu =  lsu_write_data_in_exu; // 如果是写请求，则将计算结果传递出去，否则传递计算结果

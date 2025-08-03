@@ -4,6 +4,16 @@
 	// `define GENERATE_PC_QUEUE 1
 	// `define GENERATE_LOAD_STORE_QUEUE 1
 `endif
+`define MVENDORID 1
+`define MARCHID 2
+`define MSTATUS 3
+`define MTVEC 4
+`define MEPC 5
+`define MCAUSE 6
+`define CSR_ERROR 0
+
+`define REGS_DIG 4
+`define CSR_DIG 3
 `define WORD_T 4
 `define START_ADDR 32'h20000000
 `define I_TYPE_IMM 7'b0010011
