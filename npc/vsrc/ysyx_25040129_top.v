@@ -437,12 +437,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] debug_inst_out_idu;
 	wire [31:0] debug_inst_out_idu_pip;
 	`endif
-	//pc 32位, src1_out_idu 32位, src2_out_idu 32位, imm 32位
-	//lsu_write_data_out_idu 32位, alu_opcode 4位, rd_out_idu 5位
-	//is_jalr_out_idu 1位 is_jump_out_idu 1位,reg_write_out_idu 1位, 
-	//csr_write_out_idu 1位，lsu_write_out_idu 2位, lsu_read_out_idu 3位
-	//ecall_out_idu 1位, ebreak_out_idu 1位, mret_out_idu 1位
-	//共181位
+
 	ysyx_25040129_PIPELINE #(184
 	`ifdef DEBUG
 		+ 32 // debug_inst_out_idu

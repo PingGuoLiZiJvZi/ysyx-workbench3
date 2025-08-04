@@ -85,6 +85,7 @@ SECTIONS {
   }>sdram AT> mrom
   
   .bss : {
+		. = ALIGN(8);
         _bss_start = .;
          *(.bss*)
 		*(.sbss*)
@@ -92,14 +93,14 @@ SECTIONS {
         _bss_end = .;
     } >sdram AT> mrom
 
-
-    . = 0x80000000;
+   .stack : {
+	. = ALIGN(8);
 	_stack_top = .;
 	. = _stack_top + 0x400000;
-	_stack_pointer =.;
-
-  
-	. = _bss_end;
+	_stack_pointer = .;
+   } >sdram
+   
+	. = _stack_pointer;
 	. = ALIGN(16);
     _heap_start = .;
 	_heap_end = 0xa8000000;

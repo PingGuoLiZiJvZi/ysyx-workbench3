@@ -45,13 +45,20 @@ word_t vaddr_ifetch(vaddr_t addr, int len)
 
 word_t vaddr_read(vaddr_t addr, int len)
 {
+	if (addr >= 0xa5000000 && addr < 0xa8000000)
+	{
+		return 0xdeadbeef;
+	}
 	addr = map_to_rom_and_ram(addr);
-
 	return paddr_read(addr, len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data)
 {
+	if (addr >= 0xa5000000 && addr < 0xa8000000)
+	{
+		return;
+	}
 	addr = map_to_rom_and_ram(addr);
 	paddr_write(addr, len, data);
 }
