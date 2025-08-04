@@ -336,7 +336,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	ysyx_25040129_PIPELINE #(64) u_ysyx_25040129_PIPELINE_IFU_TO_IDU(
 		.clk(clk),
 		.rst(rst),
-		.pipeline_flush(1'b0), 
+		.pipeline_flush(pipeline_flush_signal), 
 
 		.in_valid(is_req_valid_from_ifu_to_idu),
 		.in_ready(is_req_ready_from_pipeline_idu_to_ifu),

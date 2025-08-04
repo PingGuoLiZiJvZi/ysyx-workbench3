@@ -7,7 +7,7 @@ module ysyx_25040129_IFU (
 	input is_req_ready_from_idu,
 
 	output reg[31:0] pc,
-	output reg[31:0] inst_to_idu,
+	output [31:0] inst_to_idu,
 	
 	output is_req_valid_to_idu,
 	//---------------读地址---------------
@@ -22,17 +22,19 @@ module ysyx_25040129_IFU (
 	);
 reg get_flush_signal_in_fetching;
 reg [31:0] flush_target_latch;
+reg [31:0] inst;
 reg[2:0] state;
 assign araddr = pc;
 assign arvalid = (state == WAIT_MMEM_READY);
-assign rready = (state == WAIT_MMEM_REQ);
+assign rready = (state == WAIT_MMEM_REQ) || (state == WAIT_MMEM_READY && arready);
 localparam WAIT_MMEM_READY = 3'b000;
 localparam WAIT_MMEM_REQ = 3'b001;
 localparam WAIT_IDU_READY = 3'b010;
 
 
 //总线信号产生逻辑
-assign is_req_valid_to_idu = (state == WAIT_IDU_READY && ~get_flush_signal_in_fetching && ~pipeline_flush);
+assign is_req_valid_to_idu = (state == WAIT_IDU_READY ||(state == WAIT_MMEM_READY && arready && rvalid)) && !pipeline_flush && !get_flush_signal_in_fetching;
+assign inst_to_idu = (state == WAIT_MMEM_READY && arready && rvalid) ? rdata : inst;
 //--------------------调试接口---------------------
 always @(posedge clk) begin
 	`ifdef DEBUG
@@ -54,14 +56,35 @@ end
 always @(posedge clk) begin
 	if(rst)begin
 		pc <= `FLASH_START;
-		inst_to_idu <= 32'b0; 
+		inst <= 32'b0; 
 		get_flush_signal_in_fetching <= 1'b0;
 		state <= WAIT_MMEM_READY;
 	end
 	else begin
 		case (state)
 			WAIT_MMEM_READY:begin
-				if(arready) state <= WAIT_MMEM_REQ;
+				if(arready)begin
+					if(rvalid) begin
+						inst <= rdata;
+						if(pipeline_flush)begin
+							pc <= pipeline_flush_target;
+							get_flush_signal_in_fetching <= 1'b0;
+							flush_target_latch <= 32'b0;
+							state <= WAIT_MMEM_READY;
+						end
+						else begin
+							if(is_req_ready_from_idu)begin 
+								state <= WAIT_MMEM_READY;
+								pc <= pc + 4;
+							end
+							else state <= WAIT_IDU_READY;
+						end
+						`ifdef DPI
+						if(rresp != `OKAY)$error("IFU: Read error, rresp = %b", rresp);
+						`endif
+					end
+					else state <= WAIT_MMEM_REQ;
+					end
 				else state <= WAIT_MMEM_READY;
 				if(pipeline_flush)begin
 					get_flush_signal_in_fetching <= 1'b1;
@@ -71,7 +94,7 @@ always @(posedge clk) begin
 			WAIT_MMEM_REQ:begin
 				if(rvalid)begin 
 					state <= WAIT_IDU_READY;
-					inst_to_idu <= rdata;
+					inst <= rdata;
 					`ifdef DPI
 					if(rresp != `OKAY)$error("IFU: Read error, rresp = %b", rresp);
 					`endif

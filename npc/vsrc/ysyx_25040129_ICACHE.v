@@ -12,7 +12,7 @@ module ysyx_25040129_ICACHE #(
 	input ifu_arvalid,
 	output ifu_arready,
 	//---------------读数据---------------
-	output reg[31:0] ifu_rdata,
+	output [31:0] ifu_rdata,
 	output [1:0] ifu_rresp,
 	output ifu_rvalid,
 	input ifu_rready,
@@ -31,7 +31,8 @@ module ysyx_25040129_ICACHE #(
 	input out_rlast,
 	//---------------fence.i冲刷---------------
 	input fence_i
-);
+);	
+	reg [31:0] ifu_rdata_latch;
 	localparam BLOCK_SIZE_WORD = 1 << BLOCK_SIZE_WORD_DIG; 
 	assign out_arlen = BLOCK_SIZE_WORD - 1; 
 	assign out_arburst = 2'b01; 
@@ -89,8 +90,9 @@ module ysyx_25040129_ICACHE #(
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
 						if(cache_valid[p_index] && cache_tag[p_index] == p_tag) begin
-							ifu_rdata <= cache_data[p_index][p_offset];
-							state <= WAIT_IFU_READY; // 命中，直接返回数据
+							ifu_rdata_latch <= cache_data[p_index][p_offset];
+							if(ifu_rready) state <= IDLE;
+							else state <= WAIT_IFU_READY; // 命中，直接返回数据
 						end else begin
 							state <= WAIT_OUT_READY; // 未命中，准备向外界请求数据
 							burst_count <= 0; 
@@ -112,7 +114,7 @@ module ysyx_25040129_ICACHE #(
 						cache_data[index][burst_count] <= out_rdata;
 						burst_count <= burst_count + 1;
 						if(burst_count == offset)begin
-							ifu_rdata <= out_rdata;
+							ifu_rdata_latch <= out_rdata;
 						end
 						if(out_rlast) begin
 							cache_tag[index] <= tag;
@@ -129,7 +131,9 @@ module ysyx_25040129_ICACHE #(
 	assign out_arvalid = (state == WAIT_OUT_READY);
 	assign out_rready = (state == WAIT_OUT_REQ);
 	assign ifu_rresp = `OKAY;
-	assign ifu_rvalid = (state == WAIT_IFU_READY); 
+	assign ifu_rdata = (state == IDLE && ifu_arvalid && cache_valid[p_index] && cache_tag[p_index] == p_tag)?
+	                   cache_data[p_index][p_offset] : ifu_rdata_latch;
+	assign ifu_rvalid = (state == WAIT_IFU_READY) || (state == IDLE && ifu_arvalid && cache_valid[p_index] && cache_tag[p_index] == p_tag);
 	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
 	//31--------block_size_dig+block_num_dig-1--------------block_size_dig-1--------------0
 	//---tag--------------------------------------index-----------------------offset------

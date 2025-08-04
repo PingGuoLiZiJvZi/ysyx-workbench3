@@ -3,11 +3,11 @@
 // #define TRACE 1
 // #define WAVE 1
 #ifdef WAVE
-#define FST 1
+// #define FST 1
 #endif
 #ifdef TRACE
-// #define FTRACE 1
-// #define ITRACE 1
+#define FTRACE 1
+#define ITRACE 1
 #define DIFFTEST 1
 #endif
 
