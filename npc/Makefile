@@ -74,6 +74,9 @@ perf:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
 	$(MAKE) -C $(SOC_HOME)/../am-kernels/benchmarks/microbench autorun ARCH=riscv32e-ysyxsoc mainargs=train
 
+sta:
+	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
+
 gdb:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	verilator --cc --exe --build -j 0 -Wall ${THIS_DIR}/vsrc/top.v ${THIS_DIR}/csrc/top.cpp --CFLAGS "-g -O0"

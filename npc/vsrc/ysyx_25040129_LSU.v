@@ -142,13 +142,13 @@ reg [2:0] state;
 reg [2:0] next_state;
 reg [31:0] processed_rdata;
 //---------------请求信号产生逻辑---------------
-assign is_req_ready_to_exu = (state == WAIT_WBU_READY);
+assign is_req_ready_to_exu = (state == WAIT_WBU_READY)||(state == IDLE && is_req_valid_from_exu && mmem_read_in_lsu == `NO_MEM_READ && mmem_write_in_lsu == `NO_MEM_WRITE);
 assign arvalid = (state == WAIT_REQ_READ)||(state == IDLE && mmem_read_in_lsu != `NO_MEM_READ && is_req_valid_from_exu);
 assign awvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_AW_WRITE)||(state == IDLE && mmem_write_in_lsu != `NO_MEM_WRITE && is_req_valid_from_exu);
 assign wvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_W_WRITE)||(state == IDLE && mmem_write_in_lsu != `NO_MEM_WRITE && is_req_valid_from_exu);
 assign rready = state == WAIT_RSP_READ;
 assign bready = (state == WAIT_RSP_WRITE);
-assign is_req_valid_to_wbu = (state == WAIT_WBU_READY) ;
+assign is_req_valid_to_wbu = (state == WAIT_WBU_READY)||(state == IDLE && is_req_valid_from_exu && mmem_read_in_lsu == `NO_MEM_READ && mmem_write_in_lsu == `NO_MEM_WRITE);
 assign result_out_lsu = (mmem_read_in_lsu != `NO_MEM_READ) ? processed_rdata : result_in_lsu; // 如果是读请求，则将读数据传递出去，否则传递计算结果
 assign araddr = result_in_lsu;
 wire [1:0] offset;
@@ -223,7 +223,10 @@ always @(*) begin
 		IDLE: if(is_req_valid_from_exu) begin
 			if (mmem_read_in_lsu != `NO_MEM_READ) next_state =  arready ? WAIT_RSP_READ : WAIT_REQ_READ;
 			else if (mmem_write_in_lsu != `NO_MEM_WRITE) next_state =  awready ? (wready?WAIT_RSP_WRITE:WAIT_REQ_W_WRITE) :(wready?WAIT_REQ_AW_WRITE:WAIT_REQ_WRITE);
-			else next_state = WAIT_WBU_READY;
+			else begin 
+				if((is_req_ready_from_wbu))next_state = IDLE;
+				else next_state = WAIT_WBU_READY; 
+			end
 		end else next_state = IDLE;
 		WAIT_REQ_READ: next_state = arready ? WAIT_RSP_READ : WAIT_REQ_READ;
 		WAIT_RSP_READ: next_state = rvalid &&(rresp == `OKAY) ? (WAIT_WBU_READY) : WAIT_RSP_READ;

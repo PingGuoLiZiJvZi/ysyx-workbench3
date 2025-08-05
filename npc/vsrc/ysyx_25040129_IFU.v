@@ -83,13 +83,16 @@ always @(posedge clk) begin
 						if(rresp != `OKAY)$error("IFU: Read error, rresp = %b", rresp);
 						`endif
 					end
-					else state <= WAIT_MMEM_REQ;
+					else begin
+						if(pipeline_flush)begin
+							get_flush_signal_in_fetching <= 1'b1;
+							flush_target_latch <= pipeline_flush_target;
+						end
+						state <= WAIT_MMEM_REQ;
+					end
 					end
 				else state <= WAIT_MMEM_READY;
-				if(pipeline_flush)begin
-					get_flush_signal_in_fetching <= 1'b1;
-					flush_target_latch <= pipeline_flush_target;
-				end
+			
 			end
 			WAIT_MMEM_REQ:begin
 				if(rvalid)begin 
