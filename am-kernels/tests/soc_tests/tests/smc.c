@@ -4,6 +4,7 @@ int main()
 				 "li a1, 0x10000000;" // change UART_TX to the correct address
 				 "li t1, 0x41;"		  // 0x41 = 'A'
 				 "la a2, again;"
+				 "addi x0, x0, 1\n\t"
 				 "li t2, 0x00008067;" // 0x00008067 = ret
 				 "again:"
 				 "sb t1, (a1);"

@@ -268,12 +268,15 @@ int Sdb::run(uint32_t n)
 			cycle_count++;
 			is_device |= npc.is_device;
 		}
-		while (npc.wbu_state == 1)
+		uint32_t pc = npc.regs_val[0];
+
+		do
 		{
 			npc.step_top();
 			cycle_count++;
 			is_device |= npc.is_device;
-		}
+		} while (pc == npc.regs_val[0]);
+
 		pc_count++;
 #ifdef TRACE
 		if (n < 12)

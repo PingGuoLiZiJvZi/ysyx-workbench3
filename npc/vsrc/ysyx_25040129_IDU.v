@@ -6,8 +6,8 @@
 	output [`REGS_DIG-1:0] src2_id,
 	output reg[`CSR_DIG-1:0] csr_read_id_out_idu,
 	output reg[`CSR_DIG-1:0] csr_write_id_out_idu,
-	input [31:0] src1_in_idu,
-	input [31:0] src2_in_idu,
+	input [31:0] src1_in_idu_reg,
+	input [31:0] src2_in_idu_reg,
 	input [31:0] csr_in_idu,
 	`ifdef DEBUG
 	output [31:0] inst_out_idu,
@@ -49,7 +49,14 @@
 	input [`CSR_DIG-1:0] csr_addr_exu_pip_lsu,
 	input valid_csr_addr_write_exu_pip_lsu,
 	input [`CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
-	input valid_csr_addr_write_lsu_pip_wbu
+	input valid_csr_addr_write_lsu_pip_wbu,
+//---------------数据前递控制--------------------
+	input [31:0] exu_forward_data,
+	input is_exu_forward_valid,
+	input [31:0] lsu_forward_data,
+	input is_lsu_forward_valid,
+	input [31:0] wbu_forward_data,
+	input is_wbu_forward_valid
 );
 `ifdef DEBUG
 	assign inst_out_idu = inst;
@@ -61,16 +68,47 @@
 	reg is_csrr;
 	reg is_src1_from_reg;
 	reg is_src2_from_reg;
-
+	wire [31:0] src1_in_idu;
+	wire [31:0] src2_in_idu;
+	assign src1_in_idu = use_src1_from_exu ? exu_forward_data : (use_src1_from_lsu ? lsu_forward_data : (use_src1_from_wbu ? wbu_forward_data : src1_in_idu_reg));
+	assign src2_in_idu = use_src2_from_exu ? exu_forward_data : (use_src2_from_lsu ? lsu_forward_data : (use_src2_from_wbu ? wbu_forward_data : src2_in_idu_reg));
+	//----------------------------------exu数据前递控制--------------------------------
+	wire src1_raw_with_exu;
+	assign src1_raw_with_exu = ((rd_idu_pip_exu == src1_id) && valid_rd_write_idu_pip_exu);
+	wire use_src1_from_exu;
+	assign use_src1_from_exu = is_exu_forward_valid && src1_raw_with_exu;
+	wire src2_raw_with_exu;
+	assign src2_raw_with_exu = ((rd_idu_pip_exu == src2_id) && valid_rd_write_idu_pip_exu);
+	wire use_src2_from_exu;
+	assign use_src2_from_exu = is_exu_forward_valid && src2_raw_with_exu;
+	//-------------------------------LSU数据前递控制-----------------------------------
+	wire src1_raw_with_lsu;
+	assign src1_raw_with_lsu = ((rd_exu_pip_lsu == src1_id) && valid_rd_write_exu_pip_lsu);
+	wire use_src1_from_lsu;
+	assign use_src1_from_lsu =  src1_raw_with_lsu && is_lsu_forward_valid;
+	wire src2_raw_with_lsu;
+	assign src2_raw_with_lsu = ((rd_exu_pip_lsu == src2_id) && valid_rd_write_exu_pip_lsu);
+	wire use_src2_from_lsu;
+	assign use_src2_from_lsu =  src2_raw_with_lsu && is_lsu_forward_valid;
+	//-------------------------------WBU数据前递控制-----------------------------------
+	wire src1_raw_with_wbu;
+	assign src1_raw_with_wbu = ((rd_lsu_pip_wbu == src1_id) && valid_rd_write_lsu_pip_wbu);
+	wire use_src1_from_wbu;
+	assign use_src1_from_wbu =  src1_raw_with_wbu && is_wbu_forward_valid;
+	wire src2_raw_with_wbu;
+	assign src2_raw_with_wbu = ((rd_lsu_pip_wbu == src2_id) && valid_rd_write_lsu_pip_wbu);
+	wire use_src2_from_wbu;
+	assign use_src2_from_wbu =  src2_raw_with_wbu && is_wbu_forward_valid;
+	//---------------------------------------------------------------------------------
 	assign is_src1_raw = is_src1_from_reg && (|src1_id) && (
-		((rd_idu_pip_exu == src1_id) && valid_rd_write_idu_pip_exu) ||
-		((rd_exu_pip_lsu == src1_id) && valid_rd_write_exu_pip_lsu) ||
-		((rd_lsu_pip_wbu == src1_id) && valid_rd_write_lsu_pip_wbu)
+		(src1_raw_with_exu && ~is_exu_forward_valid) ||
+		(src1_raw_with_lsu && ~is_lsu_forward_valid) ||
+		(src1_raw_with_wbu && ~is_wbu_forward_valid) 
 		);
 	assign is_src2_raw = is_src2_from_reg && (|src2_id) && (
-		((rd_idu_pip_exu == src2_id) && valid_rd_write_idu_pip_exu) ||
-		((rd_exu_pip_lsu == src2_id) && valid_rd_write_exu_pip_lsu) ||
-		((rd_lsu_pip_wbu == src2_id) && valid_rd_write_lsu_pip_wbu)
+		(src2_raw_with_exu && ~is_exu_forward_valid) ||
+		(src2_raw_with_lsu && ~is_lsu_forward_valid) ||
+		(src2_raw_with_wbu && ~is_wbu_forward_valid)
 		);
 	assign is_csr_raw = is_csrr && (|csr_read_id_out_idu) && (
 		((csr_addr_idu_pip_exu == csr_read_id_out_idu) && valid_csr_addr_write_idu_pip_exu) ||
@@ -185,8 +223,8 @@
 
 			end // I-type load
 			`I_TYPE_FENCE: begin
-				imm = {{20{inst[31]}},inst[31:20]}; 
-				fence_i = 1'b1; 
+				imm = 32'b100;
+				fence_i = 1'b1;
 			end
 			`S_TYPE: begin
 				imm = {{20{inst[31]}},inst[31:25],inst[11:7]}; // S-type store

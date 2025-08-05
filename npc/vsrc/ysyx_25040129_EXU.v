@@ -45,8 +45,9 @@ module ysyx_25040129_EXU (
 	output is_req_valid_to_lsu,
 	input is_req_ready_from_lsu,
 	input fence_i_in_exu,
-	output fence_i_out_exu
+	output fence_i_out_exu,
 
+	output is_data_forward_valid_from_exu
 );	
 
 //--------------调试信号----------------
@@ -70,7 +71,7 @@ assign lsu_write_data_out_exu =  lsu_write_data_in_exu; // 如果是写请求，
 assign rd_out_exu = rd_in_exu;
 
 assign is_branch_out_exu = is_jump_in_exu || is_branch; 
-assign branch_target_out_exu =(is_jalr_in_exu || mret_in_exu)? src1+src2 : pc + imm; 
+assign branch_target_out_exu =(is_jalr_in_exu || mret_in_exu)? src1 + src2 : pc + imm; 
 assign lsu_read_out_exu = lsu_read_in_exu; // 直接传递MEM阶段的读请求
 assign lsu_write_out_exu = lsu_write_in_exu; // 直接传递
 
@@ -78,7 +79,7 @@ assign csr_write_out_exu = csr_write_in_exu; // 直接传递CSR
 assign ecall_out_exu = ecall_in_exu; // 直接传递CSR写使能信号
 assign mret_out_exu = mret_in_exu; // 直接传递寄
 assign reg_write_out_exu = reg_write_in_exu; // 直接传递寄存器写使能信号
-
+assign is_data_forward_valid_from_exu =  (lsu_read_in_exu == `NO_MEM_READ);
 always @(*) begin
 	result_out_exu = 32'b0;
 	is_branch = 1'b0; 
@@ -86,7 +87,7 @@ always @(*) begin
 	if (ebreak_in_exu)ebreak_trigger();
 	`endif
 	case (alu_opcode)
-		`ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc:pc+`WORD_T):src1 + src2;
+		`ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc : pc+`WORD_T):src1 + src2;
 		`SUB: result_out_exu = src1 - src2;
 		`SLL: result_out_exu = src1 << src2[4:0];
 		`SLT: result_out_exu = ($signed(src1) < $signed(src2)) ? 32'b1 : 32'b0;

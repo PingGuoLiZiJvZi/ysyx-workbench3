@@ -358,8 +358,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.src2_id(src2_id_out_idu),
 		.csr_read_id_out_idu(csr_read_id_out_idu),
 		.csr_write_id_out_idu(csr_write_id_out_idu),
-		.src1_in_idu(src1_in_idu),
-		.src2_in_idu(src2_in_idu),
+		.src1_in_idu_reg(src1_in_idu),
+		.src2_in_idu_reg(src2_in_idu),
 		.lsu_write_data_out_idu(lsu_write_data_out_idu),
 		.csr_in_idu(csr_in_idu),
 
@@ -404,7 +404,14 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rd_lsu_pip_wbu(rd_out_lsu_pip),
 		.valid_rd_write_lsu_pip_wbu(reg_write_out_lsu_pip & is_req_valid_from_pipeline_lsu_to_wbu),
 		.csr_addr_lsu_pip_wbu(csr_addr_out_lsu_pip),
-		.valid_csr_addr_write_lsu_pip_wbu(csr_write_out_lsu_pip & is_req_valid_from_pipeline_lsu_to_wbu)
+		.valid_csr_addr_write_lsu_pip_wbu(csr_write_out_lsu_pip & is_req_valid_from_pipeline_lsu_to_wbu),
+
+		.exu_forward_data(data_forward_from_exu),
+		.is_exu_forward_valid(is_data_forward_valid_from_exu),
+		.lsu_forward_data(data_forward_from_lsu),
+		.is_lsu_forward_valid(is_data_forward_valid_from_lsu),
+		.wbu_forward_data(data_forward_from_wbu),
+		.is_wbu_forward_valid(is_data_forward_valid_from_wbu)
 	);
 	wire is_jalr_out_idu;
 	wire is_req_valid_from_idu_to_exu;
@@ -562,9 +569,14 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.is_req_valid_to_lsu(is_req_valid_from_exu_to_lsu),
 		.is_req_ready_from_lsu(is_req_ready_from_pipeline_lsu_to_exu),
 		.fence_i_in_exu(fence_i_out_idu_pip),
-		.fence_i_out_exu(fence_i_out_exu)
+		.fence_i_out_exu(fence_i_out_exu),
+
+		.is_data_forward_valid_from_exu(is_data_forward_valid_from_exu)
 	);
 	wire fence_i_out_exu;
+	wire [31:0] data_forward_from_exu;
+	assign data_forward_from_exu = result_out_exu;
+	wire is_data_forward_valid_from_exu;
 
 	wire [`CSR_DIG-1:0] csr_addr_out_exu;
 	wire [31:0] lsu_write_data_out_exu;
@@ -695,7 +707,9 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.is_branch_in_lsu(is_branch_out_exu_pip),
 		.is_branch_out_lsu(is_branch_out_lsu),
 		.fence_i_in_lsu(fence_i_out_exu_pip),
-		.fence_i_out_lsu(fence_i_out_lsu)
+		.fence_i_out_lsu(fence_i_out_lsu),
+
+		.is_data_forward_valid_from_lsu(is_data_forward_valid_from_lsu)
 	);
 	//当信号从LSU中发出，并被声明为valid时，开始考虑流水线冲刷
 	//什么情况下需要冲刷呢？
@@ -703,6 +717,9 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//2. 抛出异常相关
 	//3. fence.i指令
 	//4. 发生数据冒险
+	wire is_data_forward_valid_from_lsu;
+	wire [31:0] data_forward_from_lsu;
+	assign data_forward_from_lsu = result_out_lsu;
 	`ifdef DEBUG
 	wire [31:0] debug_pc_from_exu_to_lsu_pip;
 	wire [31:0] debug_pc_from_exu_to_lsu;
@@ -795,19 +812,19 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		(is_branch_out_lsu || ecall_out_lsu || mret_out_lsu || fence_i_out_lsu );
 	assign flush_reset_pc = branch_target_out_lsu;
 	//-----------------difftest适配-----------------
-	`ifdef DEBUG
-	reg [31:0] difftest_pc;
-	reg [31:0] flush_latch;
-	always @(posedge clk) begin
-		flush_latch <= pipeline_flush_signal? flush_reset_pc : 32'h0;
-	end
-		always @(posedge is_req_valid_from_pipeline_lsu_to_wbu) begin
-			difftest_pc <= (flush_latch != 32'h0)? flush_latch : debug_pc_from_lsu_to_wbu_pip + 4;
-		end
-		always @(*) begin
-			update_pc(difftest_pc);
-		end
-	`endif
+	// `ifdef DEBUG
+	// reg [31:0] difftest_pc;
+	// reg [31:0] flush_latch;
+	// always @(posedge clk) begin
+	// 	flush_latch <= pipeline_flush_signal? flush_reset_pc : 32'h0;
+	// end
+	// 	always @(posedge is_req_valid_from_pipeline_lsu_to_wbu) begin
+	// 		difftest_pc <= (flush_latch != 32'h0)? flush_latch : debug_pc_from_lsu_to_wbu_pip + 4;
+	// 	end
+	// 	always @(*) begin
+	// 		update_pc(difftest_pc);
+	// 	end
+	// `endif
 	//------------------------------------------------------
 	wire is_req_valid_from_pipeline_lsu_to_wbu;
 	wire is_req_ready_from_pipeline_wbu_to_lsu;
@@ -834,9 +851,14 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.result_out_wbu(result_out_wbu),
 		.csr_write_out_wbu(csr_write_out_wbu),
 		.csr_addr_out_wbu(csr_addr_out_wbu),
-		.reg_write_out_wbu(reg_write_out_wbu)
+		.reg_write_out_wbu(reg_write_out_wbu),
+
+		.is_data_forward_valid_from_wbu(is_data_forward_valid_from_wbu),
+		.wbu_forward_data(data_forward_from_wbu)
 
 	);
+	wire [31:0]data_forward_from_wbu;
+	wire is_data_forward_valid_from_wbu;
 	wire [31:0] result_out_wbu;
 	wire [`REGS_DIG-1:0] rd_out_wbu;
 	wire csr_write_out_wbu;

@@ -1,5 +1,5 @@
 module ysyx_25040129_ICACHE #(
-	parameter BLOCK_SIZE_WORD_DIG = 2,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
+	parameter BLOCK_SIZE_WORD_DIG = 1,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	parameter BLOCK_NUM_DIG = 1//2^BLOCK_NUM_DIG = 16, // block number = 16
 )(
 	//目前16指令缓存参数最佳为1 3
@@ -62,7 +62,7 @@ module ysyx_25040129_ICACHE #(
 	assign offset = ifu_araddr_latch[BLOCK_SIZE_WORD_DIG+1:2];
 	assign tag = ifu_araddr_latch[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	//--------------------------------------------------------------------------------
-	assign ifu_arready = (state == IDLE);
+	assign ifu_arready = (state == IDLE) && !fence_i;
 	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
 	//31--------block_size_dig+block_num_dig-1--------------block_size_dig-1--------------0
 	//---tag--------------------------------------index-----------------------offset------
@@ -76,16 +76,19 @@ module ysyx_25040129_ICACHE #(
 		if(out_rresp != `OKAY)$error("ICACHE: out_rresp != OKAY, resp = %b", out_rresp);
 	end
 	`endif
+	reg fence_i_latch;
 	always @(posedge clk) begin
 		if(rst)begin 
 			state <= IDLE;
 			ifu_araddr_latch <= 32'b0;
 			cache_valid <= {BLOCK_NUM{1'b0}};
+			fence_i_latch <= 1'b0;
 		end
 		else begin
 			case (state)
 				IDLE:begin
-					if(fence_i && (|cache_valid != 1'b0))cache_valid <= {BLOCK_NUM{1'b0}}; 
+					fence_i_latch <= 1'b0;
+					if((fence_i||fence_i_latch)  && (|cache_valid != 1'b0))cache_valid <= {BLOCK_NUM{1'b0}}; 
 					else begin
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
@@ -101,15 +104,18 @@ module ysyx_25040129_ICACHE #(
 					end
 				end 
 				WAIT_IFU_READY:begin
+					if(fence_i)fence_i_latch <= 1'b1;
 					if(ifu_rready) begin
 						state <= IDLE;
 					end
 				end
 				WAIT_OUT_READY:begin
+					if(fence_i)fence_i_latch <= 1'b1;
 					if(out_arready) 
 						state <= WAIT_OUT_REQ;
 				end
 				WAIT_OUT_REQ:begin
+					if(fence_i)fence_i_latch <= 1'b1;
 					if(out_rvalid) begin
 						cache_data[index][burst_count] <= out_rdata;
 						burst_count <= burst_count + 1;

@@ -68,7 +68,9 @@ module ysyx_25040129_LSU (
 	input is_branch_in_lsu,
 	output is_branch_out_lsu,
 	input fence_i_in_lsu,
-	output fence_i_out_lsu
+	output fence_i_out_lsu,
+
+	output is_data_forward_valid_from_lsu
 );
 //---------------信号转发---------------
 `ifdef DEBUG
@@ -142,6 +144,7 @@ reg [2:0] state;
 reg [2:0] next_state;
 reg [31:0] processed_rdata;
 //---------------请求信号产生逻辑---------------
+assign is_data_forward_valid_from_lsu = is_req_valid_to_wbu;
 assign is_req_ready_to_exu = (state == WAIT_WBU_READY)||(state == IDLE && is_req_valid_from_exu && mmem_read_in_lsu == `NO_MEM_READ && mmem_write_in_lsu == `NO_MEM_WRITE);
 assign arvalid = (state == WAIT_REQ_READ)||(state == IDLE && mmem_read_in_lsu != `NO_MEM_READ && is_req_valid_from_exu);
 assign awvalid = (state == WAIT_REQ_WRITE)||(state == WAIT_REQ_AW_WRITE)||(state == IDLE && mmem_write_in_lsu != `NO_MEM_WRITE && is_req_valid_from_exu);

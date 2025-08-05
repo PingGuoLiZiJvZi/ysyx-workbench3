@@ -35,7 +35,7 @@ extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 
 	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
 	{
-		putchar(data & 0xFF); // UART write
+		putc(data & 0xFF, stderr); // UART write
 		return;
 	}
 	else
@@ -70,7 +70,7 @@ extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 	default:
 		printf("soc_write: Invalid strb 0x%02x for address 0x%08x\n", strb, addr);
 #ifdef WAVE
-		
+
 #endif
 		assert(0 && "Invalid strb for soc_write");
 		break;

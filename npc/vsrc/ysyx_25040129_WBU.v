@@ -18,15 +18,21 @@ module ysyx_25040129_WBU (
 	output [31:0] result_out_wbu,
 	output csr_write_out_wbu, 
 	output [`CSR_DIG-1:0] csr_addr_out_wbu, 
-	output reg_write_out_wbu
+	output reg_write_out_wbu,
+
+	output is_data_forward_valid_from_wbu,
+	output [31:0] wbu_forward_data
 );
 `ifdef DEBUG
 always @(*) begin
 	update_wbu_state(is_req_valid_from_lsu);
 	update_is_device(is_device_in_wbu);
 	update_inst(inst_in_wbu);
+	update_pc(pc_in_wbu);
 end
 `endif 
+assign wbu_forward_data = result_in_wbu;
+assign is_data_forward_valid_from_wbu = is_req_valid_from_lsu ;
 assign is_req_ready_to_lsu = is_req_valid_from_lsu;
 assign rd_out_wbu = rd_in_wbu; 
 assign result_out_wbu = result_in_wbu; 

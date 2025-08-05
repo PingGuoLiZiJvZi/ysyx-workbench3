@@ -17,7 +17,7 @@ module ysyx_25040129_PIPELINE #(
 localparam EMPTY = 1'b0;
 localparam FULL = 1'b1;
 reg state;
-assign in_ready = (state == EMPTY)|| (state == FULL && out_ready);
+assign in_ready = (state == EMPTY)|| (out_ready);
 assign out_valid = (state == FULL);
 always @(posedge clk) begin
 	if(rst || pipeline_flush)begin
