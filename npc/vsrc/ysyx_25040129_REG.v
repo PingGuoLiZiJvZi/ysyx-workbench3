@@ -9,15 +9,15 @@ module ysyx_25040129_REG (
 	output [31:0] src1,
 	output [31:0] src2
 );
-	reg [31:0] regs[15:0];
+	reg [31:0] regs[15:1];
 	
 	
-	assign src1 =  regs[src1_id];
-	assign src2 =  regs[src2_id];
+	assign src1 = src1_id == 4'b0000 ? 32'b0: regs[src1_id];
+	assign src2 = src2_id == 4'b0000 ? 32'b0: regs[src2_id];
 	always @(*) begin
 		`ifdef DEBUG
 		update_regs(
-			regs[0],
+			32'b0,
 			regs[1], 
 			regs[2], 
 			regs[3], 
@@ -37,11 +37,7 @@ module ysyx_25040129_REG (
 		`endif
 	end
 	always @(posedge clk) begin
-		
-		if (rst)  begin
-            regs[0] <= 32'b0; 
-        end
-		 else begin
+		 begin
 			if (rd != 4'b0000 && reg_write) begin
 				regs[rd] <=result;
 			end

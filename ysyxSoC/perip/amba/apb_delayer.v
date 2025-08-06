@@ -30,7 +30,7 @@ module apb_delayer(
 //此模块负责将APB的时序延迟5.6939个周期
 //放大系数s=1024
 localparam s = 1024;
-localparam DELAY_CYCLE = 9011; // 5.07 * 1024 = 5830.4, 取整为5830
+localparam DELAY_CYCLE = 6758; // 5.07 * 1024 = 5830.4, 取整为5830
 localparam IDLE = 2'b00;
 localparam WAIT = 2'b01;
 localparam DELAY = 2'b10;

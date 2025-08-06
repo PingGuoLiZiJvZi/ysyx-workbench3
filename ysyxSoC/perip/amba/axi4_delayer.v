@@ -62,7 +62,7 @@ module axi4_delayer(
   input  [3:0]  out_bid,
   input  [1:0]  out_bresp
 );
-  localparam DELAY_CYCLE = 9011; 
+  localparam DELAY_CYCLE = 6758; 
   localparam EXTRA_DELAY = DELAY_CYCLE - 1024; 
   //----------------------写逻辑延迟----------------------
   handshake_delayer u_aw_delayer (
@@ -152,7 +152,7 @@ module handshake_delayer (
   localparam DONE = 2'b11;
   reg [31:0] counter;
   reg [21:0] device_counter;
-  localparam DELAY_CYCLE = 9011; // 延迟周期
+  localparam DELAY_CYCLE = 6758; // 延迟周期
   localparam EXTRA_DELAY = DELAY_CYCLE - 1024; // 附加延迟
   always @(posedge clk) begin
 	if(rst) begin
@@ -214,7 +214,7 @@ module handshake_delayer_back (
   localparam DONE = 2'b11;
   reg [31:0] counter;
   reg [21:0] device_counter;
-  localparam DELAY_CYCLE = 9011; // 延迟周期
+  localparam DELAY_CYCLE = 6758; // 延迟周期
   localparam EXTRA_DELAY = DELAY_CYCLE - 1024; // 附加延迟
 
   always @(posedge clk) begin

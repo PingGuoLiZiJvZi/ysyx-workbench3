@@ -19,7 +19,7 @@ module ysyx_25040129_CSR (
 			`MSTATUS: csr_out = mstatus; // MSTATUS
 			`MTVEC: csr_out = mtvec; // MTVEC
 			`MEPC: csr_out = mepc; // MEPC
-			`MCAUSE: csr_out = mcause; // MCAUSE
+			`MCAUSE: csr_out = 32'd11; // MCAUSE
 			default: csr_out = 32'b0;
 		endcase
 	end
@@ -28,15 +28,13 @@ module ysyx_25040129_CSR (
 			mstatus <= 32'b0;
 			mtvec <= 32'b0;
 			mepc <= 32'b0;
-			mcause <= 32'd11;
 		end
 		else begin
 				if (csr_write) begin
 					case (csr_write_addr)
 						`MTVEC: mtvec <= csr_data; 
-						`MSTATUS: mstatus <= csr_data; 							`MTVEC: mtvec <= csr_data; // MTVEC
+						`MSTATUS: mstatus <= csr_data; 
 						`MEPC: mepc <= csr_data; 
-						`MCAUSE: mcause <= csr_data; 
 					default: begin end
 				endcase
 			end
