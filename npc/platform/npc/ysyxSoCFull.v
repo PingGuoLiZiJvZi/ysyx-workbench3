@@ -8,7 +8,7 @@ module ysyxSoCFull (
 //所有从top中传出的AXI-Lite信号都在这里被DPI-C瞬间处理
 // verilator lint_off UNUSED
 /* verilator lint_off PINCONNECTEMPTY */
-ysyx_25040129_top u_top (
+ysyx_25040129 u_top (
 	.clock                   (clock),
     .reset                   (reset),
     .io_interrupt            (1'h0),	//:35:23, :36:19, :38:21

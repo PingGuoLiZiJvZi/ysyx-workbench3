@@ -70,10 +70,10 @@ module ysyx_25040129_ICACHE #(
 	localparam WAIT_IFU_READY = 2'b01;
 	localparam WAIT_OUT_READY = 2'b10;
 	localparam WAIT_OUT_REQ = 2'b11;
-	`ifdef DEBUG
+	`ifdef ysyx_25040129_DEBUG
 	always @(posedge clk) begin
 		icache_count_inc({6'b0,state},ifu_arvalid, cache_valid[p_index] && cache_tag[p_index] == p_tag);
-		if(out_rresp != `OKAY)$error("ICACHE: out_rresp != OKAY, resp = %b", out_rresp);
+		if(out_rresp != `ysyx_25040129_OKAY)$error("ICACHE: out_rresp != OKAY, resp = %b", out_rresp);
 	end
 	`endif
 	reg fence_i_latch;
@@ -136,7 +136,7 @@ module ysyx_25040129_ICACHE #(
 	assign out_araddr = {ifu_araddr_latch[31:BLOCK_SIZE_DIG], {BLOCK_SIZE_DIG{1'b0}}};
 	assign out_arvalid = (state == WAIT_OUT_READY);
 	assign out_rready = (state == WAIT_OUT_REQ);
-	assign ifu_rresp = `OKAY;
+	assign ifu_rresp = `ysyx_25040129_OKAY;
 	assign ifu_rdata = (state == IDLE && ifu_arvalid && cache_valid[p_index] && cache_tag[p_index] == p_tag)?
 	                   cache_data[p_index][p_offset] : ifu_rdata_latch;
 	assign ifu_rvalid = (state == WAIT_IFU_READY) || (state == IDLE && ifu_arvalid && cache_valid[p_index] && cache_tag[p_index] == p_tag);

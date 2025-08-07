@@ -16,7 +16,7 @@ module ysyx_25040129_CLINT (
 	input rready
 	/* verilator lint_on UNUSEDSIGNAL */
 );
-	assign rresp = `OKAY;
+	assign rresp = `ysyx_25040129_OKAY;
 	// CLINT的实现代码
 	reg [15:0] mtime [3:0];
 	assign arready = 1'b1; 

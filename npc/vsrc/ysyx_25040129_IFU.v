@@ -37,15 +37,15 @@ assign is_req_valid_to_idu = (state == WAIT_IDU_READY ||(state == WAIT_MMEM_READ
 assign inst_to_idu = (state == WAIT_MMEM_READY && arready && rvalid) ? rdata : inst;
 //--------------------调试接口---------------------
 always @(posedge clk) begin
-	`ifdef DEBUG
+	`ifdef ysyx_25040129_DEBUG
 	fetch_count_inc({5'b0,state});
 	`endif
-	`ifdef GENERATE_PC_QUEUE
+	`ifdef ysyx_25040129_GENERATE_PC_QUEUE
 		if(state==IDLE && next_state == WAIT_MMEM_READY)record_pc(pc);
 	`endif
 end
 // always @(*) begin
-// 	`ifdef DEBUG
+// 	`ifdef ysyx_25040129_DEBUG
 // 	update_pc(pc);
 // 	update_inst(inst_to_idu);
 // 	update_ifu_state({5'b0,state});
@@ -55,7 +55,7 @@ end
 // pc 更新逻辑
 always @(posedge clk) begin
 	if(rst)begin
-		pc <= `FLASH_START;
+		pc <= `ysyx_25040129_FLASH_START;
 		inst <= 32'b0; 
 		get_flush_signal_in_fetching <= 1'b0;
 		state <= WAIT_MMEM_READY;
@@ -79,8 +79,8 @@ always @(posedge clk) begin
 							end
 							else state <= WAIT_IDU_READY;
 						end
-						`ifdef DPI
-						if(rresp != `OKAY)$error("IFU: Read error, rresp = %b", rresp);
+						`ifdef ysyx_25040129_DPI
+						if(rresp != `ysyx_25040129_OKAY)$error("IFU: Read error, rresp = %b", rresp);
 						`endif
 					end
 					else begin
@@ -98,8 +98,8 @@ always @(posedge clk) begin
 				if(rvalid)begin 
 					state <= WAIT_IDU_READY;
 					inst <= rdata;
-					`ifdef DPI
-					if(rresp != `OKAY)$error("IFU: Read error, rresp = %b", rresp);
+					`ifdef ysyx_25040129_DPI
+					if(rresp != `ysyx_25040129_OKAY)$error("IFU: Read error, rresp = %b", rresp);
 					`endif
 				end
 				else state <= WAIT_MMEM_REQ;

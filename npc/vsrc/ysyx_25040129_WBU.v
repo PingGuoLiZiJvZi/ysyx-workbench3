@@ -2,28 +2,30 @@ module ysyx_25040129_WBU (
 
 	input is_req_valid_from_lsu,
 	output is_req_ready_to_lsu,
-	input [`REGS_DIG-1:0] rd_in_wbu, 
-	`ifdef DEBUG
+	input [`ysyx_25040129_REGS_DIG-1:0] rd_in_wbu, 
+	
 	/* verilator lint_off UNUSEDSIGNAL */
+	`ifdef ysyx_25040129_DEBUG
 	input [31:0] pc_in_wbu,
 	input [31:0] inst_in_wbu,
 	input is_device_in_wbu,
-	/* verilator lint_on UNUSEDSIGNAL */
 	`endif 
+	/* verilator lint_on UNUSEDSIGNAL */
+	
 	input [31:0] result_in_wbu,
-	input [`CSR_DIG-1:0] csr_addr_in_wbu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_in_wbu,
 	input csr_write_in_wbu,
 	input reg_write_in_wbu,
-	output [`REGS_DIG-1:0] rd_out_wbu,
+	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_wbu,
 	output [31:0] result_out_wbu,
 	output csr_write_out_wbu, 
-	output [`CSR_DIG-1:0] csr_addr_out_wbu, 
+	output [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu, 
 	output reg_write_out_wbu,
 
 	output is_data_forward_valid_from_wbu,
 	output [31:0] wbu_forward_data
 );
-`ifdef DEBUG
+`ifdef ysyx_25040129_DEBUG
 always @(*) begin
 	update_wbu_state(is_req_valid_from_lsu);
 	update_is_device(is_device_in_wbu);

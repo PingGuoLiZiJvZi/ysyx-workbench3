@@ -1,6 +1,6 @@
 PROJ_PATH = $(shell pwd)
 
-DESIGN ?= ysyx_25040129_top
+DESIGN ?= ysyx_25040129
 SDC_FILE ?= $(PROJ_PATH)/sta/gcd.sdc
 RTL_FILES ?= $(shell find $(NPC_HOME)/vsrc -name "*.v")
 export CLK_FREQ_MHZ ?= 500

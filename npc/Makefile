@@ -39,11 +39,11 @@ LIBCAPSTONE = ~/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5
 CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
-
+include ../Makefile
 
 
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
@@ -51,8 +51,8 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 #run规则为调用sim
 
 npc_build:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
+	$(call git_commit, "sim RTL") 
+	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
 	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
 	--CFLAGS "-DIS_NPC=1" \
 	--timescale "1ns/1ns" --no-timing --autoflush
@@ -69,6 +69,7 @@ npc_run: npc_build
 npc_autorun: npc_build
 	printf "c\nq\n" |${BIN}
 
+
 #perf需要做两件事：1. 在sta目录下调用make sta，生成综合报告；2. 在microbench目录下调用make run ARCH=riscv32e-ysyxsoc,生成性能报告
 perf: 
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
@@ -77,10 +78,18 @@ perf:
 sta:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
 
-gdb:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j 0 -Wall ${THIS_DIR}/vsrc/top.v ${THIS_DIR}/csrc/top.cpp --CFLAGS "-g -O0"
-	gdb --args ${BIN}
+netlist_sim:
+	$(call git_commit, "sim netlist")
+	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
+	$(BUILD_DIR)\iverilog
+
+sim-iverilog:
+	$(call git_commit, "sim RTL") 
+	iverilog $(THIS_DIR)/platform/iverilog.v $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
+	$(BUILD_DIR)\iverilog
+
 
 clean:
 	rm -rf $(BUILD_DIR)

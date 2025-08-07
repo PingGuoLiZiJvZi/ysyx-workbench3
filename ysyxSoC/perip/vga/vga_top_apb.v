@@ -25,7 +25,7 @@ module vga_top_apb(
   reg [1:0] next_state;
   wire [31:0] relative_addr_4;
   wire [29:0] relative_addr;
-  assign relative_addr_4 = (in_paddr - `VGA_ADDR); // 32-bit address, 4-byte aligned
+  assign relative_addr_4 = (in_paddr - `ysyx_25040129_VGA_ADDR); // 32-bit address, 4-byte aligned
   assign relative_addr = relative_addr_4[31:2]; // 30-bit address for 640x480 resolution
   localparam IDLE = 2'b00;
   localparam WRITE = 2'b01;
@@ -46,8 +46,8 @@ module vga_top_apb(
   end
   always @(posedge clock) begin
 		if(state == WRITE) begin
-			if(in_paddr < `VGA_ADDR || in_paddr >= `VGA_ADDR + `VGA_SIZE) begin
-				$error("vga write addr %h out of range [%h, %h),state = %b", in_paddr, `VGA_ADDR, `VGA_ADDR + `VGA_SIZE, state);
+			if(in_paddr < `ysyx_25040129_VGA_ADDR || in_paddr >= `ysyx_25040129_VGA_ADDR + `ysyx_25040129_VGA_SIZE) begin
+				$error("vga write addr %h out of range [%h, %h),state = %b", in_paddr, `ysyx_25040129_VGA_ADDR, `ysyx_25040129_VGA_ADDR + `ysyx_25040129_VGA_SIZE, state);
 			end
 			// $display("vga write addr width %d height %d data %h", relative_addr%640, relative_addr/640, in_pwdata);
 			vga_buffer[relative_addr[9:0]][relative_addr[18:10]] <= in_pwdata;

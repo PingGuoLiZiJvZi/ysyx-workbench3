@@ -18,15 +18,15 @@ module ysyx_25040129_XBAR (
 	//---------------写地址---------------
 	input [31:0] awaddr,
 	input awvalid,
-	output reg awready,
+	output awready,
 	//---------------写数据---------------
 	input [3:0] wstrb,
 	input [31:0] wdata,
 	input wvalid,
-	output reg wready,
+	output wready,
 	//---------------写响应---------------
-	output reg [1:0]bresp,
-	output reg bvalid,
+	output [1:0]bresp,
+	output bvalid,
 	input bready,
 	///--------------XBAR转发---------------
 	//---------------外部设备转发------------
@@ -44,18 +44,18 @@ module ysyx_25040129_XBAR (
 	output reg soc_rready,
 	input soc_rlast,
 	//---------------写地址---------------
-	output reg [31:0] soc_awaddr,
-	output reg soc_awvalid,
+	output [31:0] soc_awaddr,
+	output soc_awvalid,
 	input soc_awready,
 	//---------------写数据---------------
-	output reg [3:0] soc_wstrb,
-	output reg [31:0] soc_wdata,
-	output reg soc_wvalid,
+	output [3:0] soc_wstrb,
+	output [31:0] soc_wdata,
+	output soc_wvalid,
 	input soc_wready,
 	//---------------写响应---------------
 	input [1:0]soc_bresp,
 	input soc_bvalid,
-	output reg soc_bready,
+	output soc_bready,
 	//---------------RTC---------------
 	//RTC不支持写入，应该在XBAR中拦截并报错
 	//---------------读地址---------------
@@ -146,8 +146,14 @@ always @(*) begin
 			rresp = 2'b00;
 			rvalid = 1'b0;
 
+			rtc_araddr = 32'b0;
+			rtc_arvalid = 1'b0;
+			rtc_rready = 1'b0;
+
+
 			soc_araddr = 32'b0;
 			soc_arvalid = 1'b0;
+			soc_arsize = 3'b000;
 
 			soc_rready = 1'b0;
 		end
@@ -158,7 +164,7 @@ always @(*) begin
 	case (state)
 		IDLE: begin
 			if(arvalid)begin
-			if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
+			if(araddr >= `ysyx_25040129_RTC_PORT_ADDR && araddr < `ysyx_25040129_RTC_PORT_ADDR + `ysyx_25040129_RTC_PORT_SIZE)
 				next_state = HANDLE_RTC;
 				else next_state = HANDLE_SOC;
 			end
@@ -166,18 +172,18 @@ always @(*) begin
 		end
 		HANDLE_SOC: if(rready && soc_rvalid && soc_rlast) begin 
 						next_state = IDLE;
-					`ifdef DPI
-					if(rresp != `OKAY && rready && soc_rvalid) 
+					`ifdef ysyx_25040129_DPI
+					if(rresp != `ysyx_25040129_OKAY && rready && soc_rvalid) 
 						$error("XBAR: Invalid response %b %b", rresp, bresp);
-					if(bresp != `OKAY && bready && soc_bvalid)
+					if(bresp != `ysyx_25040129_OKAY && bready && soc_bvalid)
 						$error("XBAR: Invalid response %b %b", rresp, bresp);
 					`endif
 		end
 					 else next_state = HANDLE_SOC;
 		HANDLE_RTC: if(rready && rtc_rvalid)begin
 			 next_state = IDLE;
-			 `ifdef DPI
-			 if(rtc_rresp != `OKAY && rready && rtc_rvalid) 
+			 `ifdef ysyx_25040129_DPI
+			 if(rtc_rresp != `ysyx_25040129_OKAY && rready && rtc_rvalid) 
 					$error("XBAR: Invalid RTC response %b", rtc_rresp);
 			`endif
 		end

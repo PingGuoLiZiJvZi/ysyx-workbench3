@@ -62,21 +62,25 @@ public:
 	}
 	void reset_top()
 	{
-		top->clock = 0;
-		top->reset = 1;
+		int i = 10;
+		while (i--)
+		{
+			top->clock = 0;
+			top->reset = 1;
 #ifndef IS_NPC
-		top->externalPins_uart_rx = 1;	// reset uart rx
-		top->externalPins_ps2_data = 1; // reset ps2 data
+			top->externalPins_uart_rx = 1;	// reset uart rx
+			top->externalPins_ps2_data = 1; // reset ps2 data
 #endif
-		top->eval();
-		dump();
-		top->clock = 1;
-		top->eval();
-		dump();
-		top->reset = 0;
+			top->eval();
+			dump();
+			top->clock = 1;
+			top->eval();
+			dump();
+			top->reset = 0;
 #ifndef IS_NPC
-		nvboard_update();
+			nvboard_update();
 #endif
+		}
 #ifdef TRACE
 		update_messages();
 #endif

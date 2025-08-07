@@ -2597,7 +2597,7 @@ module CPU(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/CPU.scala:33:9
   input         auto_master_out_rlast	// home/pglzjz/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
 );
 
-  ysyx_25040129_top cpu (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/CPU.scala:38:21
+  ysyx_25040129 cpu (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/CPU.scala:38:21
     .clock                   (clock),
     .reset                   (reset),
     .io_interrupt            (1'h0),	// home/pglzjz/ysyx-workbench/ysyxSoC/src/CPU.scala:35:23, :36:19, :38:21
@@ -6035,7 +6035,7 @@ module ysyxSoCASIC(	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
   );	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
   CPU cpu (	// home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
     .clock                         (clock),
-    .reset                         (reset),	// home/pglzjz/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23, home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:62:64
+    .reset                         (reset|_cpu_reset_chain_io_q),	// home/pglzjz/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23, home/pglzjz/ysyx-workbench/ysyxSoC/src/SoC.scala:62:64
     .auto_master_out_awready      (_axi4xbar_auto_anon_in_awready),	// home/pglzjz/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
     .auto_master_out_awvalid      (_cpu_auto_master_out_awvalid),
     .auto_master_out_awid    (_cpu_auto_master_out_awid),
