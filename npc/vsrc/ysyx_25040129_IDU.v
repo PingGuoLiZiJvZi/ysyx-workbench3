@@ -2,14 +2,14 @@
 	input [31:0] inst,
 	input [31:0] pc,
 	output [31:0] pc_out_idu,
-	output [`REGS_DIG-1:0] src1_id,
-	output [`REGS_DIG-1:0] src2_id,
-	output reg[`CSR_DIG-1:0] csr_read_id_out_idu,
-	output reg[`CSR_DIG-1:0] csr_write_id_out_idu,
+	output [`ysyx_25040129_REGS_DIG-1:0] src1_id,
+	output [`ysyx_25040129_REGS_DIG-1:0] src2_id,
+	output reg[`ysyx_25040129_CSR_DIG-1:0] csr_read_id_out_idu,
+	output reg[`ysyx_25040129_CSR_DIG-1:0] csr_write_id_out_idu,
 	input [31:0] src1_in_idu_reg,
 	input [31:0] src2_in_idu_reg,
 	input [31:0] csr_in_idu,
-	`ifdef DEBUG
+	`ifdef ysyx_25040129_DEBUG
 	output [31:0] inst_out_idu,
 	`endif
 	
@@ -18,7 +18,7 @@
 	output [31:0] lsu_write_data_out_idu,
 	output reg is_jalr_out_idu,
 	output reg[31:0] imm,
-	output [`REGS_DIG-1:0] rd_out_idu,//该信号将被一路传递至WB阶段
+	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_idu,//该信号将被一路传递至WB阶段
 	output reg[3:0] alu_opcode, // 该信号将被一路传递至ALU阶段
 	
 	output reg reg_write_out_idu,//该信号将被一路传递至WB阶段
@@ -37,18 +37,18 @@
 	input is_req_ready_from_exu,
 	output reg fence_i,
 //---------------数据冒险控制--------------------
-	input [`REGS_DIG-1:0] rd_idu_pip_exu,
+	input [`ysyx_25040129_REGS_DIG-1:0] rd_idu_pip_exu,
 	input valid_rd_write_idu_pip_exu,
-	input [`REGS_DIG-1:0] rd_exu_pip_lsu,
+	input [`ysyx_25040129_REGS_DIG-1:0] rd_exu_pip_lsu,
 	input valid_rd_write_exu_pip_lsu,
-	input [`REGS_DIG-1:0] rd_lsu_pip_wbu,
+	input [`ysyx_25040129_REGS_DIG-1:0] rd_lsu_pip_wbu,
 	input valid_rd_write_lsu_pip_wbu,
 
-	input [`CSR_DIG-1:0] csr_addr_idu_pip_exu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_idu_pip_exu,
 	input valid_csr_addr_write_idu_pip_exu,
-	input [`CSR_DIG-1:0] csr_addr_exu_pip_lsu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_exu_pip_lsu,
 	input valid_csr_addr_write_exu_pip_lsu,
-	input [`CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
 	input valid_csr_addr_write_lsu_pip_wbu,
 //---------------数据前递控制--------------------
 	input [31:0] exu_forward_data,
@@ -58,7 +58,7 @@
 	input [31:0] wbu_forward_data,
 	input is_wbu_forward_valid
 );
-`ifdef DEBUG
+`ifdef ysyx_25040129_DEBUG
 	assign inst_out_idu = inst;
 `endif
 	wire is_src1_raw;
@@ -125,23 +125,23 @@
 
 
 	always @(*) begin
-		if(opcode == `I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ECALL)begin 
-			csr_read_id_out_idu = `MTVEC; 
-			csr_write_id_out_idu = `MEPC;
+		if(opcode == `ysyx_25040129_I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ysyx_25040129_ECALL)begin 
+			csr_read_id_out_idu = `ysyx_25040129_MTVEC; 
+			csr_write_id_out_idu = `ysyx_25040129_MEPC;
 		end 
-		else if(opcode == `I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `MRET)begin
-			csr_read_id_out_idu = `MEPC;
-			csr_write_id_out_idu = `CSR_ERROR; 
+		else if(opcode == `ysyx_25040129_I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ysyx_25040129_MRET)begin
+			csr_read_id_out_idu = `ysyx_25040129_MEPC;
+			csr_write_id_out_idu = `ysyx_25040129_CSR_ERROR; 
 		end
 		else begin
 		case(inst[31:20])
-		12'h114: csr_read_id_out_idu = `MVENDORID; 
-		12'h514: csr_read_id_out_idu = `MARCHID;
-		12'h300: csr_read_id_out_idu = `MSTATUS;
-		12'h305: csr_read_id_out_idu = `MTVEC;
-		12'h341: csr_read_id_out_idu = `MEPC;
-		12'h342: csr_read_id_out_idu = `MCAUSE;
-		default: csr_read_id_out_idu = `CSR_ERROR; 
+		12'h114: csr_read_id_out_idu = `ysyx_25040129_MVENDORID; 
+		12'h514: csr_read_id_out_idu = `ysyx_25040129_MARCHID;
+		12'h300: csr_read_id_out_idu = `ysyx_25040129_MSTATUS;
+		12'h305: csr_read_id_out_idu = `ysyx_25040129_MTVEC;
+		12'h341: csr_read_id_out_idu = `ysyx_25040129_MEPC;
+		12'h342: csr_read_id_out_idu = `ysyx_25040129_MCAUSE;
+		default: csr_read_id_out_idu = `ysyx_25040129_CSR_ERROR; 
 		endcase
 		csr_write_id_out_idu = csr_read_id_out_idu;
 		end
@@ -158,7 +158,7 @@
 	assign src2_id = inst[23:20];
 //---------------调试信号---------------
 // always @(posedge clk) begin
-// 	`ifdef DEBUG
+// 	`ifdef ysyx_25040129_DEBUG
 // 	track_inst_in_idu({5'b0,state},{1'b0,opcode});
 // 	`endif
 // end
@@ -171,34 +171,35 @@
 		mret_out_idu = 1'b0;
 		is_jalr_out_idu = 1'b0;
 		csr_write_out_idu = 1'b0;
-		lsu_write_out_idu = `NO_MEM_WRITE;
-		lsu_read_out_idu = `NO_MEM_READ;
+		lsu_write_out_idu = `ysyx_25040129_NO_MEM_WRITE;
+		lsu_read_out_idu = `ysyx_25040129_NO_MEM_READ;
 		is_csrr = 1'b0;
 		fence_i = 1'b0;
 		is_src1_from_reg = 1'b0;
 		is_src2_from_reg = 1'b0;
-		
 		src1_out_idu = src1_in_idu;
 		src2_out_idu = src2_in_idu;
+		imm = 32'b0;
+		alu_opcode = `ysyx_25040129_ADD; 
 		case (opcode)
-			`I_TYPE_IMM:begin
+			`ysyx_25040129_I_TYPE_IMM:begin
 				 imm = {{20{inst[31]}},inst[31:20]};
 				 src2_out_idu= imm;
 				 reg_write_out_idu = 1'b1;
 				 alu_opcode = {(funct3==3'b101)?funct7_5:1'b0,funct3};
 				 is_src1_from_reg = 1'b1; 
 			end // I-type immediate
-			`B_TYPE: begin 
+			`ysyx_25040129_B_TYPE: begin 
 				imm = {{20{inst[31]}},inst[7], inst[30:25], inst[11:8], 1'b0};
 				is_src1_from_reg = 1'b1;
 				is_src2_from_reg = 1'b1;
 				case (funct3)
-					3'b000: alu_opcode = `EQ; // BEQ
-					3'b001: alu_opcode = `NEQ; // BNE
-					3'b100: alu_opcode = `LT; // BLT
-					3'b101: alu_opcode = `GE; // BGE
-					3'b110: alu_opcode = `LTU; // BLTU
-					3'b111: alu_opcode = `GEU; // BGEU
+					3'b000: alu_opcode = `ysyx_25040129_EQ; // BEQ
+					3'b001: alu_opcode = `ysyx_25040129_NEQ; // BNE
+					3'b100: alu_opcode = `ysyx_25040129_LT; // BLT
+					3'b101: alu_opcode = `ysyx_25040129_GE; // BGE
+					3'b110: alu_opcode = `ysyx_25040129_LTU; // BLTU
+					3'b111: alu_opcode = `ysyx_25040129_GEU; // BGEU
 					default: begin
 						alu_opcode = 4'b0000; // 默认值
 						
@@ -206,76 +207,76 @@
 				endcase			
 			end// B-type branch
 
-			`I_TYPE_LOAD: begin 
+			`ysyx_25040129_I_TYPE_LOAD: begin 
 				imm = {{20{inst[31]}},inst[31:20]};
 				src2_out_idu= imm; 
 				reg_write_out_idu = 1'b1;
-				alu_opcode = `ADD; // LOAD指令的ALU操作是加法
+				alu_opcode = `ysyx_25040129_ADD; // LOAD指令的ALU操作是加法
 				is_src1_from_reg = 1'b1;
 				case (funct3)
-					3'b000: lsu_read_out_idu = `MEM_READ_BYTE; // LB
-					3'b001: lsu_read_out_idu = `MEM_READ_HALF; // LH
-					3'b010: lsu_read_out_idu = `MEM_READ_WORD; // LW
-					3'b100: lsu_read_out_idu = `MEM_READ_BYTE_U; // LBU
-					3'b101: lsu_read_out_idu = `MEM_READ_HALF_U; // LHU
+					3'b000: lsu_read_out_idu = `ysyx_25040129_MEM_READ_BYTE; // LB
+					3'b001: lsu_read_out_idu = `ysyx_25040129_MEM_READ_HALF; // LH
+					3'b010: lsu_read_out_idu = `ysyx_25040129_MEM_READ_WORD; // LW
+					3'b100: lsu_read_out_idu = `ysyx_25040129_MEM_READ_BYTE_U; // LBU
+					3'b101: lsu_read_out_idu = `ysyx_25040129_MEM_READ_HALF_U; // LHU
 					default: begin end
 				endcase
 
 			end // I-type load
-			`I_TYPE_FENCE: begin
+			`ysyx_25040129_I_TYPE_FENCE: begin
 				imm = 32'b100;
 				fence_i = 1'b1;
 			end
-			`S_TYPE: begin
+			`ysyx_25040129_S_TYPE: begin
 				imm = {{20{inst[31]}},inst[31:25],inst[11:7]}; // S-type store
 				src2_out_idu= imm;
 				is_src1_from_reg = 1'b1;
 				is_src2_from_reg = 1'b1;
-				alu_opcode = `ADD; // STORE指令的ALU操作是加法
+				alu_opcode = `ysyx_25040129_ADD; // STORE指令的ALU操作是加法
 
 				case (funct3)
-					3'b000: lsu_write_out_idu = `MEM_WRITE_BYTE; // SB
-					3'b001: lsu_write_out_idu = `MEM_WRITE_HALF; // SH
-					3'b010: lsu_write_out_idu = `MEM_WRITE_WORD; // SW
+					3'b000: lsu_write_out_idu = `ysyx_25040129_MEM_WRITE_BYTE; // SB
+					3'b001: lsu_write_out_idu = `ysyx_25040129_MEM_WRITE_HALF; // SH
+					3'b010: lsu_write_out_idu = `ysyx_25040129_MEM_WRITE_WORD; // SW
 					default: begin end
 				endcase
 
 				
 			end
-			`J_TYPE: begin 
+			`ysyx_25040129_J_TYPE: begin 
 				imm = {{12{inst[31]}},inst[19:12],inst[20],inst[30:21],1'b0}; // J-type jump
 				src1_out_idu= pc; 
 				src2_out_idu= imm; 
-				alu_opcode = `ADD; // JAL指令的ALU操作是加法
+				alu_opcode = `ysyx_25040129_ADD; // JAL指令的ALU操作是加法
 				is_jump_out_idu = 1'b1;
 				is_jalr_out_idu = 1'b1;
 				reg_write_out_idu = 1'b1;
 			end
-			`I_TYPE_JALR: begin 
+			`ysyx_25040129_I_TYPE_JALR: begin 
 				imm = {{20{inst[31]}},inst[31:20]}; // JALR
 				src2_out_idu= imm;
 				is_src1_from_reg = 1'b1;
-				alu_opcode = `ADD; // JALR指令的ALU操作是加法
+				alu_opcode = `ysyx_25040129_ADD; // JALR指令的ALU操作是加法
 				is_jump_out_idu = 1'b1;
 				is_jalr_out_idu = 1'b1;
 				reg_write_out_idu = 1'b1;
 			end
-			`I_TYPE_SYSTEM: begin
+			`ysyx_25040129_I_TYPE_SYSTEM: begin
 				imm = {{20{inst[31]}},inst[31:20]}; // I-type system
 				
 				case (funct3)
 					3'b000: begin
 						case(inst[31:20])
-							`EBREAK:begin
+							`ysyx_25040129_EBREAK:begin
 								ebreak_out_idu = 1'b1;
 							end
-							`MRET:begin
+							`ysyx_25040129_MRET:begin
 								mret_out_idu = 1'b1;
 								src1_out_idu = csr_in_idu; 
 								src2_out_idu = 32'b0;
-								alu_opcode = `ADD;  
+								alu_opcode = `ysyx_25040129_ADD;  
 							end
-							`ECALL: begin
+							`ysyx_25040129_ECALL: begin
 								ecall_out_idu = 1'b1;
 								csr_write_out_idu = 1'b1;
 								src1_out_idu = csr_in_idu;
@@ -293,43 +294,43 @@
 						reg_write_out_idu = 1'b0;
 						is_src1_from_reg = 1'b1;
 						src2_out_idu= 32'b0; 
-						alu_opcode = `ADD; 
+						alu_opcode = `ysyx_25040129_ADD; 
 					end
 					3'b010:begin
 						is_csrr = 1'b1;
 						is_src1_from_reg = 1'b1;
 						reg_write_out_idu = 1'b1;
 						src2_out_idu= csr_in_idu;
-						alu_opcode = `OR; 
+						alu_opcode = `ysyx_25040129_OR; 
 					end
 					default: begin
-						`ifdef DPI
+						`ifdef ysyx_25040129_DPI
 						unknown_inst(inst); // Unknown instruction
 						`endif
 						alu_opcode = 4'b0000; // 默认值
 					end
 				endcase
 			end
-			`R_TYPE: begin 
+			`ysyx_25040129_R_TYPE: begin 
 				imm = 32'b0; // R-type
 				reg_write_out_idu = 1'b1;
 				is_src1_from_reg = 1'b1;
 				is_src2_from_reg = 1'b1;
 				alu_opcode = {(funct7_5), funct3}; // 根据funct7的第6位决定是加法还是减法
 			end
-			`U_TYPE_LUI: begin 
+			`ysyx_25040129_U_TYPE_LUI: begin 
 				imm = {inst[31:12], 12'b0}; // LUI
 				reg_write_out_idu = 1'b1;
 				src1_out_idu= 32'b0; // LUI指令不需要src1
 				src2_out_idu= imm; // src2_out为立即数
-				alu_opcode = `ADD; // LUI指令的ALU操作是加法
+				alu_opcode = `ysyx_25040129_ADD; // LUI指令的ALU操作是加法
 			end
-			`U_TYPE_AUIPC: begin 
+			`ysyx_25040129_U_TYPE_AUIPC: begin 
 				imm = {inst[31:12], 12'b0}; // AUIPC
 				reg_write_out_idu = 1'b1;
 				src1_out_idu= pc; // AUIPC指令的src1为pc
 				src2_out_idu= imm; // src2_out为立即数
-				alu_opcode = `ADD; // AUIPC指令的ALU操作是加法
+				alu_opcode = `ysyx_25040129_ADD; // AUIPC指令的ALU操作是加法
 			end
 			default: begin
 				imm = 32'b0;

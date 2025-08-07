@@ -57,7 +57,7 @@ always @(*) begin
 assign awready = (state == IDLE) || (state == WAIT_AW_VALID);
 assign wready = (state == WAIT_W_VALID) || (state == IDLE);
 assign bvalid = (state == WRITING);
-assign bresp = `OKAY;
+assign bresp = `ysyx_25040129_OKAY;
 always @(posedge clk) begin
 	if(state!=WRITING && next_state == WRITING) begin
 		uart_port <= wdata[15:0]; 

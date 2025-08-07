@@ -1,11 +1,14 @@
-import "DPI-C" function void soc_write(int addr,byte strb, int data);
-import "DPI-C" function int soc_read(int addr);
 module ysyxSoCFull (
-	input clock,
-	input reset
+	
 );
-//这是脱离了soc的功能验证模块
-//所有从top中传出的AXI-Lite信号都在这里被DPI-C瞬间处理
+	reg clock = 0;
+	reg reset = 1;
+always #1 clock = ~clock;
+initial begin
+	repeat(10) @(posedge clock);
+	reset = 0;
+	$display("ysyxSoCFull: reset done");
+end
 // verilator lint_off UNUSED
 /* verilator lint_off PINCONNECTEMPTY */
 ysyx_25040129 u_top (
@@ -125,7 +128,15 @@ always @(posedge clock) begin
 				read_addr_store <= araddr;
 				read_len_store <= arlen;
 				r_len_cnt <= 0;
-				rdata <= soc_read(araddr);
+
+				if(araddr >= `ysyx_25040129_FLASH_START && araddr < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
+					rdata <= flash_mem[(araddr - `ysyx_25040129_FLASH_START)>> 2];
+				end else if(araddr >= `ysyx_25040129_SDRAM_START && araddr < `ysyx_25040129_SDRAM_START + `ysyx_25040129_SDRAM_SIZE) begin
+					rdata <= sdram_mem[(araddr - `ysyx_25040129_SDRAM_START)>> 2];
+				end else begin
+					$error("ysyxSoCFull: read addr %h out of range", araddr);
+				end
+
 				if(arlen == 0)
 					rlast <= 1'b1; 
 			end
@@ -139,7 +150,15 @@ always @(posedge clock) begin
 					if(r_len_cnt + 1 == read_len_store)begin
 						rlast <= 1'b1; 
 					end
-					rdata <= soc_read(read_addr_store +  4);
+
+					if((read_addr_store + 4) >= `ysyx_25040129_FLASH_START && (read_addr_store + 4) < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
+						rdata <= flash_mem[(read_addr_store + 4 - `ysyx_25040129_FLASH_START)>> 2];
+					end else if((read_addr_store + 4) >= `ysyx_25040129_SDRAM_START && (read_addr_store + 4) < `ysyx_25040129_SDRAM_START + `ysyx_25040129_SDRAM_SIZE) begin
+						rdata <= sdram_mem[(read_addr_store + 4 - `ysyx_25040129_SDRAM_START)>> 2];
+					end else begin
+						$error("ysyxSoCFull: read addr %h out of range", read_addr_store + 4);
+					end
+
 					r_len_cnt <= r_len_cnt + 1;
 					read_addr_store <= read_addr_store + 4;
 				end
@@ -176,7 +195,20 @@ always @(posedge clock) begin
 			end
 		end
 		W_WRITING:begin
-			soc_write(write_addr_store, {4'b0,write_strb_store}, write_data_store);
+			wire [31:0] strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
+			if(write_addr_store >= `ysyx_25040129_FLASH_START && write_addr_store < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
+				flash_mem[(write_addr_store - `ysyx_25040129_FLASH_START)>> 2] <= (write_data_store & strb)|
+					(flash_mem[(write_addr_store - `ysyx_25040129_FLASH_START)>> 2] & ~strb);
+			end else if(write_addr_store >= `ysyx_25040129_SDRAM_START && write_addr_store < `ysyx_25040129_SDRAM_START + `ysyx_25040129_SDRAM_SIZE) begin
+				sdram_mem[(write_addr_store - `ysyx_25040129_SDRAM_START)>> 2] <= (write_data_store & strb)|
+					(sdram_mem[(write_addr_store - `ysyx_25040129_SDRAM_START)>> 2] & ~strb);
+			end else if(write_addr_store >= `ysyx_25040129_UART_REG_ADDR && write_addr_store < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE) begin
+				$write("%c", write_data_store[7:0]);
+				$fflush();
+			end else begin
+				$error("ysyxSoCFull: write addr %h out of range", write_addr_store);
+			end
+
 			w_state <= W_WAIT_B_READY;
 		end
 		W_WAIT_B_READY:begin
@@ -197,4 +229,10 @@ assign bresp = 2'b00; // OKAY
 
 // verilator lint_on UNUSED
 /* verilator lint_on PINCONNECTEMPTY */
+//模拟存储器
+reg [31:0] flash_mem [64*1024*1024-1:0];
+reg [31:0] sdram_mem [32*1024*1024-1:0];
+initial begin
+	$readmemh("program.hex", flash_mem);
+end
 endmodule

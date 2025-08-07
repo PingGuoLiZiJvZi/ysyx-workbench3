@@ -5,7 +5,7 @@ module ysyx_25040129_EXU (
 	input [31:0] imm,
 	input [3:0] alu_opcode, // 该信号将被一路传递至ALU阶段
 
-	`ifdef DEBUG
+	`ifdef ysyx_25040129_DEBUG
 	output [31:0] pc_out_exu,
 	input [31:0] inst_in_exu,
 	output [31:0] inst_out_exu,
@@ -20,16 +20,16 @@ module ysyx_25040129_EXU (
 	input is_jalr_in_exu,
 
 	input ebreak_in_exu,
-	input [`REGS_DIG-1:0]rd_in_exu,
+	input [`ysyx_25040129_REGS_DIG-1:0]rd_in_exu,
 	input csr_write_in_exu,
-	input [`CSR_DIG-1:0] csr_write_addr_in_exu, 
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr_in_exu, 
 	input ecall_in_exu,
 	input mret_in_exu,
 	input reg_write_in_exu,
 
-	output [`REGS_DIG-1:0] rd_out_exu,
+	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu,
 	output csr_write_out_exu,
-	output [`CSR_DIG-1:0] csr_write_addr_out_exu, 
+	output [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr_out_exu, 
 	output ecall_out_exu,
 	output mret_out_exu,
 	output reg_write_out_exu,
@@ -52,12 +52,12 @@ module ysyx_25040129_EXU (
 
 //--------------调试信号----------------
 // always @(posedge clk) begin
-// 	`ifdef DEBUG
+// 	`ifdef ysyx_25040129_DEBUG
 // 	execute_count_inc({5'b0,state});
 // 	`endif
 // end
 //-------------综合时删除----------------
-`ifdef DEBUG
+`ifdef ysyx_25040129_DEBUG
 assign pc_out_exu = pc;
 assign inst_out_exu = inst_in_exu;
 `endif
@@ -79,30 +79,30 @@ assign csr_write_out_exu = csr_write_in_exu; // 直接传递CSR
 assign ecall_out_exu = ecall_in_exu; // 直接传递CSR写使能信号
 assign mret_out_exu = mret_in_exu; // 直接传递寄
 assign reg_write_out_exu = reg_write_in_exu; // 直接传递寄存器写使能信号
-assign is_data_forward_valid_from_exu =  (lsu_read_in_exu == `NO_MEM_READ);
+assign is_data_forward_valid_from_exu =  (lsu_read_in_exu == `ysyx_25040129_NO_MEM_READ);
 always @(*) begin
 	result_out_exu = 32'b0;
 	is_branch = 1'b0; 
-	`ifdef DPI
+	`ifdef ysyx_25040129_DPI
 	if (ebreak_in_exu)ebreak_trigger();
 	`endif
 	case (alu_opcode)
-		`ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc : pc+`WORD_T):src1 + src2;
-		`SUB: result_out_exu = src1 - src2;
-		`SLL: result_out_exu = src1 << src2[4:0];
-		`SLT: result_out_exu = ($signed(src1) < $signed(src2)) ? 32'b1 : 32'b0;
-		`SLTU: result_out_exu = (src1 < src2) ? 32'b1 : 32'b0;
-		`XOR: result_out_exu = src1 ^ src2;
-		`SRL: result_out_exu = src1 >> src2[4:0];
-		`SRA: result_out_exu = $signed(src1) >>> src2[4:0];
-		`OR: result_out_exu = src1 | src2;
-		`AND: result_out_exu = src1 & src2;
-		`EQ: is_branch = (src1 == src2);
-		`NEQ: is_branch = (src1 != src2);
-		`LT: is_branch = ($signed(src1) < $signed(src2));
-		`GE: is_branch = ($signed(src1) >= $signed(src2));
-		`LTU: is_branch = (src1 < src2);
-		`GEU: is_branch = (src1 >= src2);
+		`ysyx_25040129_ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc : pc+`ysyx_25040129_WORD_T):src1 + src2;
+		`ysyx_25040129_SUB: result_out_exu = src1 - src2;
+		`ysyx_25040129_SLL: result_out_exu = src1 << src2[4:0];
+		`ysyx_25040129_SLT: result_out_exu = ($signed(src1) < $signed(src2)) ? 32'b1 : 32'b0;
+		`ysyx_25040129_SLTU: result_out_exu = (src1 < src2) ? 32'b1 : 32'b0;
+		`ysyx_25040129_XOR: result_out_exu = src1 ^ src2;
+		`ysyx_25040129_SRL: result_out_exu = src1 >> src2[4:0];
+		`ysyx_25040129_SRA: result_out_exu = $signed(src1) >>> src2[4:0];
+		`ysyx_25040129_OR: result_out_exu = src1 | src2;
+		`ysyx_25040129_AND: result_out_exu = src1 & src2;
+		`ysyx_25040129_EQ: is_branch = (src1 == src2);
+		`ysyx_25040129_NEQ: is_branch = (src1 != src2);
+		`ysyx_25040129_LT: is_branch = ($signed(src1) < $signed(src2));
+		`ysyx_25040129_GE: is_branch = ($signed(src1) >= $signed(src2));
+		`ysyx_25040129_LTU: is_branch = (src1 < src2);
+		`ysyx_25040129_GEU: is_branch = (src1 >= src2);
 	endcase
 	// $display("EXU: branch_target_out_exu = %h, result_out_exu = %h, src 1 = %h, src2 = %h, imm = %h, alu_opcode = %b", 
 	// 	branch_target_out_exu, result_out_exu, src1, src2, imm, alu_opcode);

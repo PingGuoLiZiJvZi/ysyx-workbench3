@@ -146,8 +146,14 @@ always @(*) begin
 			rresp = 2'b00;
 			rvalid = 1'b0;
 
+			rtc_araddr = 32'b0;
+			rtc_arvalid = 1'b0;
+			rtc_rready = 1'b0;
+
+
 			soc_araddr = 32'b0;
 			soc_arvalid = 1'b0;
+			soc_arsize = 3'b000;
 
 			soc_rready = 1'b0;
 		end
@@ -158,7 +164,7 @@ always @(*) begin
 	case (state)
 		IDLE: begin
 			if(arvalid)begin
-			if(araddr >= `RTC_PORT_ADDR && araddr < `RTC_PORT_ADDR + `RTC_PORT_SIZE)
+			if(araddr >= `ysyx_25040129_RTC_PORT_ADDR && araddr < `ysyx_25040129_RTC_PORT_ADDR + `ysyx_25040129_RTC_PORT_SIZE)
 				next_state = HANDLE_RTC;
 				else next_state = HANDLE_SOC;
 			end
@@ -166,18 +172,18 @@ always @(*) begin
 		end
 		HANDLE_SOC: if(rready && soc_rvalid && soc_rlast) begin 
 						next_state = IDLE;
-					`ifdef DPI
-					if(rresp != `OKAY && rready && soc_rvalid) 
+					`ifdef ysyx_25040129_DPI
+					if(rresp != `ysyx_25040129_OKAY && rready && soc_rvalid) 
 						$error("XBAR: Invalid response %b %b", rresp, bresp);
-					if(bresp != `OKAY && bready && soc_bvalid)
+					if(bresp != `ysyx_25040129_OKAY && bready && soc_bvalid)
 						$error("XBAR: Invalid response %b %b", rresp, bresp);
 					`endif
 		end
 					 else next_state = HANDLE_SOC;
 		HANDLE_RTC: if(rready && rtc_rvalid)begin
 			 next_state = IDLE;
-			 `ifdef DPI
-			 if(rtc_rresp != `OKAY && rready && rtc_rvalid) 
+			 `ifdef ysyx_25040129_DPI
+			 if(rtc_rresp != `ysyx_25040129_OKAY && rready && rtc_rvalid) 
 					$error("XBAR: Invalid RTC response %b", rtc_rresp);
 			`endif
 		end
