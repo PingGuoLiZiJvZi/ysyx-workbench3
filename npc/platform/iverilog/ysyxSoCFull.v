@@ -128,6 +128,7 @@ reg [7:0] r_len_cnt;
 wire [31:0] strb;
 assign strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 always @(posedge clock) begin
+	$display("flash_mem[0] = %h", flash_mem[0]);
 	case(r_state)
 		R_IDLE:begin
 			if(arvalid)begin
