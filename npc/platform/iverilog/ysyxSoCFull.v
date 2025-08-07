@@ -8,11 +8,11 @@ module ysyxSoCFull (
 
 always #1 clock = ~clock;
 initial begin
+	$readmemh("build/program.hex", flash_mem);
+	$display("ysyxSoCFull: flash memory loaded");
 	repeat(10) @(posedge clock);
 	reset = 0;
 	$display("ysyxSoCFull: reset done");
-	$readmemh("build/program.hex", flash_mem);
-	$display("ysyxSoCFull: flash memory loaded");
 end
 // verilator lint_off UNUSED
 /* verilator lint_off PINCONNECTEMPTY */
