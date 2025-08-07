@@ -3,8 +3,9 @@ module ysyx_25040129_WBU (
 	input is_req_valid_from_lsu,
 	output is_req_ready_to_lsu,
 	input [`ysyx_25040129_REGS_DIG-1:0] rd_in_wbu, 
-	`ifdef ysyx_25040129_WAVE
+	
 	/* verilator lint_off UNUSEDSIGNAL */
+	`ifdef ysyx_25040129_WAVE
 	input [31:0] pc_in_wbu,
 	input [31:0] inst_in_wbu,
 	`endif 
