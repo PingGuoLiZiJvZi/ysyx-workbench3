@@ -8,7 +8,7 @@ module ysyxSoCFull (
 	reg clock = 0;
 	reg reset = 1;
 	reg [31:0] flash_mem [1*1024*1024-1:0];
-	reg [31:0] sdram_mem [1*1024*1024-1:0];
+	reg [31:0] sdram_mem [8*1024*1024-1:0];
 
 always #1 clock = ~clock;
 initial begin
@@ -135,6 +135,7 @@ wire [31:0] strb;
 
 assign strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 always @(posedge clock) begin
+	// $%display("monitor value: %h", sdram_mem[(32'ha04002e8 - `ysyx_25040129_SDRAM_ADDR)>> 2]);
 	case(r_state)
 		R_IDLE:begin
 			if(arvalid)begin
