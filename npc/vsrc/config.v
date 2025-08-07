@@ -4,7 +4,7 @@
 	// `define ysyx_25040129_GENERATE_PC_QUEUE 1
 	// `define ysyx_25040129_GENERATE_LOAD_STORE_QUEUE 1
 `endif
-`define ysyx_25040129_WAVE
+
 `define ysyx_25040129_MVENDORID 1
 `define ysyx_25040129_MARCHID 2
 `define ysyx_25040129_MSTATUS 3
