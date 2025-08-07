@@ -184,7 +184,7 @@ always @(posedge clock) begin
 					end else if((read_addr_store + 4) >= `ysyx_25040129_SDRAM_ADDR && (read_addr_store + 4) < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE) begin
 						rdata <= sdram_mem[(read_addr_store + 4 - `ysyx_25040129_SDRAM_ADDR)>> 2];
 						`ifdef ysyx_25040129_SDRAM_READ_DISPLAY
-						$display("ysyxSoCFull: read sdram addr %h, data %h", read_addr_store + 4, flash_mem[(read_addr_store + 4 - `ysyx_25040129_FLASH_START)>> 2]);
+						$display("ysyxSoCFull: read sdram addr %h, data %h", read_addr_store + 4, sdram_mem[(read_addr_store + 4 - `ysyx_25040129_FLASH_START)>> 2]);
 						`endif
 					end else begin
 						$error("ysyxSoCFull: read addr %h out of range", read_addr_store + 4);
@@ -235,7 +235,6 @@ always @(posedge clock) begin
 				`endif
 			end else if(write_addr_store >= `ysyx_25040129_UART_REG_ADDR && write_addr_store < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE) begin
 				$write("%c", write_data_store[7:0]);
-				$display("ysyxSoCFull: write uart addr %h, data %h", write_addr_store, write_data_store);
 				$fflush();
 			end else begin
 				$error("ysyxSoCFull: write addr %h out of range", write_addr_store);
