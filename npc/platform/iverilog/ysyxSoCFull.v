@@ -235,6 +235,7 @@ always @(posedge clock) begin
 				`endif
 			end else if(write_addr_store >= `ysyx_25040129_UART_REG_ADDR && write_addr_store < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE) begin
 				$write("%c", write_data_store[7:0]);
+				$display("ysyxSoCFull: write uart addr %h, data %h", write_addr_store, write_data_store);
 				$fflush();
 			end else begin
 				$error("ysyxSoCFull: write addr %h out of range", write_addr_store);
