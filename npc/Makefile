@@ -69,6 +69,7 @@ npc_run: npc_build
 npc_autorun: npc_build
 	printf "c\nq\n" |${BIN}
 
+
 #perf需要做两件事：1. 在sta目录下调用make sta，生成综合报告；2. 在microbench目录下调用make run ARCH=riscv32e-ysyxsoc,生成性能报告
 perf: 
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
@@ -76,6 +77,12 @@ perf:
 
 sta:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
+
+netlist_sim:
+	$(call git_commit, "sim netlist")
+	iverilog $(THIS_DIR)/platform/iverilog.v $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
+	$(BUILD_DIR)\iverilog
 
 sim-iverilog:
 	$(call git_commit, "sim RTL") 

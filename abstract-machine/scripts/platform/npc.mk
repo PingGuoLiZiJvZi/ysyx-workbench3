@@ -32,6 +32,9 @@ iverilog: insert-arg
 	@echo iverilog target for $(ARCH)
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) sim-iverilog ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
+net: insert-arg
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) netlist_sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 

@@ -35,6 +35,10 @@ iverilog: all
 	@cat $(RESULT)
 	@rm $(RESULT)
 
+net: all
+	@cat $(RESULT)
+	@rm $(RESULT)
+
 gdb: all
 
 clean:
