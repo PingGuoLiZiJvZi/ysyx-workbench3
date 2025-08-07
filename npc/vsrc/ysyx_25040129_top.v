@@ -1,4 +1,4 @@
-`ifdef DPI
+
 import "DPI-C" function void ebreak_trigger();
 import "DPI-C" function void unknown_inst(int inst);
 import "DPI-C" function int paddr_read(int addr, int len,int is_fetch, int is_avail);
@@ -15,7 +15,7 @@ import "DPI-C" function void track_inst_in_idu(byte idu_state,byte opcode);
 import "DPI-C" function void icache_count_inc(byte icache_state,bit ifu_arvalid,bit is_hit);
 import "DPI-C" function void record_pc(int pc);
 import "DPI-C" function void record_load_store(int addr, int is_load);
-`endif 
+
 
 `ifndef ysyx_25040129_CSR_DIG
 `define ysyx_25040129_CSR_DIG 3
