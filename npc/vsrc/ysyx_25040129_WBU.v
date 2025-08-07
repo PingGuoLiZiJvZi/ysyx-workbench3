@@ -10,8 +10,9 @@ module ysyx_25040129_WBU (
 	`endif 
 	`ifdef ysyx_25040129_DEBUG
 	input is_device_in_wbu,
-	/* verilator lint_on UNUSEDSIGNAL */
 	`endif 
+	/* verilator lint_on UNUSEDSIGNAL */
+	
 	input [31:0] result_in_wbu,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_in_wbu,
 	input csr_write_in_wbu,
