@@ -11,8 +11,11 @@ module ysyx_25040129_LSU (
 	output [31:0] pc_out_lsu,
 	input [31:0] inst_in_lsu,
 	output [31:0] inst_out_lsu,
+	`endif
+	`ifdef ysyx_25040129_DEBUG
 	output reg is_device,
 	`endif
+	
 
 	input [2:0] mmem_read_in_lsu, 
 	input [1:0] mmem_write_in_lsu, 
