@@ -226,12 +226,13 @@ always @(posedge clock) begin
 			end
 		end
 		W_WRITING:begin
-			if(write_addr_store >= `ysyx_25040129_FLASH_START && write_addr_store < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
-				flash_mem[(write_addr_store - `ysyx_25040129_FLASH_START)>> 2] <= (write_data_store & strb)|
-					(flash_mem[(write_addr_store - `ysyx_25040129_FLASH_START)>> 2] & ~strb);
-			end else if(write_addr_store >= `ysyx_25040129_SDRAM_ADDR && write_addr_store < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE) begin
+			if(write_addr_store >= `ysyx_25040129_SDRAM_ADDR && write_addr_store < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE) begin
 				sdram_mem[(write_addr_store - `ysyx_25040129_SDRAM_ADDR)>> 2] <= (write_data_store & strb)|
 					(sdram_mem[(write_addr_store - `ysyx_25040129_SDRAM_ADDR)>> 2] & ~strb);
+				`ifdef ysyx_25040129_SDRAM_WRITE_DISPLAY
+				$display("ysyxSoCFull: write sdram addr %h, data %h, write index %h", write_addr_store, sdram_mem[(write_addr_store -
+					`ysyx_25040129_SDRAM_ADDR)>> 2], (write_addr_store - `ysyx_25040129_SDRAM_ADDR)>> 2);
+				`endif
 			end else if(write_addr_store >= `ysyx_25040129_UART_REG_ADDR && write_addr_store < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE) begin
 				$write("%c", write_data_store[7:0]);
 				$fflush();
