@@ -3,11 +3,16 @@ module ysyxSoCFull (
 );
 	reg clock = 0;
 	reg reset = 1;
+	reg [31:0] flash_mem [64*1024*1024-1:0];
+	reg [31:0] sdram_mem [32*1024*1024-1:0];
+
 always #1 clock = ~clock;
 initial begin
 	repeat(10) @(posedge clock);
 	reset = 0;
 	$display("ysyxSoCFull: reset done");
+	$readmemh("build/program.hex", flash_mem);
+	$display("ysyxSoCFull: flash memory loaded");
 end
 // verilator lint_off UNUSED
 /* verilator lint_off PINCONNECTEMPTY */
@@ -231,9 +236,5 @@ assign bresp = 2'b00; // OKAY
 // verilator lint_on UNUSED
 /* verilator lint_on PINCONNECTEMPTY */
 //模拟存储器
-reg [31:0] flash_mem [64*1024*1024-1:0];
-reg [31:0] sdram_mem [32*1024*1024-1:0];
-initial begin
-	$readmemh("build/program.hex", flash_mem);
-end
+
 endmodule
