@@ -79,7 +79,7 @@ sta:
 
 sim-iverilog:
 	$(call git_commit, "sim RTL") 
-	iverilog $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog -g2012 
+	iverilog $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
