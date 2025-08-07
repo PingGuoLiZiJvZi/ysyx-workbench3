@@ -12,8 +12,8 @@ module ysyxSoCFull (
 
 always #1 clock = ~clock;
 initial begin
-	$dumpfile("top.vcd");
-    $dumpvars(0,ysyxSoCFull);
+	// $dumpfile("top.vcd");
+    // $dumpvars(0,ysyxSoCFull);
 	$readmemh("build/program.hex", flash_mem);
 	$display("ysyxSoCFull: flash memory loaded");
 	repeat(10) @(posedge clock);
