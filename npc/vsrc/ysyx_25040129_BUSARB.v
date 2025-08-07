@@ -27,8 +27,8 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 	input lsu_rready,
 	//----------------请求转发---------------
 	//----------------读地址---------------
-	output [31:0] araddr,
-	output arvalid,
+	output reg[31:0] araddr,
+	output reg arvalid,
 	output reg [2:0] arsize,
 	input arready,
 	output reg[7:0] arlen, 
@@ -37,7 +37,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 	input [31:0] rdata,
 	input [1:0] rresp,
 	input rvalid,
-	output rready,
+	output reg rready,
 	input rlast
 );
 	// 当前策略是优先处理ifu的请求
