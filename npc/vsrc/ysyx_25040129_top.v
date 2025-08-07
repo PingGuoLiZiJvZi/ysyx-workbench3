@@ -862,6 +862,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`ifdef ysyx_25040129_WAVE
 		.pc_in_wbu(debug_pc_from_lsu_to_wbu_pip),
 		.inst_in_wbu(debug_inst_from_lsu_to_wbu_pip),
+		`endif 
+		`ifdef ysyx_25040129_DEBUG
 		.is_device_in_wbu(debug_is_device_lsu_to_wbu_pip),
 		`endif
 		.is_req_valid_from_lsu(is_req_valid_from_pipeline_lsu_to_wbu),
