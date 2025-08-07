@@ -29,6 +29,9 @@ run: insert-arg
 autorun: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) npc_autorun ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
+iverilog: insert-arg
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) sim-iverilog ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+
 gdb: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 

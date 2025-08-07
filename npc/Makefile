@@ -43,7 +43,7 @@ include ../Makefile
 
 
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
@@ -51,7 +51,7 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 #run规则为调用sim
 
 npc_build:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
 	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
 	--CFLAGS "-DIS_NPC=1" \
@@ -78,6 +78,9 @@ sta:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
 
 sim-iverilog:
+	$(call git_commit, "sim RTL") 
+	iverilog $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	$(BUILD_DIR)\iverilog
 
 
 clean:
