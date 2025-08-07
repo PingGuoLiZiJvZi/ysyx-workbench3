@@ -24,6 +24,7 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
+	@echo + RUN "->" $(IMAGE_REL).bin
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) npc_run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 autorun: insert-arg
