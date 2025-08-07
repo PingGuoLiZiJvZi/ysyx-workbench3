@@ -91,7 +91,7 @@ reg [31:0] rdata;
 wire [1:0] rresp;
 wire rvalid;
 wire rready;
-reg rlast;
+reg rlast = 1'b0;
 //-------------------写地址-----------------------
 wire [31:0] awaddr;
 wire awvalid;
@@ -128,6 +128,7 @@ reg [2:0] r_state;
 reg [2:0] w_state;
 reg [7:0] r_len_cnt;
 wire [31:0] strb;
+
 assign strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 always @(posedge clock) begin
 	case(r_state)
@@ -149,6 +150,8 @@ always @(posedge clock) begin
 
 				if(arlen == 0)
 					rlast <= 1'b1; 
+				else
+					rlast <= 1'b0;
 			end
 		end
 		R_READING:begin

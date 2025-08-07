@@ -53,7 +53,7 @@ module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 				else if(lsu_arvalid) next_state = HANDLE_LSU;
 				else next_state = IDLE;
 			end 
-			HANDLE_IFU: next_state = (icache_rready && rvalid&&rlast) ? IDLE : HANDLE_IFU;
+			HANDLE_IFU: next_state = (icache_rready && rvalid && rlast) ? IDLE : HANDLE_IFU;
 			HANDLE_LSU: next_state = (lsu_rready && rvalid) ? IDLE : HANDLE_LSU;
 			default: next_state = IDLE;
 		endcase
