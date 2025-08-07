@@ -234,6 +234,6 @@ assign bresp = 2'b00; // OKAY
 reg [31:0] flash_mem [64*1024*1024-1:0];
 reg [31:0] sdram_mem [32*1024*1024-1:0];
 initial begin
-	$readmemh("./program.hex", flash_mem);
+	$readmemh("build/program.hex", flash_mem);
 end
 endmodule
