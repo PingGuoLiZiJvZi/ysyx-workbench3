@@ -786,7 +786,10 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 	ysyx_25040129_PIPELINE #(41
 	`ifdef ysyx_25040129_WAVE
-		+ 65
+		+ 64
+	`endif
+	`ifdef ysyx_25040129_DEBUG
+		+ 1 
 	`endif
 	) u_ysyx_25040129_PIPELINE_LSU_TO_WBU(
 		.clk(clk),
