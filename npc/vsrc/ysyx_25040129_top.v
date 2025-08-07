@@ -375,7 +375,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.lsu_write_data_out_idu(lsu_write_data_out_idu),
 		.csr_in_idu(csr_in_idu),
 
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 		.inst_out_idu(debug_inst_out_idu),
 		`endif
 	
@@ -452,13 +452,13 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] pc_out_idu;
 	wire csr_write_out_idu;
 	wire fence_i_out_idu;
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 	wire [31:0] debug_inst_out_idu;
 	wire [31:0] debug_inst_out_idu_pip;
 	`endif
 
 	ysyx_25040129_PIPELINE #(184
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 		+ 32 // debug_inst_out_idu
 	`endif
 	) u_ysyx_25040129_PIPELINE_IDU_TO_EXU(
@@ -474,7 +474,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 			is_jalr_out_idu, is_jump_out_idu, reg_write_out_idu,
 			csr_write_out_idu, lsu_write_out_idu, lsu_read_out_idu,
 			ecall_out_idu, ebreak_out_idu, mret_out_idu,fence_i_out_idu,csr_write_id_out_idu
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 			, debug_inst_out_idu
 		`endif
 		}),
@@ -486,7 +486,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 			is_jalr_out_idu_pip, is_jump_out_idu_pip, reg_write_out_idu_pip,
 			csr_write_out_idu_pip, lsu_write_out_idu_pip, lsu_read_out_idu_pip,
 			ecall_out_idu_pip, ebreak_out_idu_pip, mret_out_idu_pip,fence_i_out_idu_pip,csr_write_id_out_idu_pip
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 			, debug_inst_out_idu_pip
 		`endif
 		})
@@ -543,7 +543,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.alu_opcode(alu_opcode_pip),
 		.result_out_exu(result_out_exu),
 
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 		.pc_out_exu(debug_pc_from_exu_to_lsu),
 		.inst_in_exu(debug_inst_out_idu_pip),
 		.inst_out_exu(debug_inst_from_exu_to_lsu),
@@ -608,7 +608,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_valid_from_pipeline_exu_to_lsu;
 	wire is_req_ready_from_pipeline_lsu_to_exu;
 	ysyx_25040129_PIPELINE #(114
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 		+ 64
 	`endif
 	) u_ysyx_25040129_PIPELINE_EXU_TO_LSU(
@@ -623,7 +623,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 			result_out_exu, lsu_write_data_out_exu, rd_out_exu,ecall_out_exu,
 			mret_out_exu, is_branch_out_exu, csr_write_out_exu,
 			reg_write_out_exu, fence_i_out_exu,csr_addr_out_exu
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 			, debug_pc_from_exu_to_lsu
 			, debug_inst_from_exu_to_lsu
 		`endif
@@ -634,7 +634,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 			result_out_exu_pip, lsu_write_data_out_exu_pip, rd_out_exu_pip, ecall_out_exu_pip,
 			mret_out_exu_pip, is_branch_out_exu_pip, csr_write_out_exu_pip,
 			reg_write_out_exu_pip, fence_i_out_exu_pip,csr_addr_out_exu_pip
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 			, debug_pc_from_exu_to_lsu_pip
 			, debug_inst_from_exu_to_lsu_pip
 		`endif
@@ -658,7 +658,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.clk(clk),
 		.rst(rst),
 
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 		.pc_in_lsu(debug_pc_from_exu_to_lsu_pip),
 		.pc_out_lsu(debug_pc_from_lsu_to_wbu),
 		.inst_in_lsu(debug_inst_from_exu_to_lsu_pip),
@@ -732,7 +732,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_data_forward_valid_from_lsu;
 	wire [31:0] data_forward_from_lsu;
 	assign data_forward_from_lsu = result_out_lsu;
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 	wire [31:0] debug_pc_from_exu_to_lsu_pip;
 	wire [31:0] debug_pc_from_exu_to_lsu;
 	wire [31:0] debug_inst_from_exu_to_lsu_pip;
@@ -780,7 +780,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
 
 	ysyx_25040129_PIPELINE #(41
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 		+ 65
 	`endif
 	) u_ysyx_25040129_PIPELINE_LSU_TO_WBU(
@@ -793,7 +793,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 		.in_data({result_out_lsu,rd_out_lsu,
 		reg_write_out_lsu,csr_write_out_lsu,
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 		debug_pc_from_lsu_to_wbu,
 		debug_inst_from_lsu_to_wbu,
 		debug_is_device_lsu_to_wbu,
@@ -804,7 +804,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_ready(is_req_ready_from_wbu_to_lsu),
 		.out_data({result_out_lsu_pip,rd_out_lsu_pip,
 		reg_write_out_lsu_pip,csr_write_out_lsu_pip,
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 		debug_pc_from_lsu_to_wbu_pip,
 		debug_inst_from_lsu_to_wbu_pip,
 		debug_is_device_lsu_to_wbu_pip,
@@ -812,7 +812,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		csr_addr_out_lsu_pip})
 	);
 	//-----------------流水线冲刷/重置pc-----------------
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 	wire [31:0] debug_pc_from_lsu_to_wbu;
 	wire [31:0] debug_pc_from_lsu_to_wbu_pip;
 	wire [31:0] debug_inst_from_lsu_to_wbu;
@@ -847,7 +847,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_lsu_pip;
 
 	ysyx_25040129_WBU u_ysyx_25040129_WBU (
-		`ifdef ysyx_25040129_DEBUG
+		`ifdef ysyx_25040129_WAVE
 		.pc_in_wbu(debug_pc_from_lsu_to_wbu_pip),
 		.inst_in_wbu(debug_inst_from_lsu_to_wbu_pip),
 		.is_device_in_wbu(debug_is_device_lsu_to_wbu_pip),

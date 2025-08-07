@@ -6,7 +6,7 @@ module ysyx_25040129_LSU (
 	input [31:0] branch_target_in_lsu,
 	output [31:0] branch_target_out_lsu,
 
-	`ifdef ysyx_25040129_DEBUG
+	`ifdef ysyx_25040129_WAVE
 	input [31:0] pc_in_lsu,
 	output [31:0] pc_out_lsu,
 	input [31:0] inst_in_lsu,
@@ -73,7 +73,7 @@ module ysyx_25040129_LSU (
 	output is_data_forward_valid_from_lsu
 );
 //---------------信号转发---------------
-`ifdef ysyx_25040129_DEBUG
+`ifdef ysyx_25040129_WAVE
 assign pc_out_lsu = pc_in_lsu;
 assign inst_out_lsu = inst_in_lsu;
 `endif
