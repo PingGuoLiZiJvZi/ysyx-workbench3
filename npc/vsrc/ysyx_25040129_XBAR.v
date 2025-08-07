@@ -18,15 +18,15 @@ module ysyx_25040129_XBAR (
 	//---------------写地址---------------
 	input [31:0] awaddr,
 	input awvalid,
-	output reg awready,
+	output awready,
 	//---------------写数据---------------
 	input [3:0] wstrb,
 	input [31:0] wdata,
 	input wvalid,
-	output reg wready,
+	output wready,
 	//---------------写响应---------------
-	output reg [1:0]bresp,
-	output reg bvalid,
+	output [1:0]bresp,
+	output bvalid,
 	input bready,
 	///--------------XBAR转发---------------
 	//---------------外部设备转发------------
@@ -44,18 +44,18 @@ module ysyx_25040129_XBAR (
 	output reg soc_rready,
 	input soc_rlast,
 	//---------------写地址---------------
-	output reg [31:0] soc_awaddr,
-	output reg soc_awvalid,
+	output [31:0] soc_awaddr,
+	output soc_awvalid,
 	input soc_awready,
 	//---------------写数据---------------
-	output reg [3:0] soc_wstrb,
-	output reg [31:0] soc_wdata,
-	output reg soc_wvalid,
+	output [3:0] soc_wstrb,
+	output [31:0] soc_wdata,
+	output soc_wvalid,
 	input soc_wready,
 	//---------------写响应---------------
 	input [1:0]soc_bresp,
 	input soc_bvalid,
-	output reg soc_bready,
+	output soc_bready,
 	//---------------RTC---------------
 	//RTC不支持写入，应该在XBAR中拦截并报错
 	//---------------读地址---------------
