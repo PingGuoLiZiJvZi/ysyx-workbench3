@@ -87,8 +87,8 @@ always @(*) begin
 	if (ebreak_in_exu)ebreak_trigger();
 	`endif
 	`ifdef ysyx_25040129_IVERILOG
-	if (ebreak_in_exu) $display("EBREAK triggered at PC: %h", pc);
-	$finish(0);
+	// if (ebreak_in_exu) $display("EBREAK triggered at PC: %h", pc);
+	// $finish(0);
 	`endif
 	case (alu_opcode)
 		`ysyx_25040129_ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc : pc+`ysyx_25040129_WORD_T):src1 + src2;
