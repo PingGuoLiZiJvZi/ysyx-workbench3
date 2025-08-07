@@ -24,13 +24,14 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
-	@echo + RUN "->" $(IMAGE_REL).bin
+	@echo run target for $(ARCH)
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) npc_run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 autorun: insert-arg
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) npc_autorun ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 iverilog: insert-arg
+	@echo iverilog target for $(ARCH)
 	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) sim-iverilog ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
