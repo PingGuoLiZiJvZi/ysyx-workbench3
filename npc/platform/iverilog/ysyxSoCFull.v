@@ -3,8 +3,8 @@ module ysyxSoCFull (
 );
 	reg clock = 0;
 	reg reset = 1;
-	reg [31:0] flash_mem [64*1024*1024-1:0];
-	reg [31:0] sdram_mem [32*1024*1024-1:0];
+	reg [31:0] flash_mem [1*1024*1024-1:0];
+	reg [31:0] sdram_mem [1*1024*1024-1:0];
 
 always #1 clock = ~clock;
 initial begin
