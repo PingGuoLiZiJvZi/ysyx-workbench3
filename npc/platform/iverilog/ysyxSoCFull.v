@@ -120,6 +120,8 @@ reg [3:0] write_strb_store;
 reg [2:0] r_state;
 reg [2:0] w_state;
 reg [7:0] r_len_cnt;
+wire [31:0] strb;
+assign strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 always @(posedge clock) begin
 	case(r_state)
 		R_IDLE:begin
@@ -195,7 +197,6 @@ always @(posedge clock) begin
 			end
 		end
 		W_WRITING:begin
-			wire [31:0] strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 			if(write_addr_store >= `ysyx_25040129_FLASH_START && write_addr_store < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
 				flash_mem[(write_addr_store - `ysyx_25040129_FLASH_START)>> 2] <= (write_data_store & strb)|
 					(flash_mem[(write_addr_store - `ysyx_25040129_FLASH_START)>> 2] & ~strb);

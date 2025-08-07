@@ -1,4 +1,4 @@
-`ifdef  DPI
+`ifdef DPI
 import "DPI-C" function void ebreak_trigger();
 import "DPI-C" function void unknown_inst(int inst);
 import "DPI-C" function int paddr_read(int addr, int len,int is_fetch, int is_avail);
