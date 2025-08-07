@@ -4,3 +4,14 @@
 + OBJCOPY -> build/dummy-riscv32e-npc.bin
 mainargs=
 iverilog target for riscv32e-npc
+Converting binary file /home/pglzjz/ysyx-workbench/am-kernels/tests/cpu-tests/build/dummy-riscv32e-npc.bin to hex format...
+WARNING: /home/pglzjz/ysyx-workbench/npc/platform/iverilog/ysyxSoCFull.v:11: $readmemh: Standard inconsistency, following 1364-2005.
+WARNING: /home/pglzjz/ysyx-workbench/npc/platform/iverilog/ysyxSoCFull.v:11: $readmemh(build/program.hex): Not enough words in the file for the requested range [0:1048575].
+ysyxSoCFull: flash memory loaded
+ysyxSoCFull: reset done
+ysyxSoCFull: read flash addr 30000000, data 70400117
+ysyxSoCFull: read flash addr 30000004, data 70400117
+** VVP Stop(0) **
+** Flushing output streams.
+** Current simulation time is 564075 ticks.
+[?2004h> ^Z[?2004l
