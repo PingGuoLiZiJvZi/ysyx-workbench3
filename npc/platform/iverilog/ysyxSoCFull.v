@@ -128,7 +128,6 @@ reg [7:0] r_len_cnt;
 wire [31:0] strb;
 assign strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 always @(posedge clock) begin
-	$display("flash_mem[0] = %h", flash_mem[0]);
 	case(r_state)
 		R_IDLE:begin
 			if(arvalid)begin
@@ -139,8 +138,7 @@ always @(posedge clock) begin
 
 				if(araddr >= `ysyx_25040129_FLASH_START && araddr < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
 					rdata <= flash_mem[(araddr - `ysyx_25040129_FLASH_START)>> 2];
-					$display("ysyxSoCFull: read flash addr %h, data %h", araddr, rdata);
-					$display("(araddr - `ysyx_25040129_FLASH_START)>> 2 = %h", (araddr - `ysyx_25040129_FLASH_START)>> 2);
+					$display("ysyxSoCFull: read flash addr %h, data %h", araddr, flash_mem[(araddr - `ysyx_25040129_FLASH_START)>> 2]);
 				end else if(araddr >= `ysyx_25040129_SDRAM_ADDR && araddr < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE) begin
 					rdata <= sdram_mem[(araddr - `ysyx_25040129_SDRAM_ADDR)>> 2];
 				end else begin
@@ -163,10 +161,10 @@ always @(posedge clock) begin
 
 					if((read_addr_store + 4) >= `ysyx_25040129_FLASH_START && (read_addr_store + 4) < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
 						rdata <= flash_mem[(read_addr_store + 4 - `ysyx_25040129_FLASH_START)>> 2];
-						$display("ysyxSoCFull: read flash addr %h, data %h", read_addr_store + 4, rdata);
+						$display("ysyxSoCFull: read flash addr %h, data %h", read_addr_store + 4, flash_mem[(araddr - `ysyx_25040129_FLASH_START)>> 2]);
 					end else if((read_addr_store + 4) >= `ysyx_25040129_SDRAM_ADDR && (read_addr_store + 4) < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE) begin
 						rdata <= sdram_mem[(read_addr_store + 4 - `ysyx_25040129_SDRAM_ADDR)>> 2];
-						$display("ysyxSoCFull: read sdram addr %h, data %h", read_addr_store + 4, rdata);
+						$display("ysyxSoCFull: read sdram addr %h, data %h", read_addr_store + 4, flash_mem[(araddr - `ysyx_25040129_FLASH_START)>> 2]);
 					end else begin
 						$error("ysyxSoCFull: read addr %h out of range", read_addr_store + 4);
 					end
