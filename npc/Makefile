@@ -39,7 +39,7 @@ LIBCAPSTONE = ~/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5
 CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
-
+include ../Makefile
 
 
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
@@ -77,10 +77,8 @@ perf:
 sta:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
 
-gdb:
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j 0 -Wall ${THIS_DIR}/vsrc/top.v ${THIS_DIR}/csrc/top.cpp --CFLAGS "-g -O0"
-	gdb --args ${BIN}
+sim-iverilog:
+
 
 clean:
 	rm -rf $(BUILD_DIR)
