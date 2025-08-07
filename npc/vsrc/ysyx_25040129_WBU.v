@@ -7,6 +7,8 @@ module ysyx_25040129_WBU (
 	/* verilator lint_off UNUSEDSIGNAL */
 	input [31:0] pc_in_wbu,
 	input [31:0] inst_in_wbu,
+	`endif 
+	`ifdef ysyx_25040129_DEBUG
 	input is_device_in_wbu,
 	/* verilator lint_on UNUSEDSIGNAL */
 	`endif 
