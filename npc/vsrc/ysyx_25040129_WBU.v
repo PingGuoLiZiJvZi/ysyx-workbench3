@@ -27,7 +27,7 @@ module ysyx_25040129_WBU (
 	output is_data_forward_valid_from_wbu,
 	output [31:0] wbu_forward_data
 );
-`ifdef ysyx_25040129_WAVE
+`ifdef ysyx_25040129_DEBUG
 always @(*) begin
 	update_wbu_state(is_req_valid_from_lsu);
 	update_is_device(is_device_in_wbu);
