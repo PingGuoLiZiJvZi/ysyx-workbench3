@@ -138,6 +138,7 @@ always @(posedge clock) begin
 
 				if(araddr >= `ysyx_25040129_FLASH_START && araddr < `ysyx_25040129_FLASH_START + `ysyx_25040129_FLASH_SIZE) begin
 					rdata <= flash_mem[(araddr - `ysyx_25040129_FLASH_START)>> 2];
+					$display("ysyxSoCFull: read flash addr %h, data %h", araddr, rdata);
 				end else if(araddr >= `ysyx_25040129_SDRAM_ADDR && araddr < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE) begin
 					rdata <= sdram_mem[(araddr - `ysyx_25040129_SDRAM_ADDR)>> 2];
 				end else begin
