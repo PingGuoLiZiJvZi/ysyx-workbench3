@@ -5,7 +5,7 @@ module ysyx_25040129_EXU (
 	input [31:0] imm,
 	input [3:0] alu_opcode, // 该信号将被一路传递至ALU阶段
 
-	`ifdef ysyx_25040129_WAVE
+	`ifdef ysyx_25040129_DEBUG
 	output [31:0] pc_out_exu,
 	input [31:0] inst_in_exu,
 	output [31:0] inst_out_exu,
@@ -52,12 +52,12 @@ module ysyx_25040129_EXU (
 
 //--------------调试信号----------------
 // always @(posedge clk) begin
-// 	`ifdef ysyx_25040129_WAVE
+// 	`ifdef ysyx_25040129_DEBUG
 // 	execute_count_inc({5'b0,state});
 // 	`endif
 // end
 //-------------综合时删除----------------
-`ifdef ysyx_25040129_WAVE
+`ifdef ysyx_25040129_DEBUG
 assign pc_out_exu = pc;
 assign inst_out_exu = inst_in_exu;
 `endif

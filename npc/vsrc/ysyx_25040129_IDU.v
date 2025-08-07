@@ -9,7 +9,7 @@
 	input [31:0] src1_in_idu_reg,
 	input [31:0] src2_in_idu_reg,
 	input [31:0] csr_in_idu,
-	`ifdef ysyx_25040129_WAVE
+	`ifdef ysyx_25040129_DEBUG
 	output [31:0] inst_out_idu,
 	`endif
 	
@@ -58,7 +58,7 @@
 	input [31:0] wbu_forward_data,
 	input is_wbu_forward_valid
 );
-`ifdef ysyx_25040129_WAVE
+`ifdef ysyx_25040129_DEBUG
 	assign inst_out_idu = inst;
 `endif
 	wire is_src1_raw;
