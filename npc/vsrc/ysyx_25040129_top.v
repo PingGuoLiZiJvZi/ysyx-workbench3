@@ -664,7 +664,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.inst_in_lsu(debug_inst_from_exu_to_lsu_pip),
 		.inst_out_lsu(debug_inst_from_lsu_to_wbu),
 		`endif
-		
+
 		`ifdef ysyx_25040129_DEBUG
 		.is_device(debug_is_device_lsu_to_wbu),
 		`endif
@@ -740,6 +740,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] debug_pc_from_exu_to_lsu;
 	wire [31:0] debug_inst_from_exu_to_lsu_pip;
 	wire [31:0] debug_inst_from_exu_to_lsu;
+	`endif 
+	`ifdef ysyx_25040129_DEBUG
 	wire debug_is_device_lsu_to_wbu;
 	wire debug_is_device_lsu_to_wbu_pip;
 	`endif
@@ -799,6 +801,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`ifdef ysyx_25040129_WAVE
 		debug_pc_from_lsu_to_wbu,
 		debug_inst_from_lsu_to_wbu,
+		`endif 
+		`ifdef ysyx_25040129_DEBUG
 		debug_is_device_lsu_to_wbu,
 		`endif
 		csr_addr_out_lsu}),
@@ -810,6 +814,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`ifdef ysyx_25040129_WAVE
 		debug_pc_from_lsu_to_wbu_pip,
 		debug_inst_from_lsu_to_wbu_pip,
+		`endif 
+		`ifdef ysyx_25040129_DEBUG
 		debug_is_device_lsu_to_wbu_pip,
 		`endif
 		csr_addr_out_lsu_pip})
