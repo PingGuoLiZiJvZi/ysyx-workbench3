@@ -80,7 +80,7 @@ sta:
 
 netlist_sim:
 	$(call git_commit, "sim netlist")
-	iverilog $(THIS_DIR)/platform/iverilog.v $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	iverilog $(THIS_DIR)/platform/iverilog.v /home/pglzjz/ysyx-workbench/yosys-sta/nangate45/sim/cells.v $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
