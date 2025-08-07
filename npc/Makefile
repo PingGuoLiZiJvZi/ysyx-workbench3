@@ -79,7 +79,7 @@ sta:
 
 sim-iverilog:
 	$(call git_commit, "sim RTL") 
-	iverilog $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	iverilog $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog -g2012 
 	$(BUILD_DIR)\iverilog
 
 
