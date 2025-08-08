@@ -2,18 +2,20 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
-#define MEM_START 0x30000000
+#define MEM_START 0x80000000
 #define MEM_SIZE 256 * 1024 * 1024 // 256MB Flash
 #define UART_START 0x10000000
 #define UART_SIZE 0x8
-extern "C" void flash_read(int32_t addr, int32_t *data);
+extern uint8_t pmem[];
+extern void mem_read(int32_t addr, int32_t *data);
+extern void mem_write(int32_t addr, int32_t data);
 extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 {
 	addr = addr & ~0x3; // 对齐到4字节
 	uint8_t *write_addr = NULL;
 	if (addr >= MEM_SIZE && addr < MEM_START + MEM_SIZE)
 	{
-		write_addr = (uint8_t *)(MEM_START + (addr - MEM_START));
+		write_addr = (uint8_t *)(pmem + (addr - MEM_START));
 	}
 	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
 	{
@@ -66,7 +68,7 @@ extern "C" uint32_t soc_read(uint32_t addr)
 	if (addr >= MEM_START && addr < MEM_START + MEM_SIZE)
 	{
 		int32_t res = 0;
-		flash_read(addr - MEM_START, &res);
+		mem_read(addr, &res);
 		return res;
 	}
 	else

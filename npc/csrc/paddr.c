@@ -98,3 +98,11 @@ extern "C" void flash_read(int32_t addr, int32_t *data)
 	addr += 0x20000000;
 	*data = paddr_read(addr & (~3), 4, 0, 1);
 }
+void mem_read(int32_t addr, int32_t *data)
+{
+	*data = paddr_read(addr & (~3), 4, 0, 1);
+}
+void mem_write(int32_t addr, int32_t data)
+{
+	paddr_write(addr & (~3), 4, data, 1);
+}
