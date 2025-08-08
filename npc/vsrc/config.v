@@ -5,13 +5,14 @@
 	// `define ysyx_25040129_GENERATE_LOAD_STORE_QUEUE 1
 `endif
 
-`define ysyx_25040129_MVENDORID 1
-`define ysyx_25040129_MARCHID 2
-`define ysyx_25040129_MSTATUS 3
-`define ysyx_25040129_MTVEC 4
-`define ysyx_25040129_MEPC 5
-`define ysyx_25040129_MCAUSE 6
-`define ysyx_25040129_CSR_ERROR 0
+`define ysyx_25040129_MVENDORID 0
+`define ysyx_25040129_MARCHID 1
+`define ysyx_25040129_MSTATUS 2
+`define ysyx_25040129_MTVEC 3
+`define ysyx_25040129_MEPC 4
+`define ysyx_25040129_MCAUSE 5
+`define ysyx_25040129_SATP 6
+`define ysyx_25040129_MSCRATCH 7
 
 `define ysyx_25040129_REGS_DIG 5
 `define ysyx_25040129_CSR_DIG 3
