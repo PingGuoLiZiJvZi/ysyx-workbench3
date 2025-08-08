@@ -3,7 +3,14 @@ import "DPI-C" function void ebreak_trigger();
 import "DPI-C" function void unknown_inst(int inst);
 import "DPI-C" function int paddr_read(int addr, int len,int is_fetch, int is_avail);
 import "DPI-C" function void paddr_write(int addr, int len, int data, int is_avail);
-import "DPI-C" function void update_regs(int reg1, int reg2, int reg3, int reg4, int reg5, int reg6, int reg7, int reg8, int reg9, int reg10, int reg11, int reg12, int reg13, int reg14, int reg15, int reg16);
+import "DPI-C" function void update_regs(int reg1, int reg2, int reg3, int reg4, 
+										int reg5, int reg6, int reg7, int reg8, 
+										int reg9, int reg10, int reg11, int reg12, 
+										int reg13, int reg14, int reg15, int reg16,
+										int reg17, int reg18, int reg19, int reg20,
+										int reg21, int reg22, int reg23, int reg24,
+										int reg25, int reg26, int reg27, int reg28,
+										int reg29, int reg30, int reg31, int reg32);
 import "DPI-C" function void update_pc(int pc);
 import "DPI-C" function void update_inst(int inst);
 import "DPI-C" function void update_is_device(bit is_device);
@@ -21,7 +28,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 `define ysyx_25040129_CSR_DIG 3
 `endif
 `ifndef ysyx_25040129_REGS_DIG
-`define ysyx_25040129_REGS_DIG 4
+`define ysyx_25040129_REGS_DIG 5
 `endif
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129(
 // verilator lint_off UNUSED
@@ -457,7 +464,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] debug_inst_out_idu_pip;
 	`endif
 
-	ysyx_25040129_PIPELINE #(184
+	ysyx_25040129_PIPELINE #(185
 	`ifdef ysyx_25040129_DEBUG
 		+ 32 // debug_inst_out_idu
 	`endif
@@ -607,7 +614,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_ready_from_lsu_to_exu;
 	wire is_req_valid_from_pipeline_exu_to_lsu;
 	wire is_req_ready_from_pipeline_lsu_to_exu;
-	ysyx_25040129_PIPELINE #(114
+	ysyx_25040129_PIPELINE #(115
 	`ifdef ysyx_25040129_DEBUG
 		+ 64
 	`endif
@@ -784,7 +791,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_valid_from_lsu_to_wbu;
 	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
 
-	ysyx_25040129_PIPELINE #(41
+	ysyx_25040129_PIPELINE #(42
 	`ifdef ysyx_25040129_DEBUG
 		+ 65
 	`endif

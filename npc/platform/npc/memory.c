@@ -2,37 +2,21 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
-#define PSRAM_START 0x80000000
-#define PSRAM_SIZE 4 * 1024 * 1024 // 4MB PSRAM
-#define SRAM_START 0x0f000000
-#define SRAM_SIZE 8 * 1024 // 8KB SRAM
-#define SDRAM_START 0xa0000000
-#define SDRAM_SIZE 128 * 1024 * 1024 // 128MB SDRAM
-#define FLASH_START 0x30000000
-#define FLASH_SIZE 256 * 1024 * 1024 // 256MB Flash
+#define MEM_START 0x80000000
+#define MEM_SIZE 256 * 1024 * 1024 // 256MB Flash
 #define UART_START 0x10000000
 #define UART_SIZE 0x8
-uint8_t psram[PSRAM_SIZE];
-uint8_t sram[SRAM_SIZE];
-uint8_t sdram[SDRAM_SIZE];
-extern "C" void flash_read(int32_t addr, int32_t *data);
+extern uint8_t pmem[];
+extern void mem_read(int32_t addr, int32_t *data);
+extern void mem_write(int32_t addr, int32_t data);
 extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 {
 	addr = addr & ~0x3; // 对齐到4字节
 	uint8_t *write_addr = NULL;
-	if (addr >= PSRAM_START && addr < PSRAM_START + PSRAM_SIZE)
+	if (addr >= MEM_START && addr < MEM_START + MEM_SIZE)
 	{
-		write_addr = psram + (addr - PSRAM_START);
+		write_addr = (uint8_t *)(pmem + (addr - MEM_START));
 	}
-	else if (addr >= SRAM_START && addr < SRAM_START + SRAM_SIZE)
-	{
-		write_addr = sram + (addr - SRAM_START);
-	}
-	else if (addr >= SDRAM_START && addr < SDRAM_START + SDRAM_SIZE)
-	{
-		write_addr = sdram + (addr - SDRAM_START);
-	}
-
 	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
 	{
 		putc(data & 0xFF, stderr); // UART write
@@ -81,22 +65,10 @@ extern "C" uint32_t soc_read(uint32_t addr)
 
 	addr = addr & ~0x3;
 	uint8_t *read_addr = NULL;
-	if (addr >= PSRAM_START && addr < PSRAM_START + PSRAM_SIZE)
-	{
-		read_addr = psram + (addr - PSRAM_START);
-	}
-	else if (addr >= SRAM_START && addr < SRAM_START + SRAM_SIZE)
-	{
-		read_addr = sram + (addr - SRAM_START);
-	}
-	else if (addr >= SDRAM_START && addr < SDRAM_START + SDRAM_SIZE)
-	{
-		read_addr = sdram + (addr - SDRAM_START);
-	}
-	else if (addr >= FLASH_START && addr < FLASH_START + FLASH_SIZE)
+	if (addr >= MEM_START && addr < MEM_START + MEM_SIZE)
 	{
 		int32_t res = 0;
-		flash_read(addr - FLASH_START, &res);
+		mem_read(addr, &res);
 		return res;
 	}
 	else

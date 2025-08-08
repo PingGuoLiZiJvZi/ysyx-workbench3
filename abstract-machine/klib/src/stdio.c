@@ -87,7 +87,7 @@ static int unsigned_number_to_string(char *buf, unsigned int num, int base)
 }
 int printf(const char *fmt, ...)
 {
-	char buf[128];
+	char buf[4096];
 	va_list args;
 	va_start(args, fmt);
 	int written = vsprintf(buf, fmt, args);
