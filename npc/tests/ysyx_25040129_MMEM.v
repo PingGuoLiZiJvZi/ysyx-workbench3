@@ -1,4 +1,4 @@
-module MMEM (
+module ysyx_25040129_MMEM (
 input clk,
 input rst,
 //---------------读地址---------------
@@ -68,11 +68,11 @@ end
 
 assign arready = (r_state == R_IDLE);
 assign rvalid = (r_state == R_WAIT_R_READY);
-assign rresp = `OKAY;
+assign rresp = `ysyx_25040129_OKAY;
 assign awready = (w_state == W_IDLE) || (w_state == W_WAIT_AW_VALID);
 assign wready = (w_state == W_WAIT_W_VALID) || (w_state == W_IDLE);
 assign bvalid = (w_state == W_WAIT_B_READY);
-assign bresp = `OKAY;
+assign bresp = `ysyx_25040129_OKAY;
 
 always @(posedge clk) begin
 	if(rst)begin
@@ -133,9 +133,9 @@ endmodule
 // 	case (state)
 // 		IDLE: begin
 // 			if (is_req_valid) begin
-// 				if (mmem_read != `NO_MEM_READ) begin
+// 				if (mmem_read != `ysyx_25040129_NO_MEM_READ) begin
 // 					next_state = PROCESS_READ;
-// 				end else if (mmem_write != `NO_MEM_WRITE) begin
+// 				end else if (mmem_write != `ysyx_25040129_NO_MEM_WRITE) begin
 // 					next_state = PROCESS_WRITE;
 // 				end else begin
 // 					next_state = IDLE;
@@ -153,7 +153,7 @@ endmodule
 // 	case (state)
 // 		IDLE:begin
 // 			if(is_req_valid)begin
-// 				if(mmem_read != `NO_MEM_READ)begin
+// 				if(mmem_read != `ysyx_25040129_NO_MEM_READ)begin
 // 					case (mmem_read)
 // 						`MEM_READ_BYTE:mmem_read_data <= {{24{paddr_read(mmem_addr,1,0,mmem_read == `MEM_READ_BYTE ? 32'b1 : 32'b0)[7]}}, paddr_read(mmem_addr,1,0,mmem_read == `MEM_READ_BYTE ? 32'b1 : 32'b0)[7:0]};
 // 						`MEM_READ_HALF:mmem_read_data <= {{16{paddr_read(mmem_addr,2,0,mmem_read == `MEM_READ_HALF ? 32'b1 : 32'b0)[15]}}, paddr_read(mmem_addr,2,0,mmem_read == `MEM_READ_HALF ? 32'b1 : 32'b0)[15:0]};
@@ -163,7 +163,7 @@ endmodule
 // 						default: begin	end
 // 					endcase
 // 				end
-// 				else if(mmem_write != `NO_MEM_WRITE)begin
+// 				else if(mmem_write != `ysyx_25040129_NO_MEM_WRITE)begin
 // 					case (mmem_write)
 // 						`MEM_WRITE_BYTE:paddr_write(mmem_addr,1,{24'b0,mmem_write_data[7:0]},mmem_write == `MEM_WRITE_BYTE ? 32'b1 : 32'b0);
 // 						`MEM_WRITE_HALF:paddr_write(mmem_addr,2,{16'b0,mmem_write_data[15:0]},mmem_write == `MEM_WRITE_HALF ? 32'b1 : 32'b0);

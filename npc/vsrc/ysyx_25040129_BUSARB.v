@@ -1,4 +1,4 @@
-module BUSARB (//只负责ifu和mem之间的读总线仲裁
+module ysyx_25040129_BUSARB (//只负责ifu和mem之间的读总线仲裁
 	input clk,
 	input rst,
 	//---------------IFU请求(其实是icache）---------------
