@@ -98,8 +98,7 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 		}
 	}
 	pcb->max_brk = ROUNDUP(max_brk, PGSIZE); // Set the maximum break value for the address space
-	printf("Program loaded successfully, max_brk = %p\n", (void *)pcb->max_brk);
-	return ehdr->e_entry; // Return the entry point address
+	return ehdr->e_entry;					 // Return the entry point address
 }
 void hello_only()
 {
