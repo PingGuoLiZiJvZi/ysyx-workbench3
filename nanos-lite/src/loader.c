@@ -30,7 +30,6 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 	fs_lseek(fd, 0, SEEK_SET);								  // Reset file cursor to the beginning
 	fs_read(fd, program_buf, file_size);					  // Read the program into buffer
 	fs_close(fd);
-	printf("File size: %zu bytes\n", file_size);
 	Elf_Ehdr *ehdr = (Elf_Ehdr *)program_buf;
 	assert(ehdr->e_ident[0] == ELFMAG0 &&
 		   ehdr->e_ident[1] == ELFMAG1 &&
@@ -99,7 +98,8 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 		}
 	}
 	pcb->max_brk = ROUNDUP(max_brk, PGSIZE); // Set the maximum break value for the address space
-	return ehdr->e_entry;					 // Return the entry point address
+	printf("Program loaded successfully, max_brk = %p\n", (void *)pcb->max_brk);
+	return ehdr->e_entry; // Return the entry point address
 }
 void hello_only()
 {
