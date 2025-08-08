@@ -457,7 +457,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] debug_inst_out_idu_pip;
 	`endif
 
-	ysyx_25040129_PIPELINE #(184
+	ysyx_25040129_PIPELINE #(185
 	`ifdef ysyx_25040129_DEBUG
 		+ 32 // debug_inst_out_idu
 	`endif
