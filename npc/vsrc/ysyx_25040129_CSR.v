@@ -11,6 +11,8 @@ module ysyx_25040129_CSR (
 	reg [31:0] mepc;
 	reg [31:0] mstatus;
 	reg [31:0] mtvec;
+	reg [31:0] satp;
+	reg [31:0] mscratch;
 	always @(*) begin
 		case (csr_read_addr)
 			`ysyx_25040129_MVENDORID: csr_out = 32'h79737978; // MVENDORID
@@ -19,7 +21,13 @@ module ysyx_25040129_CSR (
 			`ysyx_25040129_MTVEC: csr_out = mtvec; // MTVEC
 			`ysyx_25040129_MEPC: csr_out = mepc; // MEPC
 			`ysyx_25040129_MCAUSE: csr_out = 32'd11; // MCAUSE
-			default: csr_out = 32'b0;
+			`ysyx_25040129_SATP: csr_out = satp; // SATP
+			`ysyx_25040129_MSCRATCH: csr_out = mscratch; // MSCRATCH
+			default: begin 
+				csr_out = 32'b0;
+				if(csr_read_addr != 0)
+				$display("Unknown CSR read address: %h", csr_read_addr);
+			end
 		endcase
 	end
 	always @(posedge clk) begin
@@ -34,7 +42,11 @@ module ysyx_25040129_CSR (
 						`ysyx_25040129_MTVEC: mtvec <= csr_data; 
 						`ysyx_25040129_MSTATUS: mstatus <= csr_data; 
 						`ysyx_25040129_MEPC: mepc <= csr_data; 
-					default: begin end
+						`ysyx_25040129_SATP: satp <= csr_data;
+						`ysyx_25040129_MSCRATCH: mscratch <= csr_data;
+					default: begin
+						$display("Unknown CSR write address: %h", csr_write_addr);
+					 end
 				endcase
 			end
 		end

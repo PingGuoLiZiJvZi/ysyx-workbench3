@@ -11,7 +11,7 @@ module ysyx_25040129_REG (
 	output [31:0] src1,
 	output [31:0] src2
 );
-	reg [31:0] regs[15:1];
+	reg [31:0] regs[31:1];
 	
 	
 	assign src1 = src1_id == 5'b0000 ? 32'b0: regs[src1_id];
@@ -34,7 +34,23 @@ module ysyx_25040129_REG (
 			regs[12], 
 			regs[13], 
 			regs[14], 
-			regs[15]
+			regs[15],
+			regs[16],
+			regs[17],
+			regs[18],
+			regs[19],
+			regs[20],
+			regs[21],
+			regs[22],
+			regs[23],
+			regs[24],
+			regs[25],
+			regs[26],
+			regs[27],
+			regs[28],
+			regs[29],
+			regs[30],
+			regs[31]
 		);
 		`endif
 	end

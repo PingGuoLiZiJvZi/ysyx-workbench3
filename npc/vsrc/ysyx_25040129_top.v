@@ -3,7 +3,14 @@ import "DPI-C" function void ebreak_trigger();
 import "DPI-C" function void unknown_inst(int inst);
 import "DPI-C" function int paddr_read(int addr, int len,int is_fetch, int is_avail);
 import "DPI-C" function void paddr_write(int addr, int len, int data, int is_avail);
-import "DPI-C" function void update_regs(int reg1, int reg2, int reg3, int reg4, int reg5, int reg6, int reg7, int reg8, int reg9, int reg10, int reg11, int reg12, int reg13, int reg14, int reg15, int reg16);
+import "DPI-C" function void update_regs(int reg1, int reg2, int reg3, int reg4, 
+										int reg5, int reg6, int reg7, int reg8, 
+										int reg9, int reg10, int reg11, int reg12, 
+										int reg13, int reg14, int reg15, int reg16,
+										int reg17, int reg18, int reg19, int reg20,
+										int reg21, int reg22, int reg23, int reg24,
+										int reg25, int reg26, int reg27, int reg28,
+										int reg29, int reg30, int reg31, int reg32);
 import "DPI-C" function void update_pc(int pc);
 import "DPI-C" function void update_inst(int inst);
 import "DPI-C" function void update_is_device(bit is_device);
