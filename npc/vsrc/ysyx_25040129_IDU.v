@@ -131,7 +131,7 @@
 		end 
 		else if(opcode == `ysyx_25040129_I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ysyx_25040129_MRET)begin
 			csr_read_id_out_idu = `ysyx_25040129_MEPC;
-			csr_write_id_out_idu = `ysyx_25040129_CSR_ERROR; 
+			csr_write_id_out_idu = `ysyx_25040129_MVENDORID; 
 		end
 		else begin
 		case(inst[31:20])
@@ -141,7 +141,9 @@
 		12'h305: csr_read_id_out_idu = `ysyx_25040129_MTVEC;
 		12'h341: csr_read_id_out_idu = `ysyx_25040129_MEPC;
 		12'h342: csr_read_id_out_idu = `ysyx_25040129_MCAUSE;
-		default: csr_read_id_out_idu = `ysyx_25040129_CSR_ERROR; 
+		12'h180: csr_read_id_out_idu = `ysyx_25040129_SATP;
+		12'h340: csr_read_id_out_idu = `ysyx_25040129_MSCRATCH;
+		default: csr_read_id_out_idu = `ysyx_25040129_MVENDORID; 
 		endcase
 		csr_write_id_out_idu = csr_read_id_out_idu;
 		end
