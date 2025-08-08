@@ -34,7 +34,10 @@ module ysyx_25040129_CSR (
 						`ysyx_25040129_MTVEC: mtvec <= csr_data; 
 						`ysyx_25040129_MSTATUS: mstatus <= csr_data; 
 						`ysyx_25040129_MEPC: mepc <= csr_data; 
-					default: begin end
+					default: begin
+						$display("Unknown CSR write address: %h", csr_write_addr);
+
+					 end
 				endcase
 			end
 		end
