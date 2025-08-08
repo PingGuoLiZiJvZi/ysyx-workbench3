@@ -21,7 +21,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 `define ysyx_25040129_CSR_DIG 3
 `endif
 `ifndef ysyx_25040129_REGS_DIG
-`define ysyx_25040129_REGS_DIG 4
+`define ysyx_25040129_REGS_DIG 5
 `endif
 /*verilator lint_off DECLFILENAME*/module ysyx_25040129(
 // verilator lint_off UNUSED

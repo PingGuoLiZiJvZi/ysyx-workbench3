@@ -13,7 +13,7 @@
 `define ysyx_25040129_MCAUSE 6
 `define ysyx_25040129_CSR_ERROR 0
 
-`define ysyx_25040129_REGS_DIG 4
+`define ysyx_25040129_REGS_DIG 5
 `define ysyx_25040129_CSR_DIG 3
 `define ysyx_25040129_WORD_T 4
 `define ysyx_25040129_START_ADDR 32'h20000000
