@@ -607,7 +607,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_ready_from_lsu_to_exu;
 	wire is_req_valid_from_pipeline_exu_to_lsu;
 	wire is_req_ready_from_pipeline_lsu_to_exu;
-	ysyx_25040129_PIPELINE #(114
+	ysyx_25040129_PIPELINE #(115
 	`ifdef ysyx_25040129_DEBUG
 		+ 64
 	`endif
@@ -784,7 +784,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_valid_from_lsu_to_wbu;
 	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
 
-	ysyx_25040129_PIPELINE #(41
+	ysyx_25040129_PIPELINE #(42
 	`ifdef ysyx_25040129_DEBUG
 		+ 65
 	`endif
