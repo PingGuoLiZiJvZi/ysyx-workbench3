@@ -17,7 +17,7 @@ static void f(void *arg)
 	while (1)
 	{
 		putch("?AB"[(uintptr_t)arg > 2 ? 0 : (uintptr_t)arg]);
-		for (int volatile i = 0; i < 100000; i++)
+		for (int volatile i = 0; i < 10; i++)
 			;
 		yield();
 	}

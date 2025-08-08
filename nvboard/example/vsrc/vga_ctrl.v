@@ -33,6 +33,7 @@ always @(posedge pclk) begin
         y_cnt <= 1;
     end
     else begin
+		$display("haddr = %d vaddr = %d data = %h",h_addr,v_addr,vga_data);
         if(x_cnt == h_total)begin
             x_cnt <= 1;
             if(y_cnt == v_total) y_cnt <= 1;

@@ -1,45 +1,47 @@
 module ysyx_25040129_REG (
 	input clk,
+	/* verilator lint_off UNUSEDSIGNAL */
 	input rst,
-	input [4:0] rd,
+	/* verilator lint_on UNUSEDSIGNAL */
+	input [`ysyx_25040129_REGS_DIG-1:0] rd,
+	input [`ysyx_25040129_REGS_DIG-1:0] src1_id,
+	input [`ysyx_25040129_REGS_DIG-1:0] src2_id,
 	input reg_write,
 	input [31:0] result,
-	input [4:0] src1_id,
-	input [4:0] src2_id,
 	output [31:0] src1,
 	output [31:0] src2
 );
-	reg [511:0] regs;
+	reg [31:0] regs[15:1];
 	
 	
-	assign src1 =  regs[src1_id*32 +: 32];
-	assign src2 =  regs[src2_id*32 +: 32];
+	assign src1 = src1_id == 4'b0000 ? 32'b0: regs[src1_id];
+	assign src2 = src2_id == 4'b0000 ? 32'b0: regs[src2_id];
 	always @(*) begin
+		`ifdef ysyx_25040129_DEBUG
 		update_regs(
-			regs[0*32 +: 32],
-			regs[1*32 +: 32], 
-			regs[2*32 +: 32], 
-			regs[3*32 +: 32], 
-			regs[4*32 +: 32], 
-			regs[5*32 +: 32], 
-			regs[6*32 +: 32], 
-			regs[7*32 +: 32], 
-			regs[8*32 +: 32], 
-			regs[9*32 +: 32], 
-			regs[10*32 +: 32], 
-			regs[11*32 +: 32], 
-			regs[12*32 +: 32], 
-			regs[13*32 +: 32], 
-			regs[14*32 +: 32], 
-			regs[15*32 +: 32]
+			32'b0,
+			regs[1], 
+			regs[2], 
+			regs[3], 
+			regs[4], 
+			regs[5], 
+			regs[6], 
+			regs[7], 
+			regs[8], 
+			regs[9], 
+			regs[10], 
+			regs[11], 
+			regs[12], 
+			regs[13], 
+			regs[14], 
+			regs[15]
 		);
+		`endif
 	end
 	always @(posedge clk) begin
-		
-		if (rst) regs <= 512'b0;
-		 else begin
-			if (rd != 5'b00000 && reg_write) begin
-				regs[rd*32 +:32] <=result;
+		 begin
+			if (rd != 4'b0000 && reg_write) begin
+				regs[rd] <=result;
 			end
 		end
 	end
