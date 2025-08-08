@@ -21,6 +21,7 @@ module ysyx_25040129_CSR (
 			`ysyx_25040129_MCAUSE: csr_out = 32'd11; // MCAUSE
 			default: begin 
 				csr_out = 32'b0;
+				if(csr_read_addr != 0)
 				$display("Unknown CSR read address: %h", csr_read_addr);
 			end
 		endcase
