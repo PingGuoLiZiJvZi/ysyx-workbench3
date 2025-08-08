@@ -2,8 +2,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "Sdb.h"
-uint64_t cycle_count = 0;
-uint64_t pc_count = 0;
 VysyxSoCFull *Npc::top = NULL;
 long Sdb::load_img()
 {
@@ -261,29 +259,18 @@ int Sdb::run(uint32_t n)
 		{
 			return -1;
 		}
-		unsigned int is_device = 0;
-		while (npc.wbu_state == 0)
-		{
-			npc.step_top();
-			cycle_count++;
-			is_device |= npc.is_device;
-		}
-		uint32_t pc = npc.regs_val[0];
 
-		do
-		{
+		while (npc.ifu_state == 1)
 			npc.step_top();
-			cycle_count++;
-			is_device |= npc.is_device;
-		} while (pc == npc.regs_val[0]);
+		while (npc.ifu_state != 1)
+			npc.step_top();
 
-		pc_count++;
 #ifdef TRACE
 		if (n < 12)
 			printf("%s", npc.message);
 #endif
 #ifdef DIFFTEST
-		if (is_device)
+		if (npc.is_device)
 			npc.difftest_skip_ref();
 		else
 			npc.difftest_step();

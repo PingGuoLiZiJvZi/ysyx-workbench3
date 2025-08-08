@@ -3,31 +3,24 @@
 #include <assert.h>
 #include "verilated.h"
 #include "Sdb.h"
-#include "performance_counter.h"
 Sdb *sdb = NULL;
 uint32_t Npc::regs_val[17] = {0};
 uint32_t Npc::inst = 0;
 bool Npc::is_device = false;
-bool Npc::wbu_state = 0;
+uint8_t Npc::ifu_state = 0;
 NPC_STATE Sdb::npc_state = NPC_RUNNING;
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+
 extern "C" void ebreak_trigger()
 {
 	if (Npc::regs_val[11] == 0)
 	{
 		printf("HIT GOOD TRAP\n");
-		print_performance_counters();
-		exit(0);
 		Sdb::npc_state = NPC_STOP;
 	}
 	else
 	{
 		printf("HIT BAD TRAP\n");
-		sdb->npc.reg_display();
-		sdb->print_iringbuf();
-#ifdef WAVE
-		sdb->npc.tfp->flush();
-#endif
-		exit(-1);
 		Sdb::npc_state = NPC_ABORT;
 	}
 }
@@ -36,11 +29,6 @@ extern "C" void unknown_inst(int inst)
 	if (inst != 0)
 	{
 		printf("Unknown instruction %x\n", inst);
-		sdb->print_iringbuf();
-		sdb->npc.reg_display();
-#ifdef WAVE
-		sdb->npc.tfp->flush();
-#endif
 		assert(0);
 	}
 }
@@ -75,9 +63,9 @@ extern "C" void update_is_device(bool is_device)
 {
 	Npc::is_device = is_device;
 }
-extern "C" void update_wbu_state(bool wbu_state)
+extern "C" void update_ifu_state(uint8_t ifu_state)
 {
-	Npc::wbu_state = wbu_state;
+	Npc::ifu_state = ifu_state;
 }
 int main(int argc, char **argv)
 {
