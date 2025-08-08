@@ -19,7 +19,10 @@ module ysyx_25040129_CSR (
 			`ysyx_25040129_MTVEC: csr_out = mtvec; // MTVEC
 			`ysyx_25040129_MEPC: csr_out = mepc; // MEPC
 			`ysyx_25040129_MCAUSE: csr_out = 32'd11; // MCAUSE
-			default: csr_out = 32'b0;
+			default: begin 
+				csr_out = 32'b0;
+				$display("Unknown CSR read address: %h", csr_read_addr);
+			end
 		endcase
 	end
 	always @(posedge clk) begin
@@ -36,7 +39,6 @@ module ysyx_25040129_CSR (
 						`ysyx_25040129_MEPC: mepc <= csr_data; 
 					default: begin
 						$display("Unknown CSR write address: %h", csr_write_addr);
-
 					 end
 				endcase
 			end
