@@ -55,7 +55,7 @@ end
 // pc 更新逻辑
 always @(posedge clk) begin
 	if(rst)begin
-		pc <= `ysyx_25040129_VIRTUAL_ADDR;
+		pc <= `ysyx_25040129_FLASH_START;
 		inst <= 32'b0; 
 		get_flush_signal_in_fetching <= 1'b0;
 		state <= WAIT_MMEM_READY;

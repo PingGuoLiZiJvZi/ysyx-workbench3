@@ -12,6 +12,7 @@ void *new_page(size_t nr_page)
 	void *p = pf;
 	memset(p, 0, nr_page * PGSIZE);
 	pf += nr_page * PGSIZE;
+
 	return p;
 }
 

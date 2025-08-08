@@ -14,8 +14,8 @@ module ysyx_25040129_REG (
 	reg [31:0] regs[15:1];
 	
 	
-	assign src1 = src1_id == 5'b0000 ? 32'b0: regs[src1_id];
-	assign src2 = src2_id == 5'b0000 ? 32'b0: regs[src2_id];
+	assign src1 = src1_id == 4'b0000 ? 32'b0: regs[src1_id];
+	assign src2 = src2_id == 4'b0000 ? 32'b0: regs[src2_id];
 	always @(*) begin
 		`ifdef ysyx_25040129_DEBUG
 		update_regs(
@@ -40,7 +40,7 @@ module ysyx_25040129_REG (
 	end
 	always @(posedge clk) begin
 		 begin
-			if (rd != 5'b0000 && reg_write) begin
+			if (rd != 4'b0000 && reg_write) begin
 				regs[rd] <=result;
 			end
 		end

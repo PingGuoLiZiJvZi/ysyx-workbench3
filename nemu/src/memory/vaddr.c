@@ -25,20 +25,40 @@ word_t trans_check(vaddr_t addr, int len, int type)
 	else
 		panic("MMU check failed for vaddr %x,type %d\n", addr, type);
 }
+word_t map_to_rom_and_ram(word_t addr)
+{
+	if (addr >= 0x0f000000 && addr < 0x0f002000)	  // RAM
+		return addr + 0x83000000 - 0x0f000000;		  // 实际地址为0x83000000-0x83002000
+	else if (addr >= 0x30000000 && addr < 0x33000000) // Flash
+		return addr + 0x50000000;					  // 实际地址为0x80000000-0x83000000
+	else if (addr >= 0x80000000 && addr < 0x80400000) // PSRAM
+		return addr + 0x4000000;					  // 实际地址为0x84000000-0x84400000
+	else if (addr >= 0xa0000000 && addr < 0xa5000000) // SDRAM
+		return addr - 0x1b000000;					  // 实际地址为0x85000000-0x88000000
+	return addr;									  // Other addresses remain unchanged
+}
 word_t vaddr_ifetch(vaddr_t addr, int len)
 {
-	addr = trans_check(addr, len, MEM_TYPE_IFETCH);
+	addr = map_to_rom_and_ram(addr);
 	return paddr_read(addr, len);
 }
 
 word_t vaddr_read(vaddr_t addr, int len)
 {
-	addr = trans_check(addr, len, MEM_TYPE_READ);
+	if (addr >= 0xa5000000 && addr < 0xa8000000)
+	{
+		return 0xdeadbeef;
+	}
+	addr = map_to_rom_and_ram(addr);
 	return paddr_read(addr, len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data)
 {
-	addr = trans_check(addr, len, MEM_TYPE_WRITE);
+	if (addr >= 0xa5000000 && addr < 0xa8000000)
+	{
+		return;
+	}
+	addr = map_to_rom_and_ram(addr);
 	paddr_write(addr, len, data);
 }

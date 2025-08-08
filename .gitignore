@@ -1,6 +1,7 @@
-*.*
-*
-!*/
+mill/
+.vscode/
+*.mp4
+!/ysyxSoC/*
 !/nemu/*
 !/nexus-am/*
 !/nanos-lite/*

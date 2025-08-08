@@ -153,9 +153,9 @@
 	assign funct7_5 = inst[30];
 	assign funct3 = inst[14:12];
 	assign opcode = inst[6:0];
-	assign rd_out_idu = inst[11:7];
-	assign src1_id = inst[19:15];
-	assign src2_id = inst[24:20];
+	assign rd_out_idu = inst[10:7];
+	assign src1_id = inst[18:15];
+	assign src2_id = inst[23:20];
 //---------------调试信号---------------
 // always @(posedge clk) begin
 // 	`ifdef ysyx_25040129_DEBUG

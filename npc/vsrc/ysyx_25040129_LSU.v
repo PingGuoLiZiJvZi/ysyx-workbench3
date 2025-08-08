@@ -253,9 +253,21 @@ always @(posedge clk) begin
 	if(state == IDLE && next_state == WAIT_WBU_READY)is_device <= 1'b0;
 	else if(state == IDLE && next_state != IDLE && next_state != WAIT_WBU_READY)begin
 		if(arvalid)begin
-			if(araddr >= `ysyx_25040129_VIRTUAL_ADDR && araddr < `ysyx_25040129_VIRTUAL_ADDR + `ysyx_25040129_VIRTUAL_SIZE)
+			if(araddr >= `ysyx_25040129_ROM_START && araddr < `ysyx_25040129_ROM_START + `ysyx_25040129_ROM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_SRAM_START && araddr < `ysyx_25040129_SRAM_START + `ysyx_25040129_SRAM_SIZE)
 				is_device <= 1'b0;
 			else if(araddr >= `ysyx_25040129_UART_REG_ADDR && araddr < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `ysyx_25040129_FLASH_START && araddr < `ysyx_25040129_FLASH_SIZE+`ysyx_25040129_FLASH_START)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_SPI_ADDR && araddr < `ysyx_25040129_SPI_ADDR + `ysyx_25040129_SPI_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `ysyx_25040129_PSRAM_ADDR && araddr < `ysyx_25040129_PSRAM_ADDR + `ysyx_25040129_PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_SDRAM_ADDR && araddr < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_GPIO_ADDR && araddr < `ysyx_25040129_GPIO_ADDR + `ysyx_25040129_GPIO_SIZE)
 				is_device <= 1'b1;
 			else if(araddr >= `ysyx_25040129_PS2_ADDR && araddr < `ysyx_25040129_PS2_ADDR + `ysyx_25040129_PS2_SIZE)
 				is_device <= 1'b1;
@@ -269,8 +281,16 @@ always @(posedge clk) begin
 		else if(awvalid) begin
 			if(awaddr >= `ysyx_25040129_UART_REG_ADDR && awaddr < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE)
 				is_device <= 1'b1;
-			else if(awaddr >= `ysyx_25040129_VIRTUAL_ADDR && awaddr < `ysyx_25040129_VIRTUAL_ADDR + `ysyx_25040129_VIRTUAL_SIZE)
+			else if(awaddr >= `ysyx_25040129_SRAM_START && awaddr < `ysyx_25040129_SRAM_START + `ysyx_25040129_SRAM_SIZE)
 				is_device <= 1'b0;
+			else if(awaddr >= `ysyx_25040129_SPI_ADDR && awaddr < `ysyx_25040129_SPI_ADDR + `ysyx_25040129_SPI_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `ysyx_25040129_PSRAM_ADDR && awaddr < `ysyx_25040129_PSRAM_ADDR + `ysyx_25040129_PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `ysyx_25040129_SDRAM_ADDR && awaddr < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `ysyx_25040129_GPIO_ADDR && awaddr < `ysyx_25040129_GPIO_ADDR + `ysyx_25040129_GPIO_SIZE)
+				is_device <= 1'b1;
 			else if(awaddr >= `ysyx_25040129_VGA_ADDR && awaddr < `ysyx_25040129_VGA_ADDR + `ysyx_25040129_VGA_SIZE)
 				is_device <= 1'b1;
 			else begin
