@@ -1,12 +1,14 @@
 #include <am.h>
-
+#include "npc.h"
+#include "riscv.h"
+#include <klib.h>
 static AddrSpace kas = {};
 static void *(*pgalloc_usr)(int) = NULL;
 static void (*pgfree_usr)(void *) = NULL;
 static int vme_enable = 0;
 
 static Area segments[] = { // Kernel memory mappings
-	NEMU_PADDR_SPACE};
+	NPC_PADDR_SPACE};
 
 #define USER_SPACE RANGE(0x40000000, 0x80000000)
 
