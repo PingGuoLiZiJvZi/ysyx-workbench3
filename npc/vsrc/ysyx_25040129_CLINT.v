@@ -1,49 +1,40 @@
-module ysyx_25040129_CLINT (
+module CLINT (
 	input clk,
 	input rst,
 	//---------------只读设备---------------
 	//---------------读地址---------------
+	/* verilator lint_off UNUSEDSIGNAL */
 	input [31:0] araddr,
 	input arvalid,
-	output reg arready,
+	/* verilator lint_on UNUSEDSIGNAL */
+	output arready,
 	//---------------读数据---------------
-	output reg [31:0] rdata,
-	output reg [1:0] rresp,
-	output reg rvalid,
+	output [31:0] rdata,
+	output [1:0] rresp,
+	output rvalid,
+	/* verilator lint_off UNUSEDSIGNAL */
 	input rready
+	/* verilator lint_on UNUSEDSIGNAL */
 );
-	// CLINT的实现代码
-	reg [63:0] mtime;
-	localparam IDLE = 2'b00;
-	localparam HANDLE_READ = 2'b01;
-	reg [1:0] state, next_state;
-	always @(posedge clk) begin
-		if (rst) begin
-			state <= IDLE;
-			mtime <= 64'b0;
-		end else begin
-			state <= next_state;
-			mtime <= mtime + 1; 
-		end
-	end
-	//-----------------------下一状态逻辑-----------------------
-	always @(*) begin
-		case (state)
-			IDLE: next_state = arvalid ? HANDLE_READ : IDLE;
-			HANDLE_READ: next_state = rready ? IDLE : HANDLE_READ;
-			default: next_state = IDLE;
-		endcase
-	end
-	//-----------------------输出逻辑-----------------------
-	assign arready = (state == IDLE);
-	assign rvalid = (state == HANDLE_READ);
 	assign rresp = `OKAY;
+	// CLINT的实现代码
+	reg [15:0] mtime [3:0];
+	assign arready = 1'b1; 
+	assign rvalid = 1'b1; 
+	assign rdata = (araddr[2]) ? {mtime[3],mtime[2]} : {mtime[1],mtime[0]};
 	always @(posedge clk) begin
-		if(next_state == HANDLE_READ) begin
-			if(araddr == `RTC_PORT_ADDR) rdata <= mtime[31:0]; // 返回低32位
-			else if(araddr == `RTC_PORT_ADDR + 4) rdata <= mtime[63:32]; // 返回高32位
-			else rdata <= 32'b0; // 未知地址返回0
+		if(rst)begin
+			mtime[0] <= 16'h0;
+			mtime[1] <= 16'h0;
+			mtime[2] <= 16'h0;
+			mtime[3] <= 16'h0;
 		end
+		else begin
+			mtime[0] <= mtime[0] + 1;
+			mtime[1] <= (&mtime[0])? mtime[1] + 1 : mtime[1];
+			mtime[2] <= (&mtime[1])? mtime[2] + 1 : mtime[2];
+			mtime[3] <= (&mtime[2])? mtime[3] + 1 : mtime[3]; 
+		end		
 	end
 
 endmodule

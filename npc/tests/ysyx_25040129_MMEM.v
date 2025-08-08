@@ -1,4 +1,4 @@
-module ysyx_25040129_MMEM (
+module MMEM (
 input clk,
 input rst,
 //---------------读地址---------------
@@ -24,13 +24,7 @@ output [1:0]bresp,
 output bvalid,
 input bready
 );
-//当前工作：将总线改进至AXI4-Lite
-// LFSR u_lfsr (
-//   .clk(clk),
-//   .rst(rst),
-//   .en(1'b1), // 每次拉高会触发产生一个新随机数
-//   .rand_out(delay) // 随机数输出，范围：1 ~ 31
-// );
+
 wire [4:0] delay = 5'b1;
 localparam  R_IDLE = 3'b000;
 localparam  R_READING = 3'b001;

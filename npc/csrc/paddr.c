@@ -43,6 +43,7 @@ extern "C" uint32_t paddr_read(uint32_t addr, int len, int is_fetch, int is_avai
 	}
 	else
 	{
+		printf("paddr_read: Invalid address 0x%08x\n", addr);
 		assert(0);
 	}
 #ifdef MEMTRACE
@@ -89,5 +90,11 @@ extern "C" void paddr_write(uint32_t addr, int len, uint32_t data, int is_avail)
 extern "C" void mrom_read(int32_t addr, int32_t *data)
 {
 
-	*data = paddr_read(addr, 4, 0, 1);
+	*data = paddr_read(addr & (~3), 4, 0, 1);
+}
+extern "C" void flash_read(int32_t addr, int32_t *data)
+{
+
+	addr += 0x20000000;
+	*data = paddr_read(addr & (~3), 4, 0, 1);
 }

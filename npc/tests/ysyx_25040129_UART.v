@@ -1,4 +1,4 @@
-module ysyx_25040129_UART(
+module UART(
 	input clk,
 	input rst,
 	//-------只写设备-------
