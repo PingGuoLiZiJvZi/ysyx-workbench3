@@ -5,7 +5,7 @@
 #include "Sdb.h"
 #include "performance_counter.h"
 Sdb *sdb = NULL;
-uint32_t Npc::regs_val[17] = {0};
+uint32_t Npc::regs_val[33] = {0};
 uint32_t Npc::inst = 0;
 bool Npc::is_device = false;
 bool Npc::wbu_state = 0;
