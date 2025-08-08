@@ -125,8 +125,6 @@ void nvboard_bind_pin(void *signal, int len, ...)
 	{
 		uint16_t pin = va_arg(ap, int);
 		pin_array[pin].ptr = signal;
-		if (pin == UART_TX)
-			printf("bind UART_TX %p to %p\n", signal, pin_array[pin].ptr);
 		pin_array[pin].vector_len = len;
 		pin_array[pin].bit_offset = len - 1 - i;
 	}

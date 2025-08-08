@@ -41,7 +41,7 @@ void init_proc()
 	yield();
 
 	Log("Initializing processes...");
-	panic("testing context switch,so should not reach here!");
+	// panic("testing context switch,so should not reach here!");
 	// load program here
 	naive_uload(NULL, "/bin/bmp-test");
 }

@@ -30,7 +30,6 @@ void hello_intr()
 	{
 		// for (volatile int i = 0; i < 1000; i++)
 		// 	;
-		putch('\n');
 		yield();
 	}
 }

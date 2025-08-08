@@ -15,9 +15,6 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
-
-#include <isa.h>
-#include <memory/paddr.h>
 word_t trans_check(vaddr_t addr, int len, int type)
 {
 	int res = isa_mmu_check(addr, len, type);
