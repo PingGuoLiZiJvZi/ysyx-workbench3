@@ -13,7 +13,6 @@ static Area segments[] = { // Kernel memory mappings
 
 static inline void set_satp(void *pdir)
 {
-	printf("Setting SATP with page directory %p\n", pdir);
 	uintptr_t mode = 1ul << (__riscv_xlen - 1);
 	asm volatile("csrw satp, %0" : : "r"(mode | ((uintptr_t)pdir >> 12)));
 }
