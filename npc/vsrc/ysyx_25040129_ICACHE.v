@@ -31,7 +31,7 @@ module ysyx_25040129_ICACHE #(
 	//---------------fence.i冲刷---------------
 	input fence_i,
 	/* verilator lint_off UNUSEDSIGNAL */
-	input [31:0] satp
+	input [31:0] satp,
 	output [31:0] out_arsatp, 
 	/* verilator lint_on UNUSEDSIGNAL */
 );	
