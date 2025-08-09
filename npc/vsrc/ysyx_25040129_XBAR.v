@@ -9,6 +9,7 @@ module ysyx_25040129_XBAR (
 	output reg arready,
 	input [7:0] arlen, 
 	input [1:0] arburst,
+	input [31:0] arsatp,
 	//---------------读数据---------------
 	output reg[31:0] rdata,
 	output reg [1:0]rresp,
@@ -19,6 +20,7 @@ module ysyx_25040129_XBAR (
 	input [31:0] awaddr,
 	input awvalid,
 	output awready,
+	input [31:0] awsatp,
 	//---------------写数据---------------
 	input [3:0] wstrb,
 	input [31:0] wdata,
@@ -37,6 +39,7 @@ module ysyx_25040129_XBAR (
 	input soc_arready,
 	output [7:0]soc_arlen,
 	output [1:0] soc_arburst,
+	output [31:0] soc_arsatp,
 	//---------------读数据---------------
 	input [31:0] soc_rdata,
 	input [1:0]soc_rresp,
@@ -47,6 +50,7 @@ module ysyx_25040129_XBAR (
 	output [31:0] soc_awaddr,
 	output soc_awvalid,
 	input soc_awready,
+	output [31:0] soc_awsatp,
 	//---------------写数据---------------
 	output [3:0] soc_wstrb,
 	output [31:0] soc_wdata,
@@ -68,9 +72,11 @@ module ysyx_25040129_XBAR (
 	input rtc_rvalid,
 	output reg rtc_rready
 );
-assign soc_arlen = arlen; // 直接转发
-assign soc_arburst = arburst; // 直接转发
-assign rlast = soc_rlast; // 直接转发
+assign soc_arsatp = arsatp; 
+assign soc_araddr = araddr; 
+assign soc_arlen = arlen; 
+assign soc_arburst = arburst; 
+assign rlast = soc_rlast; 
 
 assign soc_awaddr = awaddr;
 assign soc_awvalid = awvalid;
