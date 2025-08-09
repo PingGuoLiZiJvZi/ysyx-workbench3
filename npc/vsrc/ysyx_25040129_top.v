@@ -135,13 +135,14 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.clk(clk),
 		.rst(rst),
 
-		.satp(satp_from_xbar),
+		
 		.in_araddr(araddr_from_xbar),
 		.in_arvalid(arvalid_from_xbar),
 		.in_arsize(arsize_from_xbar),
 		.in_arready(arready_to_xbar),
 		.in_arlen(arlen_from_xbar),
 		.in_arburst(arburst_from_xbar),
+		.in_arsatp(arsatp_from_xbar),
 
 		.in_rdata(rdata_to_xbar),
 		.in_rresp(rresp_to_xbar),
@@ -152,6 +153,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.in_awaddr(awaddr_from_xbar),
 		.in_awvalid(awvalid_from_xbar),
 		.in_awready(awready_to_xbar),
+		.in_awsatp(awsatp_from_xbar),
 
 		.in_wstrb(wstrb_from_xbar),
 		.in_wdata(wdata_from_xbar),
