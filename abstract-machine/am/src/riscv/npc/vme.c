@@ -46,6 +46,7 @@ bool vme_init(void *(*pgalloc_f)(int), void (*pgfree_f)(void *))
 	}
 	printf("left %p\n", kas.ptr);
 	set_satp(kas.ptr);
+	printf("VME initialized with page directory %p\n", kas.ptr);
 	vme_enable = 1;
 
 	return true;
