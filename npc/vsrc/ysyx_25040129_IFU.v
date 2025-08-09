@@ -42,10 +42,10 @@ localparam WAIT_MMEM_REQ = 3'b001;
 localparam WAIT_IDU_READY = 3'b010;
 //-------------------------数据冒险控制---------------------------------------------
 wire raw;
-assign raw = (csr_addr_ifu_pip_idu == `ysyx_25040129_CSR_SATP && valid_csr_addr_write_ifu_pip_idu) ||
-			 (csr_addr_idu_pip_exu == `ysyx_25040129_CSR_SATP && valid_csr_addr_write_idu_pip_exu) ||
-			 (csr_addr_exu_pip_lsu == `ysyx_25040129_CSR_SATP && valid_csr_addr_write_exu_pip_lsu) ||
-			 (csr_addr_lsu_pip_wbu == `ysyx_25040129_CSR_SATP && valid_csr_addr_write_lsu_pip_wbu);
+assign raw = (csr_addr_ifu_pip_idu == `ysyx_25040129_SATP && valid_csr_addr_write_ifu_pip_idu) ||
+			 (csr_addr_idu_pip_exu == `ysyx_25040129_SATP && valid_csr_addr_write_idu_pip_exu) ||
+			 (csr_addr_exu_pip_lsu == `ysyx_25040129_SATP && valid_csr_addr_write_exu_pip_lsu) ||
+			 (csr_addr_lsu_pip_wbu == `ysyx_25040129_SATP && valid_csr_addr_write_lsu_pip_wbu);
 //---------------------------------------------------------------------------------
 //总线信号产生逻辑
 assign is_req_valid_to_idu = (state == WAIT_IDU_READY ||(state == WAIT_MMEM_READY && arready && rvalid)) && !pipeline_flush && !get_flush_signal_in_fetching && !raw;
