@@ -70,7 +70,8 @@ module ysyx_25040129_LSU (
 	output is_branch_out_lsu,
 	input fence_i_in_lsu,
 	output fence_i_out_lsu,
-
+	input [31:0] satp_in_lsu,
+	output [31:0] satp_out_lsu,
 	output is_data_forward_valid_from_lsu
 );
 //---------------信号转发---------------
@@ -78,6 +79,7 @@ module ysyx_25040129_LSU (
 assign pc_out_lsu = pc_in_lsu;
 assign inst_out_lsu = inst_in_lsu;
 `endif
+assign satp_out_lsu = satp_in_lsu;
 assign csr_write_out_lsu = csr_write_in_lsu;
 assign fence_i_out_lsu = fence_i_in_lsu;
 assign reg_write_out_lsu = reg_write_in_lsu; 

@@ -6,8 +6,10 @@ module ysyx_25040129_CSR (
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_read_addr,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr,
 	input [31:0] csr_data,
-	output reg [31:0] csr_out
+	output reg [31:0] csr_out,
+	output [31:0] satp_in_ifu
 );
+	assign satp_in_ifu = satp;
 	reg [31:0] mepc;
 	reg [31:0] mstatus;
 	reg [31:0] mtvec;

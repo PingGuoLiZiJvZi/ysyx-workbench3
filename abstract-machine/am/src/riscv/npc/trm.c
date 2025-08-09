@@ -16,7 +16,10 @@ void putch(char ch)
 {
 	outb(SERIAL_PORT, ch);
 }
-
+unsigned char getch()
+{
+	return inb(SERIAL_PORT);
+}
 void halt(int code)
 {
 	npc_trap(code);

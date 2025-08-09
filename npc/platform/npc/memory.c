@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <assert.h>
+#include <fcntl.h>
 #define MEM_START 0x80000000
 #define MEM_SIZE 256 * 1024 * 1024 // 256MB Flash
 #define UART_START 0x10000000
@@ -70,6 +72,15 @@ extern "C" uint32_t soc_read(uint32_t addr)
 		int32_t res = 0;
 		mem_read(addr, &res);
 		return res;
+	}
+	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
+	{
+		int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+		fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+		int c = getchar();
+		if (c == EOF)
+			return -1;
+		return c;
 	}
 	else
 	{
