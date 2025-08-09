@@ -141,9 +141,8 @@ public:
 		ref_difftest_memcpy(0, pmem, img_size, DIFFTEST_TO_REF);
 		uint32_t regs[33];
 		memcpy(regs, regs_val, sizeof(regs_val));
-		regs[0] = 0x30000000;
+		regs[0] = 0x80000000;
 		ref_difftest_regcpy(regs, DIFFTEST_TO_REF);
-		printf("Difftest initialized.\n");
 	}
 	void difftest_step()
 	{
