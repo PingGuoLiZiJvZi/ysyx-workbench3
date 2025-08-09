@@ -64,6 +64,10 @@ module ysyx_25040129_MMU (
 wire direct_forward;
 wire is_pte1, is_pte2, is_physical;
 wire is_arvalid_out;
+wire is_read;
+assign is_read = state == READ_GET_PTE1_WAIT_READY || state == READ_GET_PTE1_WAIT_VALID ||
+					state == READ_GET_PTE2_WAIT_READY || state == READ_GET_PTE2_WAIT_VALID ||
+					state == READ_WAIT_READY || state == READ_WAIT_VALID || state == READ_DONE;
 /* verilator lint_off UNUSEDSIGNAL */
 reg [31:0] satp;
 /* verilator lint_on UNUSEDSIGNAL */
@@ -148,13 +152,13 @@ localparam WRITE_DONE = 15;
 wire [19:0] root_idx;
 assign root_idx = satp[31:12]; 
 wire [9:0] vpn1;
-assign vpn1 = in_araddr[31:22]; 
+assign vpn1 = is_read? in_araddr[31:22]:in_awaddr[31:22]; 
 wire [31:0] pte1_addr;
 assign pte1_addr = {root_idx, vpn1, 2'b00}; 
 wire [9:0] vpn2;
-assign vpn2 = in_araddr[21:12];
+assign vpn2 = is_read? in_araddr[21:12]:in_awaddr[21:12];
 wire [11:0] offset;
-assign offset = in_araddr[11:0];
+assign offset = is_read? in_araddr[11:0]:in_awaddr[11:0];
 // verilator lint_off UNUSED
 reg [31:0] pte1, pte2;
 // verilator lint_on UNUSED
