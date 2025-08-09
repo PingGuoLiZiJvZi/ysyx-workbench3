@@ -31,6 +31,7 @@ module ysyx_25040129_ICACHE #(
 	//---------------fence.i冲刷---------------
 	input fence_i
 );	
+	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
 	assign out_arlen = 0; 
 	assign out_arburst = 2'b00; 
@@ -39,11 +40,10 @@ module ysyx_25040129_ICACHE #(
 	// verilator lint_off UNUSED
 	reg [31:0] ifu_araddr_latch;
 	// verilator lint_on UNUSED
-	reg [31:0] cache_data[BLOCK_NUM-1:0][BLOCK_SIZE_WORD-1:0]; 
+	reg [31:0] cache_data[BLOCK_NUM-1:0]; 
 	reg [BLOCK_NUM-1:0]cache_valid;
-	reg [31:BLOCK_SIZE_DIG+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
+	reg [31:2+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
 	reg [1:0] state;
-	reg [BLOCK_SIZE_WORD_DIG-1:0] burst_count;
 	//--------------------------------------------------------------------------------
 	wire [BLOCK_NUM_DIG-1:0] index;
 	wire [BLOCK_NUM_DIG-1:0] p_index;
