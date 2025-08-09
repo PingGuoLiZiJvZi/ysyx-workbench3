@@ -332,7 +332,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.lsu_arvalid(arvalid_from_lsu),
 		.lsu_arready(rready_to_lsu),
 		.lsu_arsize(arsize_from_lsu),
-		.lsu_satp(satp_from_lsu),
+		.lsu_satp(satp_out_lsu),
 
 		.lsu_rdata(rdata_to_lsu),
 		.lsu_rresp(rresp_to_lsu),
