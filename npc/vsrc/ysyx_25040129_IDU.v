@@ -36,6 +36,8 @@
 	output is_req_valid_to_exu,
 	input is_req_ready_from_exu,
 	output reg fence_i,
+	input [31:0]satp_in_idu,
+	output [31:0] satp_out_idu,
 //---------------数据冒险控制--------------------
 	input [`ysyx_25040129_REGS_DIG-1:0] rd_idu_pip_exu,
 	input valid_rd_write_idu_pip_exu,
@@ -61,6 +63,7 @@
 `ifdef ysyx_25040129_DEBUG
 	assign inst_out_idu = inst;
 `endif
+	assign satp_out_idu = satp_in_idu;
 	wire is_src1_raw;
 	wire is_src2_raw;
 	wire is_csr_raw;

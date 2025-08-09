@@ -369,21 +369,22 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_ready_from_idu_to_ifu;
 	wire is_req_valid_from_ifu_to_idu;
 
-	ysyx_25040129_PIPELINE #(64) u_ysyx_25040129_PIPELINE_IFU_TO_IDU(
+	ysyx_25040129_PIPELINE #(96) u_ysyx_25040129_PIPELINE_IFU_TO_IDU(
 		.clk(clk),
 		.rst(rst),
 		.pipeline_flush(pipeline_flush_signal), 
 
 		.in_valid(is_req_valid_from_ifu_to_idu),
 		.in_ready(is_req_ready_from_pipeline_idu_to_ifu),
-		.in_data({pc_from_ifu, inst_to_idu}),
+		.in_data({pc_from_ifu, inst_to_idu,satp_out_ifu}),
 
 		.out_valid(is_req_valid_from_pipeline_ifu_to_idu),
 		.out_ready(is_req_ready_from_idu_to_ifu),
-		.out_data({pc_from_ifu_pip, inst_to_idu_pip})
+		.out_data({pc_from_ifu_pip, inst_to_idu_pip,satp_out_ifu_pip})
 	);
 	wire [31:0] pc_from_ifu_pip;
 	wire [31:0] inst_to_idu_pip;
+	wire [31:0] satp_out_ifu_pip;
 	wire is_req_valid_from_pipeline_ifu_to_idu;
 	wire is_req_ready_from_pipeline_idu_to_ifu;
 
@@ -418,6 +419,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.is_jump_out_idu(is_jump_out_idu),
 		.ebreak_out_idu(ebreak_out_idu),
 		.mret_out_idu(mret_out_idu),
+		.satp_in_idu(satp_out_ifu_pip),
+		.satp_out_idu(satp_out_idu),
 
 		.csr_write_out_idu(csr_write_out_idu),
 
@@ -480,8 +483,9 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] debug_inst_out_idu;
 	wire [31:0] debug_inst_out_idu_pip;
 	`endif
-
-	ysyx_25040129_PIPELINE #(185
+	wire [31:0] satp_out_idu;
+	wire [31:0] satp_out_idu_pip;
+	ysyx_25040129_PIPELINE #(185 + 32
 	`ifdef ysyx_25040129_DEBUG
 		+ 32 // debug_inst_out_idu
 	`endif
@@ -497,7 +501,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 			imm, lsu_write_data_out_idu, alu_opcode, rd_out_idu,
 			is_jalr_out_idu, is_jump_out_idu, reg_write_out_idu,
 			csr_write_out_idu, lsu_write_out_idu, lsu_read_out_idu,
-			ecall_out_idu, ebreak_out_idu, mret_out_idu,fence_i_out_idu,csr_write_id_out_idu
+			ecall_out_idu, ebreak_out_idu, mret_out_idu,fence_i_out_idu,csr_write_id_out_idu,satp_out_idu
 		`ifdef ysyx_25040129_DEBUG
 			, debug_inst_out_idu
 		`endif
@@ -509,7 +513,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 			imm_pip, lsu_write_data_out_idu_pip, alu_opcode_pip, rd_out_idu_pip,
 			is_jalr_out_idu_pip, is_jump_out_idu_pip, reg_write_out_idu_pip,
 			csr_write_out_idu_pip, lsu_write_out_idu_pip, lsu_read_out_idu_pip,
-			ecall_out_idu_pip, ebreak_out_idu_pip, mret_out_idu_pip,fence_i_out_idu_pip,csr_write_id_out_idu_pip
+			ecall_out_idu_pip, ebreak_out_idu_pip, mret_out_idu_pip,fence_i_out_idu_pip,csr_write_id_out_idu_pip, satp_out_idu_pip
 		`ifdef ysyx_25040129_DEBUG
 			, debug_inst_out_idu_pip
 		`endif
@@ -594,6 +598,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.ecall_out_exu(ecall_out_exu),
 		.mret_out_exu(mret_out_exu),
 		.reg_write_out_exu(reg_write_out_exu),
+		.satp_in_exu(satp_out_idu_pip),
+		.satp_out_exu(satp_out_exu),
 
 		.lsu_read_in_exu(lsu_read_out_idu_pip),
 		.lsu_write_in_exu(lsu_write_out_idu_pip),
@@ -611,6 +617,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.is_data_forward_valid_from_exu(is_data_forward_valid_from_exu)
 	);
 	wire fence_i_out_exu;
+	wire [31:0] satp_out_exu;
+	wire [31:0] satp_out_exu_pip;
 	wire [31:0] data_forward_from_exu;
 	assign data_forward_from_exu = result_out_exu;
 	wire is_data_forward_valid_from_exu;
@@ -632,7 +640,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_ready_from_lsu_to_exu;
 	wire is_req_valid_from_pipeline_exu_to_lsu;
 	wire is_req_ready_from_pipeline_lsu_to_exu;
-	ysyx_25040129_PIPELINE #(115
+	ysyx_25040129_PIPELINE #(115 + 32
 	`ifdef ysyx_25040129_DEBUG
 		+ 64
 	`endif
@@ -647,7 +655,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.in_data({lsu_read_out_exu, lsu_write_out_exu, branch_target_out_exu,
 			result_out_exu, lsu_write_data_out_exu, rd_out_exu,ecall_out_exu,
 			mret_out_exu, is_branch_out_exu, csr_write_out_exu,
-			reg_write_out_exu, fence_i_out_exu,csr_addr_out_exu
+			reg_write_out_exu, fence_i_out_exu,csr_addr_out_exu,satp_out_exu
 		`ifdef ysyx_25040129_DEBUG
 			, debug_pc_from_exu_to_lsu
 			, debug_inst_from_exu_to_lsu
@@ -658,7 +666,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_data({lsu_read_out_exu_pip, lsu_write_out_exu_pip, branch_target_out_exu_pip,
 			result_out_exu_pip, lsu_write_data_out_exu_pip, rd_out_exu_pip, ecall_out_exu_pip,
 			mret_out_exu_pip, is_branch_out_exu_pip, csr_write_out_exu_pip,
-			reg_write_out_exu_pip, fence_i_out_exu_pip,csr_addr_out_exu_pip
+			reg_write_out_exu_pip, fence_i_out_exu_pip,csr_addr_out_exu_pip,satp_out_exu_pip
 		`ifdef ysyx_25040129_DEBUG
 			, debug_pc_from_exu_to_lsu_pip
 			, debug_inst_from_exu_to_lsu_pip
@@ -731,6 +739,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 		.is_req_valid_to_wbu(is_req_valid_from_lsu_to_wbu),
 		.is_req_ready_from_wbu(is_req_ready_from_pipeline_wbu_to_lsu),
+		.satp_in_lsu(satp_out_exu_pip),
+		.satp_out_lsu(satp_out_lsu),
 
 		.reg_write_in_lsu(reg_write_out_exu_pip),
 		.reg_write_out_lsu(reg_write_out_lsu),
@@ -757,6 +767,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//2. 抛出异常相关
 	//3. fence.i指令
 	//4. 发生数据冒险
+	wire [31:0] satp_out_lsu;
 	wire is_data_forward_valid_from_lsu;
 	wire [31:0] data_forward_from_lsu;
 	assign data_forward_from_lsu = result_out_lsu;
