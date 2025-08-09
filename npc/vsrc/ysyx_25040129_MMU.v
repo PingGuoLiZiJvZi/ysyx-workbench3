@@ -17,7 +17,7 @@ module ysyx_25040129_MMU (
 	input in_rready,
 	output in_rlast,
 	//-------------------写地址------------------
-	input [31:0] in_awaddr;
+	input [31:0] in_awaddr,
 	input in_awvalid,
 	output in_awready,
 	//-------------------写数据------------------
