@@ -225,11 +225,11 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.soc_arlen(arlen_from_xbar),
 		.soc_arburst(arburst_from_xbar),
 
-		.soc_rdata(rdata_from_xbar),
-		.soc_rresp(rresp_from_xbar),
-		.soc_rvalid(rvalid_from_xbar),
-		.soc_rready(rready_to_xbar),
-		.soc_rlast(rlast_from_xbar),
+		.soc_rdata(rdata_to_xbar),
+		.soc_rresp(rresp_to_xbar),
+		.soc_rvalid(rvalid_to_xbar),
+		.soc_rready(rready_from_xbar),
+		.soc_rlast(rlast_to_xbar),
 
 		.soc_awaddr(awaddr_from_xbar),
 		.soc_awvalid(awvalid_from_xbar),
@@ -260,11 +260,11 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [7:0] arlen_from_xbar;
 	wire [1:0] arburst_from_xbar;
 
-	wire [31:0] rdata_from_xbar;
-	wire [1:0] rresp_from_xbar;
-	wire rvalid_from_xbar;
-	wire rready_to_xbar;
-	wire rlast_from_xbar;
+	wire [31:0] rdata_to_xbar;
+	wire [1:0] rresp_to_xbar;
+	wire rvalid_to_xbar;
+	wire rready_from_xbar;
+	wire rlast_to_xbar;
 
 	wire [31:0] awaddr_from_xbar;
 	wire awvalid_from_xbar;
@@ -278,7 +278,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [1:0] bresp_from_xbar;
 	wire bvalid_from_xbar;
 	wire bready_to_xbar;
-	
+
 	wire [31:0] araddr_to_rtc;
 	wire arvalid_to_rtc;
 	wire arready_from_rtc;
