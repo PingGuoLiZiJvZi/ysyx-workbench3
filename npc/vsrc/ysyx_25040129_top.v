@@ -190,6 +190,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_bvalid(io_master_bvalid),
 		.out_bready(io_master_bready)
 	);
+	wire [31:0] arsatp_from_xbar;
+	wire [31:0] awsatp_from_xbar;
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
 		.rst(rst),
