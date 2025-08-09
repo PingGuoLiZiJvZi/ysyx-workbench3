@@ -68,12 +68,12 @@ assign is_arvalid_out = state == READ_GET_PTE1_WAIT_READY||state == READ_GET_PTE
 wire is_rready_out;
 
 assign is_rready_out = state == READ_GET_PTE1_WAIT_VALID || state == READ_GET_PTE2_WAIT_VALID ||
-						state == READ_WAIT_VALID || state == WRITING_GET_PTE1_WAIT_VALID ||
-						state == WRITING_GET_PTE2_WAIT_VALID ;
+						state == READ_WAIT_VALID || state == WRITE_GET_PTE1_WAIT_VALID ||
+						state == WRITE_GET_PTE2_WAIT_VALID ;
 
 assign is_physical = state == READ_WAIT_VALID || state == READ_WAIT_READY ||
-						state == WRITING_WAIT_VALID || state == WRITING_WAIT_AW_READY ||
-						state == WRITING_WAIT_W_READY || state == WRITING_WAIT_READY;
+						state == WRITE_WAIT_VALID || state == WRITE_WAIT_AW_READY ||
+						state == WRITE_WAIT_W_READY || state == WRITE_WAIT_READY;
 
 assign is_pte1 = state == READ_GET_PTE1_WAIT_READY || state == READ_GET_PTE1_WAIT_VALID ||
 					   state == WRITE_GET_PTE1_WAIT_READY || state == WRITE_GET_PTE1_WAIT_VALID;
@@ -84,13 +84,13 @@ assign is_pte2 = state == READ_GET_PTE2_WAIT_READY || state == READ_GET_PTE2_WAI
 assign direct_forward = state == NO_VIRTUAL_MEMORY && satp[31] == 1'b0;
 
 wire is_awvalid_out;
-assign is_awvalid_out = state == WRITING_WAIT_AW_READY || state == WRITING_WAIT_READY;
+assign is_awvalid_out = state == WRITE_WAIT_AW_READY || state == WRITE_WAIT_READY;
 
 wire is_wvalid_out;
-assign is_wvalid_out = state == WRITING_WAIT_W_READY || state == WRITING_WAIT_READY;
+assign is_wvalid_out = state == WRITE_WAIT_W_READY || state == WRITE_WAIT_READY;
 
 wire is_bready_out;
-assign is_bready_out = state == WRITING_WAIT_VALID ;
+assign is_bready_out = state == WRITE_WAIT_VALID ;
 //---------------------------------------------------------------------------------
 assign out_araddr = direct_forward ? in_araddr : (
 						is_pte1 ? pte1_addr :
@@ -134,10 +134,10 @@ localparam WRITE_GET_PTE1_WAIT_READY= 7;
 localparam WRITE_GET_PTE1_WAIT_VALID = 8;
 localparam WRITE_GET_PTE2_WAIT_READY = 9;
 localparam WRITE_GET_PTE2_WAIT_VALID = 10;
-localparam WRITING_WAIT_READY = 11;
-localparam WRITING_WAIT_AW_READY = 12;
-localparam WRITING_WAIT_W_READY = 13;
-localparam WRITING_WAIT_VALID = 14;
+localparam WRITE_WAIT_READY = 11;
+localparam WRITE_WAIT_AW_READY = 12;
+localparam WRITE_WAIT_W_READY = 13;
+localparam WRITE_WAIT_VALID = 14;
 localparam WRITE_DONE = 15;
 //---------------------------------------------------------------------------------
 wire [19:0] root_idx;
@@ -243,35 +243,35 @@ always @(posedge clk) begin
 		WRITE_GET_PTE2_WAIT_VALID:begin
 			if(out_rvalid)begin
 				pte2 <= out_rdata;
-				state <= WRITING_WAIT_READY;
+				state <= WRITE_WAIT_READY;
 				if(out_rdata[0] == 1'b0)begin
 					$error("MMU: PTE2 is not valid, pte2 = %h,addr = %h", out_rdata, pte1_addr);
 				end
 			end
 			else state <= WRITE_GET_PTE2_WAIT_VALID;
 		end
-		WRITING_WAIT_READY:begin
+		WRITE_WAIT_READY:begin
 			if(out_awready&&out_wready) begin
-				state <= WRITING_WAIT_VALID;
+				state <= WRITE_WAIT_VALID;
 			end else if(out_awready) begin
-				state <= WRITING_WAIT_W_READY;
+				state <= WRITE_WAIT_W_READY;
 			end else if(out_wready) begin
-				state <= WRITING_WAIT_AW_READY;
+				state <= WRITE_WAIT_AW_READY;
 			end else begin
-				state <= WRITING_WAIT_READY; 
+				state <= WRITE_WAIT_READY; 
 			end
 		end
-		WRITING_WAIT_AW_READY:begin
-			if(out_awready)state <= WRITING_WAIT_VALID;
-			else state <= WRITING_WAIT_AW_READY;
+		WRITE_WAIT_AW_READY:begin
+			if(out_awready)state <= WRITE_WAIT_VALID;
+			else state <= WRITE_WAIT_AW_READY;
 		end
-		WRITING_WAIT_W_READY:begin
-			if(out_wready)state <= WRITING_WAIT_VALID;
-			else state <= WRITING_WAIT_W_READY;
+		WRITE_WAIT_W_READY:begin
+			if(out_wready)state <= WRITE_WAIT_VALID;
+			else state <= WRITE_WAIT_W_READY;
 		end
-		WRITING_WAIT_VALID:begin
+		WRITE_WAIT_VALID:begin
 			if(out_bvalid)state <= WRITE_DONE;
-			else state <= WRITING_WAIT_VALID;
+			else state <= WRITE_WAIT_VALID;
 		end
 		WRITE_DONE:begin
 			if(in_bready)begin
