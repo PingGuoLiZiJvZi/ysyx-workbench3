@@ -17,7 +17,6 @@ static inline void set_satp(void *pdir)
 	uintptr_t mode = 1ul << (__riscv_xlen - 1);
 	printf("Setting satp to %p\n", pdir);
 	asm volatile("csrw satp, %0" : : "r"(mode | ((uintptr_t)pdir >> 12)));
-	printf("Setting satp to %p\n", pdir);
 }
 
 static inline uintptr_t get_satp()
@@ -41,14 +40,10 @@ bool vme_init(void *(*pgalloc_f)(int), void (*pgfree_f)(void *))
 		void *va = segments[i].start;
 		for (; va < segments[i].end; va += PGSIZE)
 		{
-			if ((unsigned int)va % 0x1000000 == 0)
-				printf("Mapping kernel space %p to %p\n", va, va);
 			map(&kas, va, va, 0);
 		}
 	}
-	printf("left %p\n", kas.ptr);
 	set_satp(kas.ptr);
-	printf("VME initialized with page directory %p\n", kas.ptr);
 	vme_enable = 1;
 
 	return true;
