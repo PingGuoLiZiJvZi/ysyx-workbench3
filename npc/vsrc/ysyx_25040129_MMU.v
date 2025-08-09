@@ -4,7 +4,7 @@ module ysyx_25040129_MMU (
 	input [31:0] satp,
 
 	//-------------------读地址------------------
-	input [31:0] in_araddr;
+	input [31:0] in_araddr,
 	input in_arvalid,
 	input [2:0] in_arsize,
 	output in_arready,
