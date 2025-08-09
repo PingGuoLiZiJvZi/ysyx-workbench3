@@ -176,6 +176,7 @@ public:
 				{
 					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], regs_val[i + 1], regs_val[0]);
 					irbuf->print_iringbuf();
+					reg_display();
 					printf("\n");
 #ifdef WAVE
 					tfp->flush();
