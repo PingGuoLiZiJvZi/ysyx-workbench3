@@ -29,7 +29,8 @@ module ysyx_25040129_ICACHE #(
 	output out_rready,
 	input out_rlast,
 	//---------------fence.i冲刷---------------
-	input fence_i
+	input fence_i,
+	input [31:0] satp
 );	
 	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
