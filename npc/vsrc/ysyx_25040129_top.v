@@ -213,7 +213,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.awaddr(awaddr_from_lsu),
 		.awvalid(awvalid_from_lsu),
 		.awready(awready_to_lsu),
-		.awsatp(satp_from_lsu),
+		.awsatp(satp_out_lsu),
 
 		.wstrb(wstrb_from_lsu),
 		.wdata(wdata_from_lsu),
