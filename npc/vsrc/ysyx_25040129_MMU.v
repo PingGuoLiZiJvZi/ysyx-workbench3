@@ -99,8 +99,8 @@ assign out_araddr = direct_forward ? in_araddr : (
 					);
 assign out_arvalid = direct_forward ? in_arvalid : is_arvalid_out;
 assign out_arsize = direct_forward ? in_arsize : (
-						(state == RAEDING_WAIT_READY)? in_arsize :3'b010;
-					)
+						(state == RAEDING_WAIT_READY)? in_arsize :3'b010
+					);
 assign out_arlen =  in_arlen;
 assign out_arburst = in_arburst;
 assign out_rready = direct_forward ? in_rready : is_rready_out;
