@@ -32,7 +32,7 @@ module ysyx_25040129_ICACHE #(
 	input fence_i,
 	/* verilator lint_off UNUSEDSIGNAL */
 	input [31:0] satp,
-	output [31:0] out_arsatp, 
+	output [31:0] out_arsatp
 	/* verilator lint_on UNUSEDSIGNAL */
 );	
 	assign out_arsatp = satp; 
