@@ -45,7 +45,7 @@ bool vme_init(void *(*pgalloc_f)(int), void (*pgfree_f)(void *))
 
 	set_satp(kas.ptr);
 	vme_enable = 1;
-
+	printf("Virtual Memory Extension (VME) initialized with page size %d bytes.\n", PGSIZE);
 	return true;
 }
 
