@@ -2,7 +2,6 @@ module ysyx_25040129_MMU (
 	input clk,
 	input rst,
 	// verilator lint_off UNUSED
-	input [31:0] satp,
 	// verilator lint_on UNUSED
 
 	//-------------------读地址------------------
@@ -12,6 +11,7 @@ module ysyx_25040129_MMU (
 	output in_arready,
 	input [7:0] in_arlen,
 	input [1:0] in_arburst,
+	input [31:0] in_arsatp,
 	//-------------------读数据------------------
 	output [31:0] in_rdata,
 	output [1:0] in_rresp,
@@ -22,6 +22,7 @@ module ysyx_25040129_MMU (
 	input [31:0] in_awaddr,
 	input in_awvalid,
 	output in_awready,
+	input [31:0] in_awsatp,
 	//-------------------写数据------------------
 	input [3:0] in_wstrb,
 	input [31:0] in_wdata,
@@ -63,7 +64,7 @@ module ysyx_25040129_MMU (
 wire direct_forward;
 wire is_pte1, is_pte2, is_physical;
 wire is_arvalid_out;
-
+reg [31:0] satp;
 assign is_arvalid_out = state == READ_GET_PTE1_WAIT_READY||state == READ_GET_PTE2_WAIT_READY
 						|| state == READ_WAIT_READY || state == WRITE_GET_PTE1_WAIT_READY
 						|| state == WRITE_GET_PTE2_WAIT_READY;
@@ -171,16 +172,19 @@ always @(posedge clk) begin
 		case (state)
 		NO_VIRTUAL_MEMORY:begin
 			if(satp[31])state <= VIRTUAL_MEMORY;
-			else state <= NO_VIRTUAL_MEMORY; // 直接转发
+			else state <= NO_VIRTUAL_MEMORY; 
 		end 
 		VIRTUAL_MEMORY:begin
 			if(!satp[31])$error("MMU: satp[31] should be 1 for virtual memory mode");
 			if(in_awvalid && in_wvalid)begin
 				state <= WRITE_GET_PTE1_WAIT_READY;
+				satp <= in_awsatp; 
 			end else if(in_arvalid)begin
 				state <= READ_GET_PTE1_WAIT_READY;
+				satp <= in_arsatp;
 			end else begin
-				state <= VIRTUAL_MEMORY; 
+				state <= VIRTUAL_MEMORY;
+				satp  <= 32'hdeadbeef;  
 			end
 		end
 		READ_GET_PTE1_WAIT_READY:begin

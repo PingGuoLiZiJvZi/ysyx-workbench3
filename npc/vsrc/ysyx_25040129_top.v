@@ -198,6 +198,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.arsize(arsize_to_xbar),
 		.arlen(arlen_to_xbar),
 		.arburst(arburst_to_xbar),
+		.satp(arsatp_to_xbar),
 
 		.rdata(rdata_from_xbar),
 		.rresp(rresp_from_xbar),
@@ -208,6 +209,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.awaddr(awaddr_from_lsu),
 		.awvalid(awvalid_from_lsu),
 		.awready(awready_to_lsu),
+		.awsatp(satp_from_lsu),
 
 		.wstrb(wstrb_from_lsu),
 		.wdata(wdata_from_lsu),
@@ -224,6 +226,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.soc_arsize(arsize_from_xbar),
 		.soc_arlen(arlen_from_xbar),
 		.soc_arburst(arburst_from_xbar),
+		.soc_arsatp(arsatp_from_xbar),
 
 		.soc_rdata(rdata_to_xbar),
 		.soc_rresp(rresp_to_xbar),
@@ -234,6 +237,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.soc_awaddr(awaddr_from_xbar),
 		.soc_awvalid(awvalid_from_xbar),
 		.soc_awready(awready_to_xbar),
+		.soc_awsatp(awsatp_from_xbar),
 		
 		.soc_wstrb(wstrb_from_xbar),
 		.soc_wdata(wdata_from_xbar),
@@ -312,6 +316,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.icache_arready(arready_to_icache),
 		.icache_arlen(arlen_from_icache),
 		.icache_arburst(arburst_from_icache),
+		.icache_satp(satp_out_icache),
 
 		.icache_rdata(rdata_to_icache),
 		.icache_rresp(rresp_to_icache),
@@ -323,6 +328,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.lsu_arvalid(arvalid_from_lsu),
 		.lsu_arready(rready_to_lsu),
 		.lsu_arsize(arsize_from_lsu),
+		.lsu_satp(satp_from_lsu),
 
 		.lsu_rdata(rdata_to_lsu),
 		.lsu_rresp(rresp_to_lsu),
@@ -335,6 +341,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.arsize(arsize_to_xbar),
 		.arlen(arlen_to_xbar),
 		.arburst(arburst_to_xbar),
+		.satp(arsatp_to_xbar),
 
 		.rdata(rdata_from_xbar),
 		.rresp(rresp_from_xbar),
@@ -342,6 +349,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rready(rready_to_xbar),
 		.rlast(rlast_from_xbar)
 	);	
+	wire [31:0] arsatp_to_xbar;
 	wire [7:0] arlen_to_xbar;
 	wire [1:0] arburst_to_xbar;
 	wire rlast_from_xbar;
@@ -385,8 +393,10 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_rready(rready_from_icache),
 		.out_rlast(rlast_to_icache),
 		.fence_i(fence_i_out_lsu),
-		.satp(satp_out_ifu)
+		.satp(satp_out_ifu),
+		.out_arsatp(satp_out_icache),
 	);
+	wire [31:0] satp_out_icache;
 	wire [7:0] arlen_from_icache;
 	wire [1:0] arburst_from_icache;
 	wire [31:0] araddr_from_icache;

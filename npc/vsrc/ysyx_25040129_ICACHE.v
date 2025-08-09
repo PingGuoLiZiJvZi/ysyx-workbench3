@@ -32,8 +32,10 @@ module ysyx_25040129_ICACHE #(
 	input fence_i,
 	/* verilator lint_off UNUSEDSIGNAL */
 	input [31:0] satp
+	output [31:0] out_arsatp, 
 	/* verilator lint_on UNUSEDSIGNAL */
 );	
+	assign out_arsatp = satp; 
 	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
 	reg [19:0] satp_latch;
