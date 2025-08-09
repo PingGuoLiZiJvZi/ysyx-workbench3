@@ -109,8 +109,8 @@ always @(posedge clk) begin
 						end
 						state <= WAIT_MMEM_REQ;
 					end
-					end
-				else state <= WAIT_MMEM_READY;
+				end
+			else state <= WAIT_MMEM_READY;
 			
 			end
 			WAIT_MMEM_REQ:begin
