@@ -396,7 +396,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_rlast(rlast_to_icache),
 		.fence_i(fence_i_out_lsu),
 		.satp(satp_out_ifu),
-		.out_arsatp(satp_out_icache),
+		.out_arsatp(satp_out_icache)
 	);
 	wire [31:0] satp_out_icache;
 	wire [7:0] arlen_from_icache;
