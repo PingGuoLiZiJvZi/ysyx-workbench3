@@ -39,7 +39,6 @@ bool vme_init(void *(*pgalloc_f)(int), void (*pgfree_f)(void *))
 		void *va = segments[i].start;
 		for (; va < segments[i].end; va += PGSIZE)
 		{
-			printf("Mapping kernel space %p to %p\n", va, va);
 			map(&kas, va, va, 0);
 		}
 	}
