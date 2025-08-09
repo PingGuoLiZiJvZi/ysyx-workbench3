@@ -177,13 +177,14 @@ always @(posedge clk) begin
 			else state <= NO_VIRTUAL_MEMORY; 
 		end 
 		VIRTUAL_MEMORY:begin
-			if(!satp[31])$error("MMU: satp[31] should be 1 for virtual memory mode");
 			if(in_awvalid && in_wvalid)begin
 				state <= WRITE_GET_PTE1_WAIT_READY;
 				satp <= in_awsatp; 
+				if(!in_awsatp[31])$error("MMU: in_awsatp[31] should be 1 for virtual memory mode");
 			end else if(in_arvalid)begin
 				state <= READ_GET_PTE1_WAIT_READY;
 				satp <= in_arsatp;
+				if(!in_arsatp[31])$error("MMU: in_arsatp[31] should be 1 for virtual memory mode");
 			end else begin
 				state <= VIRTUAL_MEMORY;
 				satp  <= 32'hdeadbeef;  
