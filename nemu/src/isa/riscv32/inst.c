@@ -131,6 +131,7 @@ enum
 	} while (0)
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type)
 {
+	printf("decode_operand: type = %d, inst = 0x%x\n", type, s->isa.inst);
 	uint32_t i = s->isa.inst;
 	int rs1 = BITS(i, 19, 15);
 	int rs2 = BITS(i, 24, 20);
