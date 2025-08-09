@@ -86,12 +86,11 @@ module ysyx_25040129_ICACHE #(
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
 						if(cache_valid[p_index] && cache_tag[p_index] == p_tag) begin
-							ifu_rdata_latch <= cache_data[p_index][p_offset];
+							ifu_rdata_latch <= cache_data[p_index];
 							if(ifu_rready) state <= IDLE;
 							else state <= WAIT_IFU_READY; // 命中，直接返回数据
 						end else begin
 							state <= WAIT_OUT_READY; // 未命中，准备向外界请求数据
-							burst_count <= 0; 
 						end
 					end
 					end
@@ -111,10 +110,7 @@ module ysyx_25040129_ICACHE #(
 					if(fence_i)fence_i_latch <= 1'b1;
 					if(out_rvalid) begin
 						cache_data[index][burst_count] <= out_rdata;
-						burst_count <= burst_count + 1;
-						if(burst_count == offset) begin
-							ifu_rdata_latch <= out_rdata;
-						end
+						ifu_rdata_latch <= out_rdata;
 						if(out_rlast) begin
 							cache_tag[index] <= tag;
 							cache_valid[index] <= 1'b1; //标记该cache块有效
