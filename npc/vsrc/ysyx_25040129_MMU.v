@@ -64,7 +64,9 @@ module ysyx_25040129_MMU (
 wire direct_forward;
 wire is_pte1, is_pte2, is_physical;
 wire is_arvalid_out;
+/* verilator lint_off UNUSEDSIGNAL */
 reg [31:0] satp;
+/* verilator lint_on UNUSEDSIGNAL */
 assign is_arvalid_out = state == READ_GET_PTE1_WAIT_READY||state == READ_GET_PTE2_WAIT_READY
 						|| state == READ_WAIT_READY || state == WRITE_GET_PTE1_WAIT_READY
 						|| state == WRITE_GET_PTE2_WAIT_READY;

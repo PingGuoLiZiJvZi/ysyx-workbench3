@@ -73,6 +73,7 @@ module ysyx_25040129_XBAR (
 	output reg rtc_rready
 );
 assign soc_arsatp = arsatp; 
+assign soc_awsatp = awsatp;
 assign soc_araddr = araddr; 
 assign soc_arlen = arlen; 
 assign soc_arburst = arburst; 
