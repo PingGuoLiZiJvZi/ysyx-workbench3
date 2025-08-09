@@ -173,7 +173,7 @@ always @(posedge clk) begin
 	else begin
 		case (state)
 		NO_VIRTUAL_MEMORY:begin
-			if(arsatp[31] || awsatp[31])state <= VIRTUAL_MEMORY;
+			if(in_arsatp[31] || in_awsatp[31])state <= VIRTUAL_MEMORY;
 			else state <= NO_VIRTUAL_MEMORY; 
 		end 
 		VIRTUAL_MEMORY:begin
