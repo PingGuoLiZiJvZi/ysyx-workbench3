@@ -33,6 +33,7 @@ module ysyx_25040129_ICACHE #(
 );	
 	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
+	reg [31:0] satp_latch;
 	assign out_arlen = 0; 
 	assign out_arburst = 2'b00; 
 	// localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
@@ -41,6 +42,7 @@ module ysyx_25040129_ICACHE #(
 	reg [31:0] ifu_araddr_latch;
 	// verilator lint_on UNUSED
 	reg [31:0] cache_data[BLOCK_NUM-1:0]; 
+	reg [19:0] cache_satp[BLOCK_NUM-1:0]; 
 	reg [BLOCK_NUM-1:0]cache_valid;
 	reg [31:2+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
 	reg [1:0] state;
@@ -49,11 +51,15 @@ module ysyx_25040129_ICACHE #(
 	wire [BLOCK_NUM_DIG-1:0] p_index;
 	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] tag;
 	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] p_tag;
+	wire [19:0] satp_addr;
+	wire [19:0] p_satp_addr;
 	//--------------------------------------------------------------------------------
 	assign p_index = ifu_araddr[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
 	assign p_tag = ifu_araddr[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	assign index = ifu_araddr_latch[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
 	assign tag = ifu_araddr_latch[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
+	assign satp_addr = satp_latch[31:12];
+	assign p_satp_addr = satp[31:12];
 	//--------------------------------------------------------------------------------
 	assign ifu_arready = (state == IDLE) && !fence_i;
 	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
@@ -85,7 +91,7 @@ module ysyx_25040129_ICACHE #(
 					else begin
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
-						if(cache_valid[p_index] && cache_tag[p_index] == p_tag) begin
+						if(cache_valid[p_index] && cache_tag[p_index] == p_tag && cache_satp[p_index] == p_satp_addr) begin
 							ifu_rdata_latch <= cache_data[p_index];
 							if(ifu_rready) state <= IDLE;
 							else state <= WAIT_IFU_READY; // 命中，直接返回数据
@@ -112,6 +118,7 @@ module ysyx_25040129_ICACHE #(
 						cache_data[index] <= out_rdata;
 						ifu_rdata_latch <= out_rdata;
 						if(out_rlast) begin
+							cache_satp[index] <= satp_addr;
 							cache_tag[index] <= tag;
 							cache_valid[index] <= 1'b1; //标记该cache块有效
 							state <= WAIT_IFU_READY;
