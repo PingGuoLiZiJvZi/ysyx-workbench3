@@ -71,6 +71,10 @@ extern "C" uint32_t soc_read(uint32_t addr)
 		mem_read(addr, &res);
 		return res;
 	}
+	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
+	{
+		return -1;
+	}
 	else
 	{
 		printf("soc_read: Invalid address 0x%08x\n", addr);
