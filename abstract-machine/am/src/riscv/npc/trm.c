@@ -18,7 +18,7 @@ void putch(char ch)
 }
 unsigned char getch()
 {
-	return -1;
+	return inb(SERIAL_PORT);
 }
 void halt(int code)
 {
