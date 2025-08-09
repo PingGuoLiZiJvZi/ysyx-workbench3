@@ -35,7 +35,7 @@ reg [31:0] flush_target_latch;
 reg [31:0] inst;
 reg[2:0] state;
 assign araddr = pc;
-assign arvalid = (state == WAIT_MMEM_READY);
+assign arvalid = (state == WAIT_MMEM_READY)&& !raw;
 assign rready = (state == WAIT_MMEM_REQ) || (state == WAIT_MMEM_READY && arready);
 localparam WAIT_MMEM_READY = 3'b000;
 localparam WAIT_MMEM_REQ = 3'b001;
@@ -68,6 +68,8 @@ end
 // end
 //-------------------综合时直接删除-------------------
 // pc 更新逻辑
+// 冲突信号的存在目的是阻止IFU以错误的satp发起取指
+// 也就是，阻止state进入WAIT_MMEM_READY状态
 always @(posedge clk) begin
 	if(rst)begin
 		pc <= `ysyx_25040129_VIRTUAL_ADDR;
