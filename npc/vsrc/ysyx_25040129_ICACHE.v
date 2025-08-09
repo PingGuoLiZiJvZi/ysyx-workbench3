@@ -1,5 +1,4 @@
 module ysyx_25040129_ICACHE #(
-	parameter BLOCK_SIZE_WORD_DIG = 1,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	parameter BLOCK_NUM_DIG = 4//2^BLOCK_NUM_DIG = 16, // block number = 16
 )(
 	//目前16指令缓存参数最佳为1 3
@@ -33,10 +32,8 @@ module ysyx_25040129_ICACHE #(
 	input fence_i
 );	
 	reg [31:0] ifu_rdata_latch;
-	localparam BLOCK_SIZE_WORD = 1 << BLOCK_SIZE_WORD_DIG; 
-	assign out_arlen = BLOCK_SIZE_WORD - 1; 
+	assign out_arlen = 0; 
 	assign out_arburst = 2'b00; 
-	localparam BLOCK_SIZE_DIG = BLOCK_SIZE_WORD_DIG + 2;
 	// localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
 	localparam BLOCK_NUM = 1 << (BLOCK_NUM_DIG); 
 	// verilator lint_off UNUSED
@@ -50,16 +47,12 @@ module ysyx_25040129_ICACHE #(
 	//--------------------------------------------------------------------------------
 	wire [BLOCK_NUM_DIG-1:0] index;
 	wire [BLOCK_NUM_DIG-1:0] p_index;
-	wire [BLOCK_SIZE_WORD_DIG-1:0] offset;
-	wire [BLOCK_SIZE_WORD_DIG-1:0] p_offset;
-	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] tag;
-	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] p_tag;
+	wire [31-BLOCK_SIZE_DIG:0] tag;
+	wire [31-BLOCK_SIZE_DIG:0] p_tag;
 	//--------------------------------------------------------------------------------
 	assign p_index = ifu_araddr[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
-	assign p_offset = ifu_araddr[BLOCK_SIZE_WORD_DIG+1:2];
 	assign p_tag = ifu_araddr[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	assign index = ifu_araddr_latch[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
-	assign offset = ifu_araddr_latch[BLOCK_SIZE_WORD_DIG+1:2];
 	assign tag = ifu_araddr_latch[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	//--------------------------------------------------------------------------------
 	assign ifu_arready = (state == IDLE) && !fence_i;
@@ -119,7 +112,7 @@ module ysyx_25040129_ICACHE #(
 					if(out_rvalid) begin
 						cache_data[index][burst_count] <= out_rdata;
 						burst_count <= burst_count + 1;
-						if(burst_count == offset)begin
+						if(burst_count == offset) begin
 							ifu_rdata_latch <= out_rdata;
 						end
 						if(out_rlast) begin
