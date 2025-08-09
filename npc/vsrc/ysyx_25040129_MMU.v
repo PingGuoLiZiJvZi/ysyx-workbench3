@@ -1,7 +1,9 @@
 module ysyx_25040129_MMU (
 	input clk,
 	input rst,
+	// verilator lint_off UNUSED
 	input [31:0] satp,
+	// verilator lint_on UNUSED
 
 	//-------------------读地址------------------
 	input [31:0] in_araddr,
@@ -150,7 +152,9 @@ wire [9:0] vpn2;
 assign vpn2 = in_araddr[21:12];
 wire [11:0] offset;
 assign offset = in_araddr[11:0];
+// verilator lint_off UNUSED
 reg [31:0] pte1, pte2;
+// verilator lint_on UNUSED
 wire [19:0] table_idx;
 assign table_idx = pte1[29:10];
 wire [31:0] pte2_addr;
