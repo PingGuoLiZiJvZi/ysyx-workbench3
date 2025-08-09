@@ -47,8 +47,8 @@ module ysyx_25040129_ICACHE #(
 	//--------------------------------------------------------------------------------
 	wire [BLOCK_NUM_DIG-1:0] index;
 	wire [BLOCK_NUM_DIG-1:0] p_index;
-	wire [31-BLOCK_SIZE_DIG:0] tag;
-	wire [31-BLOCK_SIZE_DIG:0] p_tag;
+	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] tag;
+	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] p_tag;
 	//--------------------------------------------------------------------------------
 	assign p_index = ifu_araddr[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
 	assign p_tag = ifu_araddr[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
