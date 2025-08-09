@@ -143,7 +143,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.in_arlen(arlen_from_xbar),
 		.in_arburst(arburst_from_xbar),
 
-		.in_rdata(rdata_tp_xbar),
+		.in_rdata(rdata_to_xbar),
 		.in_rresp(rresp_to_xbar),
 		.in_rvalid(rvalid_to_xbar),
 		.in_rready(rready_from_xbar),
