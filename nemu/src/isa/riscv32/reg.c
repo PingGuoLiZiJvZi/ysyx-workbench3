@@ -38,7 +38,7 @@ void copy_regs(void *dut)
 	uint32_t *reg = (uint32_t *)dut;
 	// pc
 	cpu.pc = reg[0];
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 32; i++)
 	{
 		cpu.gpr[i] = reg[i + 1];
 	}
@@ -47,7 +47,7 @@ void regs_copy(void *dut)
 {
 	uint32_t *reg = (uint32_t *)dut;
 	reg[0] = cpu.pc;
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 32; i++)
 	{
 		reg[i + 1] = gpr(i);
 	}
