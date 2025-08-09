@@ -15,9 +15,9 @@ int main()
 	Log("Build time: %s, %s", __TIME__, __DATE__);
 
 	init_mm();
-
+	printf("Memory management initialized.\n");
 	init_device();
-
+	printf("Device management initialized.\n");
 	init_ramdisk();
 
 #ifdef HAS_CTE
