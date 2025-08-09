@@ -258,7 +258,7 @@ module ysyx_25040129_ICACHE #(
 	assign out_araddr = ifu_araddr_latch;
 	assign out_arvalid = (state == WAIT_OUT_READY);
 	assign out_rready = (state == WAIT_OUT_REQ);
-	assign ifu_rresp = `OKAY;
+	assign ifu_rresp = `ysyx_25040129_OKAY;
 	assign ifu_rvalid = (state == WAIT_IFU_READY); 
 
 	//icache的每个块都需要有一个valid位,id位目前直接对addr取模得到
