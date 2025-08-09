@@ -21,7 +21,7 @@ module ysyx_25040129_IFU (
 	output rready,
 	//---------------satp及其冒险控制---------------
 	input [31:0] satp_in_ifu,
-	input [31:0] satp_out_ifu,
+	output [31:0] satp_out_ifu,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_ifu_pip_idu,
 	input valid_csr_addr_write_ifu_pip_idu,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_idu_pip_exu,
@@ -31,6 +31,7 @@ module ysyx_25040129_IFU (
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
 	input valid_csr_addr_write_lsu_pip_wbu
 	);
+assign satp_out_ifu = satp_in_ifu;
 reg get_flush_signal_in_fetching;
 reg [31:0] flush_target_latch;
 reg [31:0] inst;
