@@ -767,7 +767,9 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//2. 抛出异常相关
 	//3. fence.i指令
 	//4. 发生数据冒险
+	/* verilator lint_off UNUSEDSIGNAL */
 	wire [31:0] satp_out_lsu;
+	/* verilator lint_on UNUSEDSIGNAL */
 	wire is_data_forward_valid_from_lsu;
 	wire [31:0] data_forward_from_lsu;
 	assign data_forward_from_lsu = result_out_lsu;
