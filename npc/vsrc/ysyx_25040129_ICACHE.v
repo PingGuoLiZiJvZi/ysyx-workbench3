@@ -36,9 +36,7 @@ module ysyx_25040129_ICACHE #(
 );	
 	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
-	/* verilator lint_off UNUSEDSIGNAL */
-	reg [31:0] satp_latch;
-	/* verilator lint_on UNUSEDSIGNAL */
+	reg [19:0] satp_latch;
 	assign out_arlen = 0; 
 	assign out_arburst = 2'b00; 
 	// localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
@@ -63,7 +61,7 @@ module ysyx_25040129_ICACHE #(
 	assign p_tag = ifu_araddr[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	assign index = ifu_araddr_latch[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
 	assign tag = ifu_araddr_latch[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
-	assign satp_addr = satp_latch[31:12];
+	assign satp_addr = satp_latch;
 	assign p_satp_addr = satp[31:12];
 	//--------------------------------------------------------------------------------
 	assign ifu_arready = (state == IDLE) && !fence_i;
@@ -87,6 +85,7 @@ module ysyx_25040129_ICACHE #(
 			ifu_araddr_latch <= 32'b0;
 			cache_valid <= {BLOCK_NUM{1'b0}};
 			fence_i_latch <= 1'b0;
+			satp_latch <= 20'b0;
 		end
 		else begin
 			case (state)
@@ -96,6 +95,7 @@ module ysyx_25040129_ICACHE #(
 					else begin
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
+						satp_latch <= satp[31:12];
 						if(cache_valid[p_index] && cache_tag[p_index] == p_tag && cache_satp[p_index] == p_satp_addr) begin
 							ifu_rdata_latch <= cache_data[p_index];
 							if(ifu_rready) state <= IDLE;
