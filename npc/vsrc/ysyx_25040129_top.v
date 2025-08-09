@@ -334,9 +334,25 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rdata(rdata_to_ifu),
 		.rresp(rresp_to_ifu),
 		.rvalid(rvalid_to_ifu),
-		.rready(rready_from_ifu)
-	);
+		.rready(rready_from_ifu),
 
+		.satp_in_ifu(satp_in_ifu),
+		.satp_out_ifu(satp_out_ifu),
+		.csr_addr_ifu_pip_idu(csr_write_id_out_idu),
+		.valid_csr_addr_write_ifu_pip_idu(csr_write_out_idu & is_req_valid_from_idu_to_exu),
+
+		.csr_addr_idu_pip_exu(csr_write_id_out_idu_pip),
+		.valid_csr_addr_write_idu_pip_exu(csr_write_out_idu_pip & is_req_valid_from_pipeline_idu_to_exu),
+
+		.csr_addr_exu_pip_lsu(csr_addr_out_exu_pip),
+		.valid_csr_addr_write_exu_pip_lsu(csr_write_out_exu_pip & is_req_valid_from_pipeline_exu_to_lsu),
+
+		.csr_addr_lsu_pip_wbu(csr_addr_out_lsu_pip),
+		.valid_csr_addr_write_lsu_pip_wbu(csr_write_out_lsu_pip & is_req_valid_from_pipeline_lsu_to_wbu)
+
+	);
+	wire [31:0] satp_in_ifu;
+	wire [31:0] satp_out_ifu;
 	wire [31:0] pc_from_ifu;
 
 	wire [31:0] inst_to_idu;
@@ -539,7 +555,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.csr_read_addr(csr_read_id_out_idu),
 		.csr_write_addr(csr_addr_out_wbu),
 		.csr_data(result_out_wbu),
-		.csr_out(csr_in_idu)
+		.csr_out(csr_in_idu),
+		.satp_in_ifu(satp_in_ifu)
 	);
 	
 	ysyx_25040129_EXU u_ysyx_25040129_EXU (

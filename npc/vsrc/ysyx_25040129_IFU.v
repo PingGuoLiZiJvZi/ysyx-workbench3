@@ -20,7 +20,8 @@ module ysyx_25040129_IFU (
 	input rvalid,
 	output rready,
 	//---------------satp及其冒险控制---------------
-	input [31:0] satp,
+	input [31:0] satp_in_ifu,
+	input [31:0] satp_out_ifu,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_ifu_pip_idu,
 	input valid_csr_addr_write_ifu_pip_idu,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_idu_pip_exu,
