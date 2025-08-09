@@ -30,11 +30,15 @@ module ysyx_25040129_ICACHE #(
 	input out_rlast,
 	//---------------fence.i冲刷---------------
 	input fence_i,
+	/* verilator lint_off UNUSEDSIGNAL */
 	input [31:0] satp
+	/* verilator lint_on UNUSEDSIGNAL */
 );	
 	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
+	/* verilator lint_off UNUSEDSIGNAL */
 	reg [31:0] satp_latch;
+	/* verilator lint_on UNUSEDSIGNAL */
 	assign out_arlen = 0; 
 	assign out_arburst = 2'b00; 
 	// localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
