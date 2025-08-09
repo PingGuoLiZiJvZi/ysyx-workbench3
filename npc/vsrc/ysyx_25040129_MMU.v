@@ -63,15 +63,15 @@ wire is_pte1, is_pte2, is_physical;
 wire is_arvalid_out;
 
 assign is_arvalid_out = state == READ_GET_PTE1_WAIT_READY||state == READ_GET_PTE2_WAIT_READY
-						|| state == RAEDING_WAIT_READY || state == WRITE_GET_PTE1_WAIT_READY
+						|| state == READ_WAIT_READY || state == WRITE_GET_PTE1_WAIT_READY
 						|| state == WRITE_GET_PTE2_WAIT_READY;
 wire is_rready_out;
 
-assign is_rready_out = state == READING_GET_PTE1_WAIT_VALID || state == READING_GET_PTE2_WAIT_VALID ||
-						state == READING_WAIT_VALID || state == WRITING_GET_PTE1_WAIT_VALID ||
+assign is_rready_out = state == READ_GET_PTE1_WAIT_VALID || state == READ_GET_PTE2_WAIT_VALID ||
+						state == READ_WAIT_VALID || state == WRITING_GET_PTE1_WAIT_VALID ||
 						state == WRITING_GET_PTE2_WAIT_VALID ;
 
-assign is_physical = state == READING_WAIT_VALID || state == RAEDING_WAIT_READY ||
+assign is_physical = state == READ_WAIT_VALID || state == READ_WAIT_READY ||
 						state == WRITING_WAIT_VALID || state == WRITING_WAIT_AW_READY ||
 						state == WRITING_WAIT_W_READY || state == WRITING_WAIT_READY;
 
@@ -99,7 +99,7 @@ assign out_araddr = direct_forward ? in_araddr : (
 					);
 assign out_arvalid = direct_forward ? in_arvalid : is_arvalid_out;
 assign out_arsize = direct_forward ? in_arsize : (
-						(state == RAEDING_WAIT_READY)? in_arsize :3'b010
+						(state == READ_WAIT_READY)? in_arsize :3'b010
 					);
 assign out_arlen =  in_arlen;
 assign out_arburst = in_arburst;
@@ -127,8 +127,8 @@ localparam READ_GET_PTE1_WAIT_READY = 2;
 localparam READ_GET_PTE1_WAIT_VALID = 3;
 localparam READ_GET_PTE2_WAIT_READY = 4;
 localparam READ_GET_PTE2_WAIT_VALID = 5;
-localparam RAEDING_WAIT_READY = 6;
-localparam READING_WAIT_VALID = 7;
+localparam READ_WAIT_READY = 6;
+localparam READ_WAIT_VALID = 7;
 localparam READ_DONE = 6;
 localparam WRITE_GET_PTE1_WAIT_READY= 7;
 localparam WRITE_GET_PTE1_WAIT_VALID = 8;
@@ -200,20 +200,20 @@ always @(posedge clk) begin
 		READ_GET_PTE2_WAIT_VALID:begin
 			if(out_rvalid)begin
 				pte2 <= out_rdata;
-				state <= RAEDING_WAIT_READY;
+				state <= READ_WAIT_READY;
 				if(out_rdata[0] == 1'b0)begin
 					$error("MMU: PTE2 is not valid, pte2 = %h,addr = %h", out_rdata, pte1_addr);
 				end
 			end
 			else state <= READ_GET_PTE2_WAIT_VALID;
 		end
-		RAEDING_WAIT_READY:begin
-			if(out_arready)state <= READING_WAIT_VALID;
-			else state <= RAEDING_WAIT_READY;
+		READ_WAIT_READY:begin
+			if(out_arready)state <= READ_WAIT_VALID;
+			else state <= READ_WAIT_READY;
 		end
-		READING_WAIT_VALID:begin
+		READ_WAIT_VALID:begin
 			if(out_rvalid)state <= READ_DONE;
-			else state <= READING_WAIT_VALID;
+			else state <= READ_WAIT_VALID;
 		end
 		READ_DONE:begin
 			if(in_rready)begin
