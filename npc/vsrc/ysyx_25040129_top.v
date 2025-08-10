@@ -999,6 +999,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.is_req_ready_to_lsu(is_req_ready_from_wbu_to_lsu),
 		.rd_in_wbu(rd_out_lsu_pip),
 		.result_in_wbu(result_out_lsu_pip),
+		.csrrw_csr_write_data_in_wbu(csrrw_csr_write_data_out_lsu_pip),
 		.csr_addr_in_wbu(csr_addr_out_lsu_pip),
 		.csr_write_in_wbu(csr_write_out_lsu_pip),
 		.reg_write_in_wbu(reg_write_out_lsu_pip),
