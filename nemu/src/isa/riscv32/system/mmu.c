@@ -41,7 +41,5 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type)
 	}
 	assert((pte2 & 0x1) == 0x1); // PTE valid bit must be set
 	paddr_t paddr = ((pte2 >> 10) << 12) | offset;
-	fprintf(stderr, "MMU nemu:paddr = %x, pte1 = %x, pte2 = %x, vaddr = %x\n", paddr, pte1, pte2, vaddr);
-
 	return paddr;
 }
