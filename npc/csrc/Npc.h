@@ -141,7 +141,7 @@ public:
 		ref_difftest_memcpy(0, pmem, img_size, DIFFTEST_TO_REF);
 		uint32_t regs[33];
 		memcpy(regs, regs_val, sizeof(regs_val));
-		regs[0] = 0x80000000;
+		regs[0] = 0x30000000;
 		ref_difftest_regcpy(regs, DIFFTEST_TO_REF);
 	}
 	void difftest_step()
@@ -176,7 +176,6 @@ public:
 				{
 					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], regs_val[i + 1], regs_val[0]);
 					irbuf->print_iringbuf();
-					reg_display();
 					printf("\n");
 #ifdef WAVE
 					tfp->flush();

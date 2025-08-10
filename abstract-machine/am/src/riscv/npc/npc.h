@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <klib-macros.h>
-#define MMIO_BASE 0xb0000000
+#define MMIO_BASE 0xa0000000
 #define DEVICE_BASE 0xb0000000
 
 #define SERIAL_PORT (0x10000000)

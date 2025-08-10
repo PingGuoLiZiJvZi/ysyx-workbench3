@@ -82,7 +82,7 @@ always @(posedge clk) begin
 	else begin
 		case (state)
 			WAIT_MMEM_READY:begin
-				if(arready & !raw)begin
+				if(arready)begin
 					if(rvalid) begin
 						inst <= rdata;
 						if(pipeline_flush)begin
@@ -109,8 +109,8 @@ always @(posedge clk) begin
 						end
 						state <= WAIT_MMEM_REQ;
 					end
-				end
-			else state <= WAIT_MMEM_READY;
+					end
+				else state <= WAIT_MMEM_READY;
 			
 			end
 			WAIT_MMEM_REQ:begin
