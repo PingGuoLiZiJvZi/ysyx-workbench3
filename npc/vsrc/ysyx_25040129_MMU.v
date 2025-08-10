@@ -249,7 +249,8 @@ always @(posedge clk) begin
 				pte1 <= out_rdata;
 				state <= WRITE_GET_PTE2_WAIT_READY;
 				if(out_rdata[0] == 1'b0)begin
-					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h", out_rdata, pte1_addr);
+				
+					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h, vaddr = %h", out_rdata, pte1_addr, is_read? in_araddr : in_awaddr);
 				end
 			end
 			else state <= WRITE_GET_PTE1_WAIT_VALID;
