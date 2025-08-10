@@ -46,36 +46,77 @@ always @(posedge clk) begin
 		inst_to_idu <= 32'b0; // 初始化指令
 	end
 	else begin
-		if(state==IDLE && next_state == WAIT_MMEM_READY) begin
-			pc <= is_branch ? jump_target : pc + `WORD_T;
+		case (state)
+			WAIT_MMEM_READY:begin
+				if(arready & !raw)begin
+					if(rvalid) begin
+						inst <= rdata;
+						if(pipeline_flush)begin
+							pc <= pipeline_flush_target;
+							get_flush_signal_in_fetching <= 1'b0;
+							flush_target_latch <= 32'b0;
+							state <= WAIT_MMEM_READY;
+						end
+						else begin
+							if(is_req_ready_from_idu)begin 
+								state <= WAIT_MMEM_READY;
+								pc <= pc + 4;
+							end
+							else state <= WAIT_IDU_READY;
+						end
+						`ifdef ysyx_25040129_DPI
+						if(rresp != `ysyx_25040129_OKAY)$error("IFU: Read error, rresp = %b", rresp);
+						`endif
+					end
+					else begin
+						if(pipeline_flush)begin
+							get_flush_signal_in_fetching <= 1'b1;
+							flush_target_latch <= pipeline_flush_target;
+						end
+						state <= WAIT_MMEM_REQ;
+					end
+				end
+			else state <= WAIT_MMEM_READY;
+			
 			end
-		else pc <= pc; // 保持pc不变
-		if (next_state == WAIT_IDU_READY && rresp ==`OKAY) begin
-			inst_to_idu <= rdata; 
-		end
+			WAIT_MMEM_REQ:begin
+				if(rvalid)begin 
+					state <= WAIT_IDU_READY;
+					inst <= rdata;
+					`ifdef ysyx_25040129_DPI
+					if(rresp != `ysyx_25040129_OKAY)$error("IFU: Read error, rresp = %b", rresp);
+					`endif
+				end
+				else state <= WAIT_MMEM_REQ;
+				if(pipeline_flush)begin
+					get_flush_signal_in_fetching <= 1'b1;
+					flush_target_latch <= pipeline_flush_target;
+				end
+			end
+			WAIT_IDU_READY:begin
+				if(pipeline_flush)begin
+					pc <= pipeline_flush_target;
+					get_flush_signal_in_fetching <= 1'b0;
+					flush_target_latch <= 32'b0;
+					state <= WAIT_MMEM_READY;
+				end
+				else if(get_flush_signal_in_fetching)begin
+					pc <= flush_target_latch;
+					get_flush_signal_in_fetching <= 1'b0;
+					flush_target_latch <= 32'b0;
+					state <= WAIT_MMEM_READY;
+				end
+				else begin
+					if(is_req_ready_from_idu)begin 
+						state <= WAIT_MMEM_READY;
+						pc <= pc + 4;
+					end
+					else state <= WAIT_IDU_READY;
+				end
+			end
+			default: state <= WAIT_MMEM_READY;
+		endcase
 	end
-end
-//总线信号产生逻辑
-assign is_req_ready_to_wbu = (state == IDLE);
-
-assign is_req_valid_to_idu = (state == WAIT_IDU_READY);
-// next state 逻辑 
-always @(*) begin
-	update_pc(pc);
-	update_inst(inst_to_idu);
-	update_ifu_state({5'b0,state});
-	case (state)
-		IDLE: next_state = is_req_valid_from_wbu ? WAIT_MMEM_READY : IDLE;
-		WAIT_MMEM_READY: next_state = arready ? WAIT_MMEM_REQ : WAIT_MMEM_READY;
-		WAIT_MMEM_REQ: next_state = rvalid ? WAIT_IDU_READY : WAIT_MMEM_REQ;
-		WAIT_IDU_READY: next_state = is_req_ready_from_idu ? IDLE : WAIT_IDU_READY;
-		default: next_state = WAIT_MMEM_READY;
-	endcase
-end
-// 状态转移
-always @(posedge clk) begin
-	if(rst)state <= WAIT_MMEM_READY;
-	else state <= next_state;
 end
 
 endmodule
