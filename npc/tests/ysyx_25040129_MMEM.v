@@ -24,7 +24,13 @@ output [1:0]bresp,
 output bvalid,
 input bready
 );
-
+//当前工作：将总线改进至AXI4-Lite
+// LFSR u_lfsr (
+//   .clk(clk),
+//   .rst(rst),
+//   .en(1'b1), // 每次拉高会触发产生一个新随机数
+//   .rand_out(delay) // 随机数输出，范围：1 ~ 31
+// );
 wire [4:0] delay = 5'b1;
 localparam  R_IDLE = 3'b000;
 localparam  R_READING = 3'b001;
@@ -68,11 +74,11 @@ end
 
 assign arready = (r_state == R_IDLE);
 assign rvalid = (r_state == R_WAIT_R_READY);
-assign rresp = `ysyx_25040129_OKAY;
+assign rresp = `OKAY;
 assign awready = (w_state == W_IDLE) || (w_state == W_WAIT_AW_VALID);
 assign wready = (w_state == W_WAIT_W_VALID) || (w_state == W_IDLE);
 assign bvalid = (w_state == W_WAIT_B_READY);
-assign bresp = `ysyx_25040129_OKAY;
+assign bresp = `OKAY;
 
 always @(posedge clk) begin
 	if(rst)begin
@@ -133,9 +139,9 @@ endmodule
 // 	case (state)
 // 		IDLE: begin
 // 			if (is_req_valid) begin
-// 				if (mmem_read != `ysyx_25040129_NO_MEM_READ) begin
+// 				if (mmem_read != `NO_MEM_READ) begin
 // 					next_state = PROCESS_READ;
-// 				end else if (mmem_write != `ysyx_25040129_NO_MEM_WRITE) begin
+// 				end else if (mmem_write != `NO_MEM_WRITE) begin
 // 					next_state = PROCESS_WRITE;
 // 				end else begin
 // 					next_state = IDLE;
@@ -153,7 +159,7 @@ endmodule
 // 	case (state)
 // 		IDLE:begin
 // 			if(is_req_valid)begin
-// 				if(mmem_read != `ysyx_25040129_NO_MEM_READ)begin
+// 				if(mmem_read != `NO_MEM_READ)begin
 // 					case (mmem_read)
 // 						`MEM_READ_BYTE:mmem_read_data <= {{24{paddr_read(mmem_addr,1,0,mmem_read == `MEM_READ_BYTE ? 32'b1 : 32'b0)[7]}}, paddr_read(mmem_addr,1,0,mmem_read == `MEM_READ_BYTE ? 32'b1 : 32'b0)[7:0]};
 // 						`MEM_READ_HALF:mmem_read_data <= {{16{paddr_read(mmem_addr,2,0,mmem_read == `MEM_READ_HALF ? 32'b1 : 32'b0)[15]}}, paddr_read(mmem_addr,2,0,mmem_read == `MEM_READ_HALF ? 32'b1 : 32'b0)[15:0]};
@@ -163,7 +169,7 @@ endmodule
 // 						default: begin	end
 // 					endcase
 // 				end
-// 				else if(mmem_write != `ysyx_25040129_NO_MEM_WRITE)begin
+// 				else if(mmem_write != `NO_MEM_WRITE)begin
 // 					case (mmem_write)
 // 						`MEM_WRITE_BYTE:paddr_write(mmem_addr,1,{24'b0,mmem_write_data[7:0]},mmem_write == `MEM_WRITE_BYTE ? 32'b1 : 32'b0);
 // 						`MEM_WRITE_HALF:paddr_write(mmem_addr,2,{16'b0,mmem_write_data[15:0]},mmem_write == `MEM_WRITE_HALF ? 32'b1 : 32'b0);

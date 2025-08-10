@@ -1,1 +1,0 @@
-`define ysyx_25040129_SIMULATE 1
