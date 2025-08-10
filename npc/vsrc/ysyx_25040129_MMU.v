@@ -138,16 +138,16 @@ localparam READ_GET_PTE2_WAIT_READY = 4;
 localparam READ_GET_PTE2_WAIT_VALID = 5;
 localparam READ_WAIT_READY = 6;
 localparam READ_WAIT_VALID = 7;
-localparam READ_DONE = 6;
-localparam WRITE_GET_PTE1_WAIT_READY= 7;
-localparam WRITE_GET_PTE1_WAIT_VALID = 8;
-localparam WRITE_GET_PTE2_WAIT_READY = 9;
-localparam WRITE_GET_PTE2_WAIT_VALID = 10;
-localparam WRITE_WAIT_READY = 11;
-localparam WRITE_WAIT_AW_READY = 12;
-localparam WRITE_WAIT_W_READY = 13;
-localparam WRITE_WAIT_VALID = 14;
-localparam WRITE_DONE = 15;
+localparam READ_DONE = 8;
+localparam WRITE_GET_PTE1_WAIT_READY= 9;
+localparam WRITE_GET_PTE1_WAIT_VALID = 10;
+localparam WRITE_GET_PTE2_WAIT_READY = 11;
+localparam WRITE_GET_PTE2_WAIT_VALID = 12;
+localparam WRITE_WAIT_READY = 13;
+localparam WRITE_WAIT_AW_READY = 14;
+localparam WRITE_WAIT_W_READY = 15;
+localparam WRITE_WAIT_VALID = 16;
+localparam WRITE_DONE = 17;
 //---------------------------------------------------------------------------------
 wire [19:0] root_idx;
 assign root_idx = satp[19:0]; 
@@ -169,7 +169,7 @@ assign pte2_addr = {table_idx, vpn2, 2'b00};
 wire [31:0] paddr;
 assign paddr = {pte2[29:10], offset};
 //--------------------------------------------------------------------------------- 
-reg [3:0] state;
+reg [4:0] state;
 always @(posedge clk) begin
 	if(rst)begin
 		state <= NO_VIRTUAL_MEMORY;
