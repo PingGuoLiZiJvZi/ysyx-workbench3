@@ -32,7 +32,6 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type)
 		isa_reg_display();
 		printf("PTE1 invalid for vaddr 0x%x, pte1=0x%x,pos=0x%x\n", vaddr, pte1, root_idx + vpn1 * 4);
 	}
-	printf("MMU: pte1 = %x, addr = %x\n", pte1, root_idx + vpn1 * 4);
 	assert((pte1 & 0x1) == 0x1); // PTE valid bit must be set
 	word_t table_idx = ((pte1 >> 10) << 12);
 	word_t pte2 = paddr_read(table_idx + vpn2 * 4, 4);
