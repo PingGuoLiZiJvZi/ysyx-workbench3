@@ -25,6 +25,7 @@ module ysyx_25040129_LSU (
 	output is_req_ready_to_exu,
 
 	input [31:0] mmem_write_data_in_lsu,
+	output [31:0] csrrw_csr_write_data_out_lsu, 
 		
 	//---------------读地址---------------
 	output [31:0] araddr,
@@ -79,6 +80,7 @@ module ysyx_25040129_LSU (
 assign pc_out_lsu = pc_in_lsu;
 assign inst_out_lsu = inst_in_lsu;
 `endif
+assign csrrw_csr_write_data_out_lsu = (reg_write_in_lsu && csr_write_in_lsu) ? mmem_write_data_in_lsu : 32'hdeadbeef;
 assign satp_out_lsu = satp_in_lsu;
 assign csr_write_out_lsu = csr_write_in_lsu;
 assign fence_i_out_lsu = fence_i_in_lsu;

@@ -642,7 +642,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rst(rst),
 		.rd(rd_out_wbu),
 		.reg_write(reg_write_out_wbu),
-		.result(result_out_wbu),
+		.result(result_out_wbu_to_reg),
 		.src1_id(src1_id_out_idu),
 		.src2_id(src2_id_out_idu),
 		.src1(src1_in_idu),
@@ -655,7 +655,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.csr_write(csr_write_out_wbu),
 		.csr_read_addr(csr_read_id_out_idu),
 		.csr_write_addr(csr_addr_out_wbu),
-		.csr_data(result_out_wbu),
+		.csr_data(result_out_wbu_to_csr),
 		.csr_out(csr_in_idu),
 		.satp_in_ifu(satp_in_ifu)
 	);
@@ -809,6 +809,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.is_req_valid_from_exu(is_req_valid_from_pipeline_exu_to_lsu),
 		.is_req_ready_to_exu(is_req_ready_from_lsu_to_exu),
 		.mmem_write_data_in_lsu(lsu_write_data_out_exu_pip),
+		.csrrw_csr_write_data_out_lsu(csrrw_csr_write_data_out_lsu),
 
 		.araddr(araddr_from_lsu),
 		.arvalid(arvalid_from_lsu),
@@ -865,7 +866,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//4. 发生数据冒险
 
 	wire [31:0] satp_out_lsu;
-
+	wire [31:0] csrrw_csr_write_data_out_lsu;
+	wire [31:0] csrrw_csr_write_data_out_lsu_pip;
 	wire is_data_forward_valid_from_lsu;
 	wire [31:0] data_forward_from_lsu;
 	assign data_forward_from_lsu = result_out_lsu;
@@ -918,7 +920,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire is_req_valid_from_lsu_to_wbu;
 	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
 
-	ysyx_25040129_PIPELINE #(42
+	ysyx_25040129_PIPELINE #(42 + 32
 	`ifdef ysyx_25040129_DEBUG
 		+ 65
 	`endif
@@ -932,6 +934,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 		.in_data({result_out_lsu,rd_out_lsu,
 		reg_write_out_lsu,csr_write_out_lsu,
+		csrrw_csr_write_data_out_lsu,
 		`ifdef ysyx_25040129_DEBUG
 		debug_pc_from_lsu_to_wbu,
 		debug_inst_from_lsu_to_wbu,
@@ -943,6 +946,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_ready(is_req_ready_from_wbu_to_lsu),
 		.out_data({result_out_lsu_pip,rd_out_lsu_pip,
 		reg_write_out_lsu_pip,csr_write_out_lsu_pip,
+		csrrw_csr_write_data_out_lsu_pip,
 		`ifdef ysyx_25040129_DEBUG
 		debug_pc_from_lsu_to_wbu_pip,
 		debug_inst_from_lsu_to_wbu_pip,
@@ -999,7 +1003,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.csr_write_in_wbu(csr_write_out_lsu_pip),
 		.reg_write_in_wbu(reg_write_out_lsu_pip),
 		.rd_out_wbu(rd_out_wbu),
-		.result_out_wbu(result_out_wbu),
+		.result_out_wbu_to_reg(result_out_wbu_to_reg),
+		.result_out_wbu_to_csr(result_out_wbu_to_csr),
 		.csr_write_out_wbu(csr_write_out_wbu),
 		.csr_addr_out_wbu(csr_addr_out_wbu),
 		.reg_write_out_wbu(reg_write_out_wbu),
@@ -1010,7 +1015,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	);
 	wire [31:0]data_forward_from_wbu;
 	wire is_data_forward_valid_from_wbu;
-	wire [31:0] result_out_wbu;
+	wire [31:0] result_out_wbu_to_reg;
+	wire [31:0] result_out_wbu_to_csr;
 	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_wbu;
 	wire csr_write_out_wbu;
 	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu;
