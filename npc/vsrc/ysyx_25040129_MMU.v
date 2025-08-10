@@ -45,7 +45,9 @@ module ysyx_25040129_MMU (
 	input [1:0] out_rresp,
 	input out_rvalid,
 	output out_rready,
+	/* verilator lint_off UNUSEDSIGNAL */
 	input out_rlast,
+	/* verilator lint_on UNUSEDSIGNAL */
 	//-------------------写地址------------------
 	output [31:0] out_awaddr,
 	output out_awvalid,
