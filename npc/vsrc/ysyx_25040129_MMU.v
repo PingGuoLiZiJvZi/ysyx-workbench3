@@ -234,7 +234,7 @@ always @(posedge clk) begin
 		end
 		READ_DONE:begin
 			if(in_rready)begin
-				$display("MMU npc:paddr = %h, pte1 = %h, pte2 = %h, vaddr = %h", paddr, pte1, pte2, is_read? in_araddr : in_awaddr);
+				$display("MMU npc :paddr = %h, pte1 = %h, pte2 = %h, vaddr = %h", paddr, pte1, pte2, is_read? in_araddr : in_awaddr);
 				state <= VIRTUAL_MEMORY;
 			end else begin
 				state <= READ_DONE; 
