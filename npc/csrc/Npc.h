@@ -1,21 +1,29 @@
 #pragma once
 #include "VysyxSoCFull.h"
 #include "verilated.h"
+
+#include "verilated_fst_c.h"
 #include "verilated_vcd_c.h"
+
 #include "Iringbuf.h"
 #include "Difftest.h"
 #include "config.h"
 #include <stdio.h>
+#ifndef IS_NPC
+#include <nvboard.h>
+#endif
 #define DIFFTEST_TO_REF 1
 #define DIFFTEST_TO_DUT 0
 
 extern uint8_t pmem[];
 extern void init_disasm();
 extern void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-
-static char regs[16][8] = {
+void nvboard_bind_all_pins(VysyxSoCFull *top);
+static char regs[32][8] = {
 	"$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-	"s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5"};
+	"s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+	"a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+	"s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
 class Npc
 {
@@ -25,12 +33,24 @@ public:
 		Verilated::commandArgs(argc, argv);
 		top = new VysyxSoCFull;
 #ifdef WAVE
+#ifdef FST
+		tfp = new VerilatedFstC;
+		Verilated::traceEverOn(true);
+		top->trace(tfp, 99);
+		tfp->open("top.fst");
+#else
 		tfp = new VerilatedVcdC;
 		Verilated::traceEverOn(true);
 		top->trace(tfp, 99);
 		tfp->open("top.vcd");
 #endif
+
+#endif
 		init_disasm();
+#ifndef IS_NPC
+		nvboard_bind_all_pins(top);
+		nvboard_init();
+#endif
 	}
 	~Npc()
 	{
@@ -44,14 +64,25 @@ public:
 	}
 	void reset_top()
 	{
-		top->clock = 0;
-		top->reset = 1;
-		top->eval();
-		dump();
-		top->clock = 1;
-		top->eval();
-		dump();
-		top->reset = 0;
+		int i = 10;
+		while (i--)
+		{
+			top->clock = 0;
+			top->reset = 1;
+#ifndef IS_NPC
+			top->externalPins_uart_rx = 1;	// reset uart rx
+			top->externalPins_ps2_data = 1; // reset ps2 data
+#endif
+			top->eval();
+			dump();
+			top->clock = 1;
+			top->eval();
+			dump();
+			top->reset = 0;
+#ifndef IS_NPC
+			nvboard_update();
+#endif
+		}
 #ifdef TRACE
 		update_messages();
 #endif
@@ -65,8 +96,14 @@ public:
 		top->clock = 1;
 		top->eval();
 		dump();
+#ifndef IS_NPC
+		nvboard_update();
+#endif
 #ifdef TRACE
 		update_messages();
+#endif
+#ifdef WAVE
+		tfp->flush();
 #endif
 	}
 
@@ -112,14 +149,16 @@ public:
 		if (is_skip_ref)
 		{
 			is_skip_ref = 0;
-			ref_difftest_memcpy(0, pmem, 0x8000000, DIFFTEST_TO_REF);
+			// ref_difftest_memcpy(0, pmem, 0x8000000, DIFFTEST_TO_REF);
+
 			ref_difftest_regcpy(regs_val, DIFFTEST_TO_REF);
+
 			return;
 		}
 		else
 		{
 			ref_difftest_exec(1);
-			uint32_t ref_regs[17];
+			uint32_t ref_regs[33];
 			ref_difftest_regcpy(ref_regs, DIFFTEST_TO_DUT);
 			if (regs_val[0] != ref_regs[0])
 			{
@@ -181,7 +220,11 @@ public:
 	static VysyxSoCFull *top;
 #ifdef WAVE
 	uint32_t main_time = 0;
+#ifdef FST
+	VerilatedFstC *tfp;
+#else
 	VerilatedVcdC *tfp;
+#endif
 #endif
 	uint32_t pc_before = 0;
 	void (*ref_difftest_memcpy)(uint32_t addr, void *buf, size_t n, bool direction) = NULL;
@@ -192,9 +235,9 @@ public:
 	int port = 0;
 	char message[64];
 	char disasm[32];
-	static uint32_t regs_val[17];
+	static uint32_t regs_val[33];
 	static uint32_t inst;
 	static bool is_device;
-	static uint8_t ifu_state;
+	static bool wbu_state;
 	int is_skip_ref = 0;
 };

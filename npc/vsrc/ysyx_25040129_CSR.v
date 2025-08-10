@@ -3,27 +3,33 @@ module ysyx_25040129_CSR (
 	input clk,
 	input rst,	
 	input csr_write,
-	input [11:0] csr_read_addr,
-	input [11:0] csr_write_addr,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_read_addr,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr,
 	input [31:0] csr_data,
 	output reg [31:0] csr_out,
-	input ecall,
-	input mret,
-	input [31:0] mepc_data,
-	input [31:0] mcause_data,
-	output reg [31:0] target_from_csr
+	output [31:0] satp_in_ifu
 );
+	assign satp_in_ifu = satp;
 	reg [31:0] mepc;
 	reg [31:0] mstatus;
-	reg [31:0] mcause;
 	reg [31:0] mtvec;
+	reg [31:0] satp;
+	reg [31:0] mscratch;
 	always @(*) begin
 		case (csr_read_addr)
-			12'h300: csr_out = mstatus; // MSTATUS
-			12'h305: csr_out = mtvec; // MTVEC
-			12'h341: csr_out = mepc; // MEPC
-			12'h342: csr_out = mcause; // MCAUSE
-			default: csr_out = 32'b0;
+			`ysyx_25040129_MVENDORID: csr_out = 32'h79737978; // MVENDORID
+			`ysyx_25040129_MARCHID: csr_out = 32'd25040129; // MARCHID
+			`ysyx_25040129_MSTATUS: csr_out = mstatus; // MSTATUS
+			`ysyx_25040129_MTVEC: csr_out = mtvec; // MTVEC
+			`ysyx_25040129_MEPC: csr_out = mepc; // MEPC
+			`ysyx_25040129_MCAUSE: csr_out = 32'd11; // MCAUSE
+			`ysyx_25040129_SATP: csr_out = satp; // SATP
+			`ysyx_25040129_MSCRATCH: csr_out = mscratch; // MSCRATCH
+			default: begin 
+				csr_out = 32'b0;
+				if(csr_read_addr != 0)
+				$display("Unknown CSR read address: %h", csr_read_addr);
+			end
 		endcase
 	end
 	always @(posedge clk) begin
@@ -31,31 +37,20 @@ module ysyx_25040129_CSR (
 			mstatus <= 32'b0;
 			mtvec <= 32'b0;
 			mepc <= 32'b0;
-			mcause <= 32'b0;
 		end
 		else begin
-			if(ecall)begin
-				mepc <= mepc_data;
-				mcause <= mcause_data;
-				target_from_csr <= mtvec; 
+				if (csr_write) begin
+					case (csr_write_addr)
+						`ysyx_25040129_MTVEC: mtvec <= csr_data; 
+						`ysyx_25040129_MSTATUS: mstatus <= csr_data; 
+						`ysyx_25040129_MEPC: mepc <= csr_data; 
+						`ysyx_25040129_SATP: satp <= csr_data;
+						`ysyx_25040129_MSCRATCH: mscratch <= csr_data;
+					default: begin
+						$display("Unknown CSR write address: %h", csr_write_addr);
+					 end
+				endcase
 			end
-			else begin 
-				if (mret) begin
-					mepc <= mepc_data;
-					target_from_csr <= mepc; 
-				end
-			else begin
-					if (csr_write) begin
-						case (csr_write_addr)
-							12'h300: mstatus <= csr_data; // MSTATUS
-							12'h305: mtvec <= csr_data; // MTVEC
-							12'h341: mepc <= csr_data; // MEPC
-							12'h342: mcause <= csr_data; // MCAUSE
-						default: begin end
-					endcase
-				end
-			end
-		end
 		end
 	end
 endmodule

@@ -1,18 +1,15 @@
 module ysyx_25040129_IFU (
-	output reg[31:0] pc,
-	input [31:0] jump_target,
-	output reg[31:0] inst_to_idu,
-
-	input is_branch,
 	input rst,
 	input clk,
+
+	input [31:0] pipeline_flush_target,
+	input pipeline_flush,
+	input is_req_ready_from_idu,
+
+	output reg[31:0] pc,
+	output [31:0] inst_to_idu,
+	
 	output is_req_valid_to_idu,
-	
-	output is_req_ready_to_wbu,
-	
-	input is_req_valid_from_wbu,//
-	input is_req_ready_from_idu,//
-	
 	//---------------读地址---------------
 	output [31:0] araddr,
 	output arvalid,
@@ -21,29 +18,66 @@ module ysyx_25040129_IFU (
 	input [31:0] rdata,
 	input [1:0]rresp,
 	input rvalid,
-	output rready
+	output rready,
+	//---------------satp及其冒险控制---------------
+	input [31:0] satp_in_ifu,
+	output [31:0] satp_out_ifu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_ifu_pip_idu,
+	input valid_csr_addr_write_ifu_pip_idu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_idu_pip_exu,
+	input valid_csr_addr_write_idu_pip_exu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_exu_pip_lsu,
+	input valid_csr_addr_write_exu_pip_lsu,
+	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
+	input valid_csr_addr_write_lsu_pip_wbu
 	);
+assign satp_out_ifu = satp_in_ifu;
+reg get_flush_signal_in_fetching;
+reg [31:0] flush_target_latch;
+reg [31:0] inst;
 reg[2:0] state;
 assign araddr = pc;
-reg [2:0] next_state;
-assign arvalid = (state == WAIT_MMEM_READY);
-assign rready = (state == WAIT_MMEM_REQ);
-localparam IDLE = 3'b000;
-localparam WAIT_MMEM_READY = 3'b001;
-localparam WAIT_MMEM_REQ = 3'b010;
-localparam WAIT_IDU_READY = 3'b011;
-
-// pc 更新块
-// 在原先的单周期设计中，我们所假设的，是inst能以组合逻辑的形式直接读取，这是很不现实的
-// 取指->译码->执行->访存->写回
-// 当前我们没有加装流水线，所以，pc的更新需要得到写回结束信号才会开始
-// 与此同时，ifu收到了wb的valid信号，若处在空闲状态，则以ready信号握手回应，进入wait状态，更新pc之后开始取指
-
+assign arvalid = (state == WAIT_MMEM_READY)&& !raw;
+assign rready = (state == WAIT_MMEM_REQ) || (state == WAIT_MMEM_READY && arready);
+localparam WAIT_MMEM_READY = 3'b000;
+localparam WAIT_MMEM_REQ = 3'b001;
+localparam WAIT_IDU_READY = 3'b010;
+//-------------------------数据冒险控制---------------------------------------------
+wire raw;
+assign raw = (csr_addr_ifu_pip_idu == `ysyx_25040129_SATP && valid_csr_addr_write_ifu_pip_idu) ||
+			 (csr_addr_idu_pip_exu == `ysyx_25040129_SATP && valid_csr_addr_write_idu_pip_exu) ||
+			 (csr_addr_exu_pip_lsu == `ysyx_25040129_SATP && valid_csr_addr_write_exu_pip_lsu) ||
+			 (csr_addr_lsu_pip_wbu == `ysyx_25040129_SATP && valid_csr_addr_write_lsu_pip_wbu);
+//---------------------------------------------------------------------------------
+//总线信号产生逻辑
+assign is_req_valid_to_idu = (state == WAIT_IDU_READY ||(state == WAIT_MMEM_READY && arready && rvalid)) && !pipeline_flush && !get_flush_signal_in_fetching && !raw;
+assign inst_to_idu = (state == WAIT_MMEM_READY && arready && rvalid) ? rdata : inst;
+//--------------------调试接口---------------------
+always @(posedge clk) begin
+	`ifdef ysyx_25040129_DEBUG
+	fetch_count_inc({5'b0,state});
+	`endif
+	`ifdef ysyx_25040129_GENERATE_PC_QUEUE
+		if(state==IDLE && next_state == WAIT_MMEM_READY)record_pc(pc);
+	`endif
+end
+// always @(*) begin
+// 	`ifdef ysyx_25040129_DEBUG
+// 	update_pc(pc);
+// 	update_inst(inst_to_idu);
+// 	update_ifu_state({5'b0,state});
+// 	`endif
+// end
+//-------------------综合时直接删除-------------------
 // pc 更新逻辑
+// 冲突信号的存在目的是阻止IFU以错误的satp发起取指
+// 也就是，阻止state进入WAIT_MMEM_READY状态
 always @(posedge clk) begin
 	if(rst)begin
-		pc <= `START_ADDR;
-		inst_to_idu <= 32'b0; // 初始化指令
+		pc <= `ysyx_25040129_VIRTUAL_ADDR;
+		inst <= 32'b0; 
+		get_flush_signal_in_fetching <= 1'b0;
+		state <= WAIT_MMEM_READY;
 	end
 	else begin
 		case (state)
