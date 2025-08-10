@@ -41,7 +41,6 @@ assign wbu_forward_data = result_in_wbu;
 assign is_data_forward_valid_from_wbu = is_req_valid_from_lsu ;
 assign is_req_ready_to_lsu = is_req_valid_from_lsu;
 assign rd_out_wbu = rd_in_wbu; 
-assign result_out_wbu = result_in_wbu; 
 assign csr_write_out_wbu = csr_write_in_wbu && is_req_valid_from_lsu; 
 assign csr_addr_out_wbu = csr_addr_in_wbu; 
 assign reg_write_out_wbu = reg_write_in_wbu && is_req_valid_from_lsu; 
