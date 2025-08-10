@@ -293,6 +293,7 @@ always @(posedge clk) begin
 		end
 		WRITE_DONE:begin
 			if(in_bready)begin
+					$display("MMU npc :paddr = %h, pte1 = %h, pte2 = %h, vaddr = %h", paddr, pte1, pte2, is_read? in_araddr : in_awaddr);
 				state <= VIRTUAL_MEMORY;
 			end else begin
 				state <= WRITE_DONE; 
