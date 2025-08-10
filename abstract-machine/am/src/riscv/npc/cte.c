@@ -1,11 +1,14 @@
 #include <am.h>
 #include <riscv/riscv.h>
 #include <klib.h>
-
+extern void __am_get_cur_as(Context *c);
+extern void __am_switch(Context *c);
 static Context *(*user_handler)(Event, Context *) = NULL;
 
 Context *__am_irq_handle(Context *c)
 {
+	__am_get_cur_as(c);
+	// print_context(c);
 	if (user_handler)
 	{
 		Event ev = {0};
@@ -15,15 +18,24 @@ Context *__am_irq_handle(Context *c)
 			ev.event = EVENT_YIELD;
 			c->mepc += 4;
 			break;
+		case 8:
+			ev.event = EVENT_YIELD;
+			c->mepc += 4;
+			break;
+		case 7: // IRQ_TIMER
+			ev.event = EVENT_IRQ_TIMER;
+			c->mepc -= 0;
+			break;
 		default:
 			ev.event = EVENT_ERROR;
 			break;
 		}
-
 		c = user_handler(ev, c);
+		// skip ecall
 		assert(c != NULL);
 	}
-
+	__am_switch(c);
+	// print_context(c);
 	return c;
 }
 
@@ -46,7 +58,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
 	ctx->mepc = (uintptr_t)entry;
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
 	ctx->gpr[10] = (uintptr_t)arg;		 // a0
-	// printf("the address of ctx is %x\n", (uint32_t)ctx);
+	ctx->mstatus = 0x80;
+	ctx->next_priv = 0;
+	ctx->pdir = NULL; // no address space for kernel context
 	return ctx;
 }
 

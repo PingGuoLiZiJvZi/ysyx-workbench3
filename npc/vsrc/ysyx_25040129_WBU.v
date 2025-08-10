@@ -13,11 +13,13 @@ module ysyx_25040129_WBU (
 	/* verilator lint_on UNUSEDSIGNAL */
 	
 	input [31:0] result_in_wbu,
+	input [31:0] csrrw_csr_write_data_in_wbu,
 	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_in_wbu,
 	input csr_write_in_wbu,
 	input reg_write_in_wbu,
 	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_wbu,
-	output [31:0] result_out_wbu,
+	output [31:0] result_out_wbu_to_reg,
+	output [31:0] result_out_wbu_to_csr,
 	output csr_write_out_wbu, 
 	output [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu, 
 	output reg_write_out_wbu,
@@ -33,11 +35,12 @@ always @(*) begin
 	update_pc(pc_in_wbu);
 end
 `endif 
+assign result_out_wbu_to_reg = result_in_wbu;
+assign result_out_wbu_to_csr = (reg_write_in_wbu && csr_write_in_wbu) ? csrrw_csr_write_data_in_wbu : result_in_wbu;
 assign wbu_forward_data = result_in_wbu;
 assign is_data_forward_valid_from_wbu = is_req_valid_from_lsu ;
 assign is_req_ready_to_lsu = is_req_valid_from_lsu;
 assign rd_out_wbu = rd_in_wbu; 
-assign result_out_wbu = result_in_wbu; 
 assign csr_write_out_wbu = csr_write_in_wbu && is_req_valid_from_lsu; 
 assign csr_addr_out_wbu = csr_addr_in_wbu; 
 assign reg_write_out_wbu = reg_write_in_wbu && is_req_valid_from_lsu; 

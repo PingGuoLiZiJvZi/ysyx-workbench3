@@ -122,7 +122,7 @@
 //---------------我滴妈好长一段代码--------------------
 
 	assign pc_out_idu = pc; 
-	assign lsu_write_data_out_idu = src2_in_idu; 
+	assign lsu_write_data_out_idu = (reg_write_out_idu && csr_write_out_idu) ? src1_in_idu_reg : src2_in_idu;
 	assign is_req_ready_to_ifu = is_req_ready_from_exu && !raw; 
 	assign is_req_valid_to_exu = (is_req_valid_from_ifu && is_req_ready_from_exu && !raw);
 
@@ -296,8 +296,10 @@
 					end
 					3'b001:begin
 						csr_write_out_idu = 1'b1;
-						reg_write_out_idu = 1'b0;
+						is_csrr = 1'b1;
+						reg_write_out_idu = 1'b1;
 						is_src1_from_reg = 1'b1;
+						src1_out_idu = csr_in_idu; 
 						src2_out_idu= 32'b0; 
 						alu_opcode = `ysyx_25040129_ADD; 
 					end

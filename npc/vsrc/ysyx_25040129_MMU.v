@@ -205,7 +205,7 @@ always @(posedge clk) begin
 				pte1 <= out_rdata;
 				state <= READ_GET_PTE2_WAIT_READY;
 				if(out_rdata[0] == 1'b0)begin
-					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h", out_rdata, pte1_addr);
+					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h, vaddr = %h", out_rdata, pte1_addr, in_araddr);
 				end
 			end
 			else state <= READ_GET_PTE1_WAIT_VALID;
@@ -234,7 +234,6 @@ always @(posedge clk) begin
 		end
 		READ_DONE:begin
 			if(in_rready)begin
-				$display("MMU npc :paddr = %h, pte1 = %h, pte2 = %h, vaddr = %h", paddr, pte1, pte2, is_read? in_araddr : in_awaddr);
 				state <= VIRTUAL_MEMORY;
 			end else begin
 				state <= READ_DONE; 
@@ -249,7 +248,8 @@ always @(posedge clk) begin
 				pte1 <= out_rdata;
 				state <= WRITE_GET_PTE2_WAIT_READY;
 				if(out_rdata[0] == 1'b0)begin
-					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h", out_rdata, pte1_addr);
+				
+					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h, vaddr = %h", out_rdata, pte1_addr, is_read? in_araddr : in_awaddr);
 				end
 			end
 			else state <= WRITE_GET_PTE1_WAIT_VALID;
@@ -293,7 +293,6 @@ always @(posedge clk) begin
 		end
 		WRITE_DONE:begin
 			if(in_bready)begin
-					$display("MMU npc :paddr = %h, pte1 = %h, pte2 = %h, vaddr = %h", paddr, pte1, pte2, is_read? in_araddr : in_awaddr);
 				state <= VIRTUAL_MEMORY;
 			end else begin
 				state <= WRITE_DONE; 
