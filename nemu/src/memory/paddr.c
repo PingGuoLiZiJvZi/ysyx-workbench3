@@ -62,11 +62,6 @@ word_t paddr_read(paddr_t addr, int len)
 	{
 
 		ret = pmem_read(addr, len);
-		// if (addr >= 0x82e66780 && addr <= 0x82e66790)
-		// {
-
-		// 	printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u,pc = %08x\n", addr, len, ret, ret, cpu.pc);
-		// }
 		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000 && addr < 0x83050000) printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, ret, ret));
 		return ret;
 	}
