@@ -228,11 +228,11 @@ always @(posedge clk) begin
 			else state <= READ_WAIT_READY;
 		end
 		READ_WAIT_VALID:begin
-			$display("MMU: paddr = %h, pte2 = %h, pte1 = %h", paddr, pte2, pte1);
 			if(out_rvalid)state <= READ_DONE;
 			else state <= READ_WAIT_VALID;
 		end
 		READ_DONE:begin
+			$display("MMU: read done, paddr = %h, pte1 = %h, pte2 = %h", paddr, pte1, pte2);
 			if(in_rready)begin
 				state <= VIRTUAL_MEMORY;
 			end else begin
