@@ -46,7 +46,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg)
 	ctx->mepc = (uintptr_t)entry;
 	ctx->gpr[2] = (uintptr_t)kstack.end; // stack pointer
 	ctx->gpr[10] = (uintptr_t)arg;		 // a0
-	// printf("the address of ctx is %x\n", (uint32_t)ctx);
+	ctx->mstatus = 0x80;
+	ctx->next_priv = 0;
+	ctx->pdir = NULL; // no address space for kernel context
 	return ctx;
 }
 
