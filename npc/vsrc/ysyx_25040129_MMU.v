@@ -150,7 +150,7 @@ localparam WRITE_WAIT_VALID = 14;
 localparam WRITE_DONE = 15;
 //---------------------------------------------------------------------------------
 wire [19:0] root_idx;
-assign root_idx = satp[31:12]; 
+assign root_idx = satp[19:0]; 
 wire [9:0] vpn1;
 assign vpn1 = is_read? in_araddr[31:22]:in_awaddr[31:22]; 
 wire [31:0] pte1_addr;
