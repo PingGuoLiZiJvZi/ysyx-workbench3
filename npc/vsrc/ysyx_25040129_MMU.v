@@ -234,7 +234,6 @@ always @(posedge clk) begin
 			else state <= READ_WAIT_VALID;
 		end
 		READ_DONE:begin
-			$display("MMU: read done, paddr = %h, pte1 = %h, pte2 = %h", paddr, pte1, pte2);
 			if(in_rready)begin
 				$display("MMU: read request is ready, paddr = %h, pte1 = %h, pte2 = %h", paddr, pte1, pte2);
 				state <= VIRTUAL_MEMORY;
