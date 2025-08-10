@@ -122,7 +122,7 @@
 //---------------我滴妈好长一段代码--------------------
 
 	assign pc_out_idu = pc; 
-	assign lsu_write_data_out_idu = (reg_write_out_idu && csr_write_out_idu) ? src1_in_idu : src2_in_idu;
+	assign lsu_write_data_out_idu = (reg_write_out_idu && csr_write_out_idu) ? src1_in_idu_reg : src2_in_idu_reg;
 	assign is_req_ready_to_ifu = is_req_ready_from_exu && !raw; 
 	assign is_req_valid_to_exu = (is_req_valid_from_ifu && is_req_ready_from_exu && !raw);
 
