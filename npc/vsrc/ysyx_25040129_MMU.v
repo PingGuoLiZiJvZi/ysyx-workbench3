@@ -204,7 +204,6 @@ always @(posedge clk) begin
 			if(out_rvalid)begin
 				pte1 <= out_rdata;
 				state <= READ_GET_PTE2_WAIT_READY;
-				$display("satp = %h", satp);
 				if(out_rdata[0] == 1'b0)begin
 					$error("MMU: PTE1 is not valid, pte1 = %h,addr = %h", out_rdata, pte1_addr);
 				end
