@@ -27,7 +27,6 @@ Context *__am_irq_handle(Context *c)
 			c->mepc += 4;
 			break;
 		case 7: // IRQ_TIMER
-			putch('p');
 			ev.event = EVENT_IRQ_TIMER;
 			c->mepc -= 0;
 			break;
