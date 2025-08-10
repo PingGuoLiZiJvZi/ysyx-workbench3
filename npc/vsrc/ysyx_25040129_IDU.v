@@ -302,8 +302,6 @@
 						src1_out_idu = csr_in_idu; 
 						src2_out_idu= 32'b0; 
 						alu_opcode = `ysyx_25040129_ADD; 
-						if(rd_out_idu != 0)$error("IDU: do not support CSR write with rd != 0 now!");
-						
 					end
 					3'b010:begin
 						is_csrr = 1'b1;
