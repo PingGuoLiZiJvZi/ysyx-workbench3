@@ -124,7 +124,7 @@ assign in_arready = direct_forward ? out_arready : state == READ_DONE;
 assign in_rdata = out_rdata ;
 assign in_rresp = out_rresp;
 assign in_rvalid = direct_forward ? out_rvalid :state == READ_DONE;
-assign in_rlast =  out_rlast;
+assign in_rlast =  1'b1; 
 assign in_awready = direct_forward ? out_awready : state == WRITE_DONE;
 assign in_wready = direct_forward ? out_wready : state == WRITE_DONE;
 assign in_bresp = out_bresp ;
