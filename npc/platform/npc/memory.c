@@ -16,6 +16,8 @@ extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 {
 	addr = addr & ~0x3; // 对齐到4字节
 	uint8_t *write_addr = NULL;
+	if (addr == 0x82f22100)
+		printf("soc_write: addr = 0x%08x, strb = 0x%02x, data = 0x%08x\n", addr, strb, data);
 	if (addr >= MEM_START && addr < MEM_START + MEM_SIZE)
 	{
 		write_addr = (uint8_t *)(pmem + (addr - MEM_START));
