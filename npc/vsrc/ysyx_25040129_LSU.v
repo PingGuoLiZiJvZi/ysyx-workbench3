@@ -267,7 +267,6 @@ always @(posedge clk) begin
 				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
-				$error("XBAR: Invalid read address %h", araddr);
 			end
 		end
 		else if(awvalid) begin
@@ -279,7 +278,6 @@ always @(posedge clk) begin
 				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
-				$error("XBAR: Invalid write address %h", awaddr);
 			end
 		end
 		else begin 
