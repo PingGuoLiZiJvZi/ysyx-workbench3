@@ -224,7 +224,6 @@ always @(posedge clk) begin
 			else state <= READ_GET_PTE2_WAIT_VALID;
 		end
 		READ_WAIT_READY:begin
-			$display("MMU: paddr = %h, pte2 = %h, pte1 = %h", paddr, pte2, pte1);
 			if(out_arready)state <= READ_WAIT_VALID;
 			else state <= READ_WAIT_READY;
 		end
