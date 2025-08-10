@@ -66,6 +66,7 @@ static uintptr_t loader(PCB *pcb, const char *filename)
 			for (uintptr_t addr = aligned_addr; addr < paddr + memsz; addr += PGSIZE)
 			{
 				void *page = new_page(1);
+				printf("map page %p to vaddr %p\n", page, (void *)(addr));
 				map(&pcb->as, (void *)(addr), page, 0); // Map the page into the address space
 
 				if (zero_bytes)
