@@ -37,6 +37,8 @@ module ysyx_25040129_CSR (
 			mstatus <= 32'b0;
 			mtvec <= 32'b0;
 			mepc <= 32'b0;
+			satp <= 32'b0;
+			mscratch <= 32'b0;
 		end
 		else begin
 				if (csr_write) begin
