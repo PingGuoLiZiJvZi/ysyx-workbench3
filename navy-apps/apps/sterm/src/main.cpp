@@ -70,7 +70,7 @@ static void run()
 }
 int main()
 {
-	printf("Simple Term!\n\n");
+	printf("Simple Term!\n");
 	printf("sh> ");
 	setenv("PATH", "/bin:/usr/bin", 1);
 	run();
