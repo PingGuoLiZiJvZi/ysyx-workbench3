@@ -35,7 +35,7 @@ void init_proc()
 	// context_uload(&pcb[0], "/bin/nterm", argv, envp);
 	// context_uload(&pcb[1], "/bin/bird", argv, envp);
 	context_uload(&pcb[2], "/bin/hello", argv, envp);
-	context_uload(&pcb[3], "/bin/cat", argv, envp);
+	context_uload(&pcb[3], "/bin/sterm", argv, envp);
 	switch_boot_pcb();
 	printf("Boot process initialized.\n");
 	yield();
