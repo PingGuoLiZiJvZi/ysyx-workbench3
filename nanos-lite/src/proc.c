@@ -3,7 +3,7 @@ extern int fg_pcb; // current foreground process index
 #define MAX_NR_PROC 4
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static const char *argv[] = {
-	"/bin/exec-test",
+	"/bin/cat", "/usr/bin/wc",
 	NULL};
 static const char *envp[] = {
 	NULL};
@@ -34,8 +34,8 @@ void init_proc()
 
 	// context_uload(&pcb[0], "/bin/nterm", argv, envp);
 	// context_uload(&pcb[1], "/bin/bird", argv, envp);
-	// context_uload(&pcb[2], "/bin/pal", argv, envp);
-	context_uload(&pcb[3], "/bin/hello", argv, envp);
+	context_uload(&pcb[2], "/bin/hello", argv, envp);
+	context_uload(&pcb[3], "/bin/sterm", argv, envp);
 	switch_boot_pcb();
 	printf("Boot process initialized.\n");
 	yield();
@@ -50,6 +50,6 @@ Context *schedule(Context *prev)
 {
 
 	current->cp = prev;
-	current = (current == &pcb[3] ? &pcb[3] : &pcb[3]);
+	current = (current == &pcb[3] ? &pcb[2] : &pcb[3]);
 	return current->cp;
 }
