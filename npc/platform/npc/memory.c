@@ -76,13 +76,11 @@ extern "C" uint32_t soc_read(uint32_t addr)
 	}
 	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
 	{
-		printf("UART:read called\n");
 		int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
 		fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 		int c = getchar();
 		if (c == EOF)
 			return -1;
-		printf("UART:GET %c\n", c);
 		return c;
 	}
 	else
