@@ -3,7 +3,7 @@ extern int fg_pcb; // current foreground process index
 #define MAX_NR_PROC 4
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static const char *argv[] = {
-	"/bin/cat", "/bin/wc",
+	"/bin/cat", "/usr/bin/wc",
 	NULL};
 static const char *envp[] = {
 	NULL};
