@@ -71,6 +71,7 @@ static void run()
 int main()
 {
 	printf("Simple Term!\n\nsh> ");
-	// setenv("PATH", "/bin:/usr/bin", 1);
+	fflush(stdout);
+	setenv("PATH", "/bin:/usr/bin", 1);
 	run();
 }
