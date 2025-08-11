@@ -10,7 +10,7 @@
 unsigned char cmd[256];
 unsigned char u_get_c()
 {
-	unsigned char *port = (unsigned char *)UART_PORT;
+	volatile unsigned char *port = (unsigned char *)UART_PORT;
 	return *port;
 }
 
