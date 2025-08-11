@@ -47,7 +47,6 @@ static void run()
 	while (1)
 	{
 		temp = u_get_c();
-		printf("get %c\n", temp);
 		if (temp == 255)
 			continue;
 		if (temp == '\b')
