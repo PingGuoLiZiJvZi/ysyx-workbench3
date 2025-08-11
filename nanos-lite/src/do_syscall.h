@@ -82,7 +82,7 @@ int sys_execve(const char *filename, char *const argv[], char *const envp[])
 int sys_exit(int status)
 {
 	CASE_LOG("sys_exit: status = %d", status);
-	sys_execve("/bin/nterm", null_argv, null_envp);
+	sys_execve("/bin/sterm", null_argv, null_envp);
 	panic("should not reach here after sys_exit");
 	return -1; // This should never be reached
 }
