@@ -46,8 +46,8 @@ static void run()
 	cmd[idx] = '\0';
 	while (1)
 	{
-		printf("ffff");
 		temp = u_get_c();
+		printf("get %c\n", temp);
 		if (temp == 255)
 			continue;
 		if (temp == '\b')
