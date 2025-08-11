@@ -34,7 +34,7 @@ void init_proc()
 
 	// context_uload(&pcb[0], "/bin/nterm", argv, envp);
 	// context_uload(&pcb[1], "/bin/bird", argv, envp);
-	context_uload(&pcb[2], "/bin/hello", argv, envp);
+	// context_uload(&pcb[2], "/bin/pal", argv, envp);
 	context_uload(&pcb[3], "/bin/hello", argv, envp);
 	switch_boot_pcb();
 	printf("Boot process initialized.\n");
@@ -50,6 +50,6 @@ Context *schedule(Context *prev)
 {
 
 	current->cp = prev;
-	current = (current == &pcb[3] ? &pcb[2] : &pcb[3]);
+	current = (current == &pcb[3] ? &pcb[3] : &pcb[3]);
 	return current->cp;
 }
