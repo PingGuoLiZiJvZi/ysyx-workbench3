@@ -22,8 +22,7 @@ extern "C" void soc_write(uint32_t addr, uint8_t strb, uint32_t data)
 	}
 	else if (addr >= UART_START && addr < UART_START + UART_SIZE)
 	{
-		putc(data & 0xFF, stderr); // UART write
-		fflush(stderr);
+		putc(data & 0xFF, stderr);
 		return;
 	}
 	else
