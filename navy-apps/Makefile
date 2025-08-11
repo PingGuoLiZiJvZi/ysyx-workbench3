@@ -129,7 +129,7 @@ $(foreach lib, $(LIBS), $(eval $(call LIB_TEMPLATE,$(lib))))
 ### Rule (link): objects (`*.o`) and libraries (`*.a`) -> `$(APP)`, the final ELF binary to be packed into application (ld)
 $(APP): $(LINKAGE)
 	@echo + LD "->" $(shell realpath $@ --relative-to .)
-	@$(LD) $(LDFLAGS)  -o $@ $(WL)--start-group $^ -L$(NPC_HOME) -lgcc $(WL)--end-group
+	@$(LD)  $(LDFLAGS) -o $@ $(WL)--start-group $^  $(WL)--end-group
 
 ### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
 $(ARCHIVE): $(LINKAGE)
