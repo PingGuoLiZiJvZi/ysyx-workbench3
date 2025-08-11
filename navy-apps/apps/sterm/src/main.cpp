@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <fcntl.h>
-#define UART_PORT 0x1000000
+#define UART_PORT 0x10000000
 unsigned char cmd[256];
 unsigned char u_get_c()
 {
