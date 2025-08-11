@@ -81,6 +81,7 @@ extern "C" uint32_t soc_read(uint32_t addr)
 		int c = getchar();
 		if (c == EOF)
 			return -1;
+		printf("UART:GET %c\n", c);
 		return c;
 	}
 	else
