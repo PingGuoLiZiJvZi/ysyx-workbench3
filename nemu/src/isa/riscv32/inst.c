@@ -195,11 +195,9 @@ static int decode_exec(Decode *s)
 
 	INSTPAT("00001?? ????? ????? 010 ????? 01011 11", amoswap.w, RR, {
 		word_t old = Mr(src1, 4);
-		printf("read res = %x\n", old);
-		printf("address = %x\n", src1);
 		Mw(src1, 4, src2);
 		R(rd) = old;
-		R(BITS(s->isa.inst, 19, 15)) = old;
+		R(BITS(s->isa.inst, 24, 20)) = old;
 	});
 
 	INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, {});
