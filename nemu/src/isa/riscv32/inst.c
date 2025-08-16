@@ -46,6 +46,8 @@ word_t csrr(word_t csr)
 		return cpu.mideleg;
 	case 0x304:
 		return cpu.mie;
+	case 0x144:
+		return cpu.sip; // sip, added for RISC-V
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -91,6 +93,9 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x304:
 		cpu.mie = val;
+		break;
+	case 0x144:
+		cpu.sip = val; // sip, added for RISC-V
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);
