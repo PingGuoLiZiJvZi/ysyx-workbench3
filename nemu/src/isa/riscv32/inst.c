@@ -242,7 +242,7 @@ static int decode_exec(Decode *s)
 	INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb, I, R(rd) = SEXT((int8_t)Mr(src1 + imm, 1), 8));
 	INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak, N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 	INSTPAT("0011000 00010 00000 000 00000 11100 11", mret, I, {
-		printf("mret: :beg:mstatus = %x, mepc = %x, mcause = %d\n", cpu.mstatus, cpu.mepc, cpu.mcause);
+		// printf("mret: :beg:mstatus = %x, mepc = %x, mcause = %d\n", cpu.mstatus, cpu.mepc, cpu.mcause);
 		s->dnpc = cpu.mepc;
 		word_t MPIE = (cpu.mstatus >> 7) & 1;
 		cpu.mstatus &= ~(1 << 3); // MIE = 0
