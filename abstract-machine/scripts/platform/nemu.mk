@@ -1,5 +1,4 @@
-ifeq ($(NAME),xv6)
-else
+ifneq ($(NAME),xv6)
 AM_SRCS := platform/nemu/trm.c \
            platform/nemu/ioe/ioe.c \
            platform/nemu/ioe/timer.c \
@@ -9,8 +8,6 @@ AM_SRCS := platform/nemu/trm.c \
            platform/nemu/ioe/disk.c \
            platform/nemu/mpe.c
 endif
-
-
 
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/nemu/include

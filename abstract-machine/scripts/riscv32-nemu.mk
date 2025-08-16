@@ -4,7 +4,9 @@ CFLAGS  += -DISA_H=\"riscv/riscv.h\"
 COMMON_CFLAGS += -march=rv32ima_zicsr -mabi=ilp32   # overwrite
 LDFLAGS       += -melf32lriscv                     # overwrite
 
+ifneq ($(NAME),xv6)
 AM_SRCS += riscv/nemu/start.S \
            riscv/nemu/cte.c \
            riscv/nemu/trap.S \
            riscv/nemu/vme.c
+endif
