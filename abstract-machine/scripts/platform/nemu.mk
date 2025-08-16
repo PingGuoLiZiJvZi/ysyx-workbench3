@@ -12,7 +12,7 @@ endif
 CFLAGS    += -fdata-sections -ffunction-sections
 CFLAGS    += -I$(AM_HOME)/am/src/platform/nemu/include
 ifeq ($(NAME),xv6)
-	LDSCRIPTS += ~/xv6-rv32/kernel/kernel.ld
+	
 else
 	LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
 endif
