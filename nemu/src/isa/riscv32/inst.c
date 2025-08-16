@@ -195,8 +195,6 @@ static int decode_exec(Decode *s)
 
 	INSTPAT("00001?? ????? ????? 010 ????? 01011 11", amoswap.w, RR, {
 		word_t old = Mr(src1, 4);
-		word_t test = Mr(src2, 4);
-		printf("amoswap.w: old = %x, test = %x\n", old, test);
 		printf("read res = %x\n", old);
 		printf("address = %x\n", src1);
 		Mw(src1, 4, src2);
