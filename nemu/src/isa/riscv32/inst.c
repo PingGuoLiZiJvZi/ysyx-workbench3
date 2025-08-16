@@ -200,6 +200,9 @@ static int decode_exec(Decode *s)
 		R(BITS(s->isa.inst, 19, 15)) = old;
 	});
 
+	INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, {});
+	INSTPAT("0000??? ????? 00000 000 00000 00011 11", fence, I, {});
+
 	INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr, I, {
 		R(rd) = s->pc + 4;
 		// printf("imm=%d\n", imm);
