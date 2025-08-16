@@ -18,6 +18,10 @@
 
 #include <common.h>
 
+#define USER 0
+#define SUPERVISOR 1
+#define MACHINE 3
+
 typedef struct
 {
 	word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
@@ -36,8 +40,8 @@ typedef struct
 	word_t sscratch;
 	word_t medeleg;
 	word_t mideleg;
-
-	bool intr;
+	word_t mie;
+	uint8_t CPL;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
 // decode

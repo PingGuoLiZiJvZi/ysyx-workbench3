@@ -44,6 +44,8 @@ word_t csrr(word_t csr)
 		return cpu.medeleg;
 	case 0x303:
 		return cpu.mideleg;
+	case 0x304:
+		return cpu.mie;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -86,6 +88,9 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x303:
 		cpu.mideleg = val;
+		break;
+	case 0x304:
+		cpu.mie = val;
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);
@@ -237,8 +242,8 @@ static int decode_exec(Decode *s)
 		cpu.mstatus &= ~(1 << 3); // MIE = 0
 		cpu.mstatus &= ~(1 << 7); // MPIE = 0
 		cpu.mstatus |= MPIE << 3; // MPIE = MIE
-		// printf("mret:end:mstatus = %x\n", cpu.mstatus);
-		// printf("mstatus restored to %x, there could be interrupt\n", cpu.mstatus);
+		cpu.CPL = (cpu.mstatus >> 11) & 3;
+		cpu.mstatus &= ~(3 << 11); // clear CPL
 		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", cpu.mcause, s->dnpc));
 	});
 	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, { s->dnpc = isa_raise_intr(11, s->pc); });
