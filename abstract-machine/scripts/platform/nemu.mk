@@ -20,7 +20,9 @@ LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
 endif
 
 LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
+ifneq ($(NAME),xv6)
 LDFLAGS   += --gc-sections -e _start
+endif
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 
 MAINARGS_MAX_LEN = 64
@@ -28,7 +30,9 @@ MAINARGS_PLACEHOLDER = The insert-arg rule in Makefile will insert mainargs here
 CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=\""$(MAINARGS_PLACEHOLDER)"\"
 
 insert-arg: image
+ifneq ($(NAME),xv6)
 	@python3 $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
+endif
 
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
