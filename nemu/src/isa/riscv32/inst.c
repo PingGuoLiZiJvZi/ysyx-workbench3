@@ -36,6 +36,8 @@ word_t csrr(word_t csr)
 		return cpu.satp;
 	case 0x340:
 		return cpu.mscratch; // Added for RISC-V
+	case 0x100:
+		return cpu.sstatus; // Added for RISC-V
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -69,6 +71,9 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x340:
 		cpu.mscratch = val; // Added for RISC-V
+		break;
+	case 0x100:
+		cpu.sstatus = val; // Added for RISC-V
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);

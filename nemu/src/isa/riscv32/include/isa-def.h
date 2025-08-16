@@ -29,6 +29,12 @@ typedef struct
 	word_t mtval;
 	word_t satp;
 	word_t mscratch;
+	word_t sstatus;
+	word_t stvec;
+	word_t scause;
+	word_t stval;
+	word_t sscratch;
+
 	bool intr;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
