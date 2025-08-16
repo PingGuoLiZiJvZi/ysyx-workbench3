@@ -34,6 +34,8 @@ typedef struct
 	word_t scause;
 	word_t stval;
 	word_t sscratch;
+	word_t medeleg;
+	word_t mideleg;
 
 	bool intr;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);

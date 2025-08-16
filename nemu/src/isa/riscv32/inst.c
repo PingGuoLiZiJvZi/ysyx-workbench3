@@ -40,6 +40,10 @@ word_t csrr(word_t csr)
 		return cpu.sstatus; // Added for RISC-V
 	case 0xf14:
 		return 0; // mhartid; 目前单核
+	case 0x302:
+		return cpu.medeleg;
+	case 0x303:
+		return cpu.mideleg;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -76,6 +80,12 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x100:
 		cpu.sstatus = val; // Added for RISC-V
+		break;
+	case 0x302:
+		cpu.medeleg = val;
+		break;
+	case 0x303:
+		cpu.mideleg = val;
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);
