@@ -38,6 +38,8 @@ word_t csrr(word_t csr)
 		return cpu.mscratch; // Added for RISC-V
 	case 0x100:
 		return cpu.sstatus; // Added for RISC-V
+	case 0xf14:
+		return 0; // mhartid; 目前单核
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
