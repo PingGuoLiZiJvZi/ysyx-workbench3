@@ -122,7 +122,6 @@ $(DST_DIR)/%.o: %.S
 $(LIBS): %:
 	@$(MAKE) -s -C $(AM_HOME)/$* archive
 
-COMPILER_RT = -L$(NAVY_HOME)/libs/compiler-rt/build -l:compiler-rt-riscv32i.a
 ### Rule (link): objects (`*.o`) and libraries (`*.a`) -> `IMAGE.elf`, the final ELF binary to be packed into image (ld)
 $(IMAGE).elf: $(LINKAGE) $(LDSCRIPTS)
 	@echo \# Creating image [$(ARCH)] 
@@ -130,7 +129,7 @@ $(IMAGE).elf: $(LINKAGE) $(LDSCRIPTS)
 ifneq ($(filter $(ARCH),native),)
 	@$(CXX) -o $@ -Wl,--whole-archive $(LINKAGE) -Wl,-no-whole-archive $(LDFLAGS_CXX)
 else
-	@$(LD) $(LDFLAGS) -o $@ --start-group $(LINKAGE) --end-group $(COMPILER_RT)
+	@$(LD) $(LDFLAGS) -o $@ --start-group $(LINKAGE) --end-group
 endif
 
 ### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
