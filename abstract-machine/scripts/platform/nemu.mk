@@ -14,7 +14,6 @@ CFLAGS    += -I$(AM_HOME)/am/src/platform/nemu/include
 
 $(info NAME is $(NAME))
 ifeq ($(NAME),xv6)
-$(info Building xv6 kernel image...)
 LDSCRIPTS += ~/xv6-rv32/kernel/kernel.ld
 else
 LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
