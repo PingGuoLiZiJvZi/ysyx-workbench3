@@ -69,6 +69,7 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x341:
 		cpu.mepc = val;
+		printf("mepc set to %x\n", val);
 		break;
 	case 0x342:
 		cpu.mcause = val;
