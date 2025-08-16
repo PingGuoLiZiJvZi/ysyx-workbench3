@@ -146,6 +146,7 @@ $(ARCHIVE): $(OBJS)
 image: image-dep
 archive: $(ARCHIVE)
 image-dep: $(LIBS) $(IMAGE).elf
+	@echo name=$(NAME) arch=$(ARCH) isa=$(ISA) platform=$(PLATFORM)
 .NOTPARALLEL: image-dep
 .PHONY: image image-dep archive run $(LIBS)
 
