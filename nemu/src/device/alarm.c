@@ -22,8 +22,8 @@
 
 static alarm_handler_t handler[MAX_HANDLER] = {};
 static int idx = 0;
-uint32_t mtime_cmp = 0;
-uint32_t intr_cnt = 0;
+uint64_t mtime_cmp = 0;
+uint64_t intr_cnt = 0;
 void add_alarm_handle(alarm_handler_t h)
 {
 	assert(idx < MAX_HANDLER);
