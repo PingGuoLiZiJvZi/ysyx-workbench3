@@ -36,6 +36,7 @@ static void rtc_mtimecmp_handler(uint32_t offset, int len, bool is_write)
 	if (is_write)
 	{
 		intr_cnt = 0;
+		printf("mtime_cmp set to %ld\n", mtime_cmp);
 	}
 }
 #ifndef CONFIG_TARGET_AM
