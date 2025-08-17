@@ -37,11 +37,6 @@ static void rtc_mtimecmp_handler(uint32_t offset, int len, bool is_write)
 	{
 		intr_cnt = 0;
 	}
-	else
-	{
-		printf("you should not read mtimecmp\n");
-		assert(0);
-	}
 }
 #ifndef CONFIG_TARGET_AM
 static void timer_intr()
