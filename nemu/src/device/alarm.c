@@ -32,8 +32,8 @@ void add_alarm_handle(alarm_handler_t h)
 
 static void alarm_sig_handler(int signum)
 {
-	printf("alarm_sig_handler called, signum = %d\n", signum);
-	printf("mtime_cmp = %ld, intr_cnt = %ld\n", mtime_cmp, intr_cnt);
+	// printf("alarm_sig_handler called, signum = %d\n", signum);
+	// printf("mtime_cmp = %ld, intr_cnt = %ld\n", mtime_cmp, intr_cnt);
 	if (intr_cnt++ < mtime_cmp)
 	{
 		printf("intr_cnt = %ld, mtime_cmp = %ld\n", intr_cnt, mtime_cmp);
