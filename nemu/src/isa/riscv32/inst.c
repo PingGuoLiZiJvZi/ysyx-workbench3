@@ -249,6 +249,7 @@ static int decode_exec(Decode *s)
 		cpu.mstatus &= ~(1 << 7); // MPIE = 0
 		cpu.mstatus |= MPIE << 3; // MPIE = MIE
 		cpu.CPL = (cpu.mstatus >> 11) & 3;
+		printf("CPL changed to %s\n", cpu.CPL == 0 ? "USER" : (cpu.CPL == 1 ? "SUPERVISOR" : "MACHINE"));
 		cpu.mstatus &= ~(3 << 11); // clear CPL
 		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", cpu.mcause, s->dnpc));
 	});
