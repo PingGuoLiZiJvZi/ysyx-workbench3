@@ -24,7 +24,7 @@ static alarm_handler_t handler[MAX_HANDLER] = {};
 static int idx = 0;
 uint64_t mtime_cmp = 0;
 uint64_t intr_cnt = 0;
-uint32_t wait = 1;
+uint32_t wait = 5;
 void add_alarm_handle(alarm_handler_t h)
 {
 	assert(idx < MAX_HANDLER);
@@ -35,10 +35,8 @@ static void alarm_sig_handler(int signum)
 {
 	if (intr_cnt++ < wait)
 	{
-		// printf("intr_cnt = %ld, mtime_cmp = %ld\n", intr_cnt, mtime_cmp);
 		return;
 	}
-	printf("alarm_sig_handler called, intr_cnt = %ld, mtime_cmp = %ld\n", intr_cnt, mtime_cmp);
 	int i;
 	for (i = 0; i < idx; i++)
 	{
