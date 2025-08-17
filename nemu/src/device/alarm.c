@@ -38,6 +38,7 @@ static void alarm_sig_handler(int signum)
 		// printf("intr_cnt = %ld, mtime_cmp = %ld\n", intr_cnt, mtime_cmp);
 		return;
 	}
+	printf("alarm_sig_handler called, intr_cnt = %ld, mtime_cmp = %ld\n", intr_cnt, mtime_cmp);
 	int i;
 	for (i = 0; i < idx; i++)
 	{
