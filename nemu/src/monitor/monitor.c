@@ -144,7 +144,7 @@ void init_monitor(int argc, char *argv[])
 	long img_size = load_img();
 
 	/* Initialize differential testing. */
-	cpu.mstatus = (1 << 7); // set MPP to 0b11
+	// cpu.mstatus = (1 << 7); // set MPP to 0b11
 						  // set priv to MPP
 	init_difftest(diff_so_file, img_size, difftest_port);
 
