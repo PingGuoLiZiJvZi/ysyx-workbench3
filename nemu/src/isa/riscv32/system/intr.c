@@ -40,9 +40,9 @@ word_t isa_query_intr()
 {
 	// if (cpu.mstatus != 0x1800)
 	// 	printf("cpu.intr = %d, mstatus = %x\n", cpu.intr, cpu.mstatus);
-	if ((cpu.mie & (1 << 7)) && (cpu.mstatus & (1 << 3)))
+	if ((cpu.mie & (1 << 7)) && (cpu.mstatus & (1 << 3)) && cpu.intr)
 	{
-		cpu.mie &= ~(1 << 7); // MIE = 0
+		cpu.intr = false;
 		// printf("enabled interrupt, mstatus = %x\n", cpu.mstatus);
 		return IRQ_TIMER;
 	}

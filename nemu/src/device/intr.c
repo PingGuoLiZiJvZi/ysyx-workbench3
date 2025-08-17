@@ -17,5 +17,5 @@
 
 void dev_raise_intr()
 {
-	cpu.mie |= (1 << 7);
+	cpu.intr = true;
 }
