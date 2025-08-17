@@ -18,7 +18,8 @@
 #include <utils.h>
 
 static uint32_t *rtc_port_base = NULL;
-
+extern uint64_t mtime_cmp;
+extern uint64_t intr_cnt;
 static void rtc_io_handler(uint32_t offset, int len, bool is_write)
 {
 	assert(offset == 0 || offset == 4);
@@ -29,7 +30,15 @@ static void rtc_io_handler(uint32_t offset, int len, bool is_write)
 		rtc_port_base[1] = us >> 32;
 	}
 }
-
+static void rtc_mtimecmp_handler(uint32_t offset, int len, bool is_write)
+{
+	assert(len == 4);
+	if (is_write)
+	{
+		intr_cnt = 0;
+		printf("mtime_cmp set to %ld\n", mtime_cmp);
+	}
+}
 #ifndef CONFIG_TARGET_AM
 static void timer_intr()
 {
@@ -48,6 +57,7 @@ void init_timer()
 	add_pio_map("rtc", CONFIG_RTC_PORT, rtc_port_base, 8, rtc_io_handler);
 #else
 	add_mmio_map("rtc", CONFIG_RTC_MMIO, rtc_port_base, 8, rtc_io_handler);
+	add_mmio_map("mtimecmp", CONFIG_RTC_MMIO + 0x4000, &mtime_cmp, 8, rtc_mtimecmp_handler);
 #endif
 	IFNDEF(CONFIG_TARGET_AM, add_alarm_handle(timer_intr));
 }
