@@ -114,6 +114,7 @@ static void execute(uint64_t n)
 
 		if (intr != INTR_EMPTY)
 		{
+			printf("timer interrupt, intr = %d\n", intr);
 			cpu.pc = isa_raise_intr(intr, cpu.pc);
 		}
 	}
