@@ -34,6 +34,7 @@ static void alarm_sig_handler(int signum)
 {
 	if (intr_cnt++ < mtime_cmp)
 	{
+		printf("intr_cnt = %ld, mtime_cmp = %ld\n", intr_cnt, mtime_cmp);
 		return;
 	}
 	int i;
