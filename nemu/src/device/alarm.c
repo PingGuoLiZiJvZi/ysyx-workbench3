@@ -24,7 +24,7 @@ static alarm_handler_t handler[MAX_HANDLER] = {};
 static int idx = 0;
 uint64_t mtime_cmp = 0;
 uint64_t intr_cnt = 0;
-uint32_t wait = 5;
+uint32_t wait = 100; // wait for 100 intrs before calling handlers
 void add_alarm_handle(alarm_handler_t h)
 {
 	assert(idx < MAX_HANDLER);
