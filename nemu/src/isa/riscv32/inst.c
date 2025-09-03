@@ -34,6 +34,8 @@ word_t csrr(word_t csr)
 		return cpu.mtval;
 	case 0x180:
 		return cpu.satp;
+	case 0x105:
+		return cpu.stvec;
 	case 0x340:
 		return cpu.mscratch; // Added for RISC-V
 	case 0x100:
@@ -79,6 +81,9 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x180:
 		cpu.satp = val;
+		break;
+	case 0x105:
+		cpu.stvec = val; 
 		break;
 	case 0x340:
 		cpu.mscratch = val; // Added for RISC-V
