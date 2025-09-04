@@ -42,6 +42,7 @@ typedef struct
 	word_t mideleg;
 	word_t mie;
 	word_t sip;
+	word_t sie;
 	uint8_t CPL;
 	bool intr;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
