@@ -8,7 +8,7 @@ static char ignore_vec[][20]={
 	"push_off",
 	"pop_off",
 	"release",
-	"aquire",
+	"acquire",
 	"memset",
 	"kfree"
 };
