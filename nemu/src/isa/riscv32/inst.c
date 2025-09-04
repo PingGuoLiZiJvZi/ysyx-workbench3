@@ -52,6 +52,8 @@ word_t csrr(word_t csr)
 		return cpu.sip; // sip, added for RISC-V
 	case 0x104:
 		return cpu.sie; // sie, added for RISC-V
+	case 0x141:
+		return cpu.sepc; // sepc, added for RISC-V
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -85,7 +87,7 @@ word_t csrw(word_t csr, word_t val)
 		cpu.satp = val;
 		break;
 	case 0x105:
-		cpu.stvec = val; 
+		cpu.stvec = val;
 		break;
 	case 0x340:
 		cpu.mscratch = val; // Added for RISC-V
@@ -108,6 +110,8 @@ word_t csrw(word_t csr, word_t val)
 	case 0x104:
 		cpu.sie = val; // sie, added for RISC-V
 		break;
+	case 0x141:
+		cpu.sepc = val; // sepc, added for RISC-V
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
