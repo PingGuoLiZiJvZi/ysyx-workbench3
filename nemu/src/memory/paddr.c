@@ -48,7 +48,7 @@ void xv6_make_ramdisk()
 {
 	// if(is_set) return;
 	// is_set = 1;
-	FILE *fp = fopen("fs.img", "rb");
+	FILE *fp = fopen("/home/pglzjz/xv6-rv32/fs.img", "rb");
 	if (!fp)
 	{
 		printf("Can not open fs.img\n");
