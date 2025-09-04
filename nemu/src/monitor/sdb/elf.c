@@ -10,7 +10,9 @@ static char ignore_vec[][20]={
 	"release",
 	"acquire",
 	"memset",
-	"kfree"
+	"kfree",
+	"uartputc",
+	"consputc"
 };
 int is_ignore(char *name){
 	for(int i=0; i<sizeof(ignore_vec)/sizeof(ignore_vec[0]); i++){
