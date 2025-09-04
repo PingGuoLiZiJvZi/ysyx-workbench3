@@ -112,6 +112,7 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x141:
 		cpu.sepc = val; // sepc, added for RISC-V
+		break;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
