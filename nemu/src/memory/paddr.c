@@ -57,6 +57,7 @@ void xv6_make_ramdisk()
 	// 把fs.img加载到内存的0x86000000处
 	fseek(fp, 0, SEEK_END);
 	size_t size = ftell(fp);
+	printf("fs.img size = %lu\n", size);
 	assert(size < 512 * 1024);
 	fseek(fp, 0, SEEK_SET);
 	int ret = fread(guest_to_host(0x86000000), size, 1, fp);
