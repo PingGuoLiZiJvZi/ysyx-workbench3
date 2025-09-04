@@ -58,7 +58,7 @@ void xv6_make_ramdisk()
 	fseek(fp, 0, SEEK_END);
 	size_t size = ftell(fp);
 	printf("fs.img size = %lu\n", size);
-	assert(size < 512 * 1024);
+	assert(size >= 1000 * 1024);
 	fseek(fp, 0, SEEK_SET);
 	int ret = fread(guest_to_host(0x86000000), size, 1, fp);
 	assert(ret == 1);
