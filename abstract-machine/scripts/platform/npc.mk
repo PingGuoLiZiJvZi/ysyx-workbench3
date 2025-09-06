@@ -3,6 +3,7 @@ AM_SRCS := riscv/npc/trm.c \
            riscv/npc/timer.c \
            riscv/npc/input.c \
            riscv/npc/cte.c \
+		   riscv/npc/trap.S \
            platform/dummy/vme.c \
            platform/dummy/mpe.c \
 
@@ -18,6 +19,9 @@ insert-arg: image
 	@python3 $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) "$(MAINARGS_PLACEHOLDER)" "$(mainargs)"
 
 image: image-dep
+	@echo "reaching npc image rule"
+	@echo $(OBJDUMP)
+	@echo $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
