@@ -1,7 +1,7 @@
 TOPNAME = ysyxSoCFull
 NXDC_FILES = constr/top.nxdc
 VERILATOR = verilator
-VERILATOR_CFLAGS += --cc --exe --build -j  0 -O0 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
+VERILATOR_CFLAGS += --cc --exe --build -j  0 -O3 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
 	--Mdir build/obj_dir
 
 THIS_DIR := $(NPC_HOME)
