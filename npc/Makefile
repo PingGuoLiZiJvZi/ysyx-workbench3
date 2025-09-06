@@ -10,6 +10,8 @@ BUILD_DIR =${THIS_DIR}/build
 OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
 FINAL_CORE = $(BUILD_DIR)/ysyx_25040129.v
+NET_LIST = $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v
+CELLS = $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v
 
 override ARGS ?= 
 override ARGS += --log=$(BUILD_DIR)/npc-log.txt
@@ -79,9 +81,9 @@ perf:
 sta:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
 
-netlist_sim:
+sim-iverilog-netlist:
 	$(call git_commit, "sim netlist")
-	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(CELLS) $(NET_LIST) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
