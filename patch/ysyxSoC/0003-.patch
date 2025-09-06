@@ -1,0 +1,43 @@
+From efc8308fdafff0e095f8509fcee59857f2d20a31 Mon Sep 17 00:00:00 2001
+From: 100014536-Zhou chenxi <213241017@seu.edu.cn>
+Date: Sat, 6 Sep 2025 09:32:20 -0400
+Subject: [PATCH 3/3] =?UTF-8?q?=E8=BF=9B=E4=B8=80=E6=AD=A5=E7=A1=AE?=
+ =?UTF-8?q?=E5=AE=9A=E5=A4=9A=E4=BD=99=E8=BE=93=E5=87=BA=E6=9D=A5=E8=87=AA?=
+ =?UTF-8?q?=E4=BA=8E=E5=93=AA=E9=87=8C?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ perip/uart16550/rtl/uart_tfifo.v | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/perip/uart16550/rtl/uart_tfifo.v b/perip/uart16550/rtl/uart_tfifo.v
+index 9cf2dfd7..e76369fc 100644
+--- a/perip/uart16550/rtl/uart_tfifo.v
++++ b/perip/uart16550/rtl/uart_tfifo.v
+@@ -211,8 +211,9 @@ begin
+             begin
+                 top   <= #1 top_plus_1;
+                 count <= #1 count + 1'b1;
+-				$display("TFIFO Pushed b10: %c", data_in);
++				$display("TFIFO Pushed b10 before: %c", data_in);
+                 $write("%c", data_in);
++				$display("TFIFO Pushed b10 after: %c", data_in);
+             end
+         2'b01 : if(count>0)
+             begin
+@@ -222,8 +223,9 @@ begin
+         2'b11 : begin
+                 bottom <= #1 bottom + 1'b1;
+                 top    <= #1 top_plus_1;
+-				$display("TFIFO Pushed b11: %c", data_in);
++				$display("TFIFO Pushed b11 before: %c ", data_in);
+                 $write("%c", data_in);
++				$display("TFIFO Pushed b11 after: %c ", data_in);
+                 end
+         default: ;
+         endcase
+-- 
+2.34.1
+
