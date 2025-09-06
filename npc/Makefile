@@ -46,7 +46,7 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 include ../Makefile
 
 
-build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
+build: verilog $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(FINAL_CORE) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I $(YSYX_HOME)/nemu/tools/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
@@ -54,7 +54,7 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	--timescale "1ns/1ns" --no-timing --autoflush
 #run规则为调用sim
 
-npc_build:
+npc_build: verilog 
 	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(FINAL_CORE) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
 	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I $(YSYX_HOME)/nemu/tools/include" \
@@ -88,7 +88,7 @@ sim-iverilog-netlist:
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
-sim-iverilog:
+sim-iverilog: verilog 
 	$(call git_commit, "sim RTL") 
 	iverilog $(THIS_DIR)/platform/iverilog.v $(FINAL_CORE) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex

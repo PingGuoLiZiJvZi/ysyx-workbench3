@@ -13,7 +13,12 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 void init_disasm()
 {
 	void *dl_handle;
-	dl_handle = dlopen("/home/pglzjz/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5", RTLD_LAZY);
+	const char *ysyx_home = getenv("YSYX_HOME");
+
+	assert(ysyx_home);
+	char libpath[256];
+	sprintf(libpath, "%s/nemu/tools/libcapstone.so.5", ysyx_home);
+	dl_handle = dlopen(libpath, RTLD_LAZY);
 	assert(dl_handle);
 
 	cs_err (*cs_open_dl)(cs_arch arch, cs_mode mode, csh *handle) = NULL;
