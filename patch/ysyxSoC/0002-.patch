@@ -1,36 +1,36 @@
-From 3643eae00a19f825507e724965e3c341718777bb Mon Sep 17 00:00:00 2001
+From ad42e13adba3d9f53bbc444b4f77cd92d70af689 Mon Sep 17 00:00:00 2001
 From: 100014536-Zhou chenxi <213241017@seu.edu.cn>
-Date: Sat, 6 Sep 2025 09:25:44 -0400
-Subject: [PATCH 2/3] =?UTF-8?q?=E8=8E=B7=E5=8F=96=E8=B0=83=E8=AF=95?=
- =?UTF-8?q?=E4=BF=A1=E6=81=AF?=
+Date: Sat, 6 Sep 2025 09:40:43 -0400
+Subject: [PATCH 2/2] =?UTF-8?q?=E5=B0=9D=E8=AF=95=E4=BF=AE=E5=A4=8D?=
+ =?UTF-8?q?=E5=8F=8C=E9=87=8D=E8=BE=93=E5=87=BA?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 ---
- perip/uart16550/rtl/uart_tfifo.v | 2 ++
- 1 file changed, 2 insertions(+)
+ perip/uart16550/rtl/uart_tfifo.v | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/perip/uart16550/rtl/uart_tfifo.v b/perip/uart16550/rtl/uart_tfifo.v
-index 71329116..9cf2dfd7 100644
+index 71329116..dc5f9478 100644
 --- a/perip/uart16550/rtl/uart_tfifo.v
 +++ b/perip/uart16550/rtl/uart_tfifo.v
-@@ -211,6 +211,7 @@ begin
+@@ -211,7 +211,6 @@ begin
              begin
                  top   <= #1 top_plus_1;
                  count <= #1 count + 1'b1;
-+				$display("TFIFO Pushed b10: %c", data_in);
-                 $write("%c", data_in);
+-                $write("%c", data_in);
              end
          2'b01 : if(count>0)
-@@ -221,6 +222,7 @@ begin
+             begin
+@@ -221,7 +220,6 @@ begin
          2'b11 : begin
                  bottom <= #1 bottom + 1'b1;
                  top    <= #1 top_plus_1;
-+				$display("TFIFO Pushed b11: %c", data_in);
-                 $write("%c", data_in);
+-                $write("%c", data_in);
                  end
          default: ;
+         endcase
 -- 
 2.34.1
 
