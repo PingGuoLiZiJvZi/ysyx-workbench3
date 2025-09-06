@@ -10,7 +10,8 @@ BUILD_DIR =${THIS_DIR}/build
 OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
 FINAL_CORE = $(BUILD_DIR)/ysyx_25040129.v
-NET_LIST = $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v
+SOC_HOME = $(YSYX_HOME)/ysyxSoC
+NETLIST = $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v
 CELLS = $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v
 
 override ARGS ?= 
@@ -33,30 +34,30 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 
 # project source
 VSRCS = ${THIS_DIR}/vsrc/*.v
-SOC_VSRCS = $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v")
+SOC_VSRCS = $(shell find $(SOC_HOME)/perip -name "*.v")
 SOC_VSRCS += $(SOC_HOME)/build/*.v
 CSRCS = ${THIS_DIR}/csrc/*.cpp
 CSRCS += ${THIS_DIR}/csrc/*.c
 
-LIBCAPSTONE = ~/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5
-CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
+LIBCAPSTONE = $(YSYX_HOME)/nemu/tools/libcapstone.so.5
+CFLAGS += -I $(YSYX_HOME)/nemu/tools/include
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 include ../Makefile
 
 
-build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
+build: verilog $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(FINAL_CORE) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
-	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
+	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I $(YSYX_HOME)/nemu/tools/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing --autoflush
 #run规则为调用sim
 
-npc_build:
+npc_build: verilog 
 	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(FINAL_CORE) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
-	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
+	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I $(YSYX_HOME)/nemu/tools/include" \
 	--CFLAGS "-DIS_NPC=1" \
 	--timescale "1ns/1ns" --no-timing --autoflush
 
@@ -83,11 +84,11 @@ sta:
 
 sim-iverilog-netlist:
 	$(call git_commit, "sim netlist")
-	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(CELLS) $(NET_LIST) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(CELLS) $(NETLIST) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
-sim-iverilog:
+sim-iverilog: verilog 
 	$(call git_commit, "sim RTL") 
 	iverilog $(THIS_DIR)/platform/iverilog.v $(FINAL_CORE) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
