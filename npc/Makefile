@@ -9,6 +9,7 @@ THIS_DIR := $(NPC_HOME)
 BUILD_DIR =${THIS_DIR}/build
 OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
+FINAL_CORE = $(BUILD_DIR)/ysyx_25040129.v
 
 override ARGS ?= 
 override ARGS += --log=$(BUILD_DIR)/npc-log.txt
@@ -93,4 +94,16 @@ sim-iverilog:
 
 clean:
 	rm -rf $(BUILD_DIR)
-.PHONY: clean run perf npc_build npc_run npc_autorun autorun build npc_build
+
+
+verilog:
+	cat $(VSRCS) > $(FINAL_CORE)
+	
+
+
+
+
+
+
+
+.PHONY: clean run perf npc_build npc_run npc_autorun autorun build npc_build verilog
