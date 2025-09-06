@@ -16,6 +16,7 @@ void init_disasm()
 	const char *ysyx_home = getenv("YSYX_HOME");
 
 	assert(ysyx_home);
+
 	char libpath[256];
 	sprintf(libpath, "%s/nemu/tools/libcapstone.so.5", ysyx_home);
 	dl_handle = dlopen(libpath, RTLD_LAZY);

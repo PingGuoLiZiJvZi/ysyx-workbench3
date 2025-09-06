@@ -1,5 +1,9 @@
 mill/
 .vscode/
+am-kernels/
+nvboard/
+yosys-sta/
+ysyxSoC/
 *.mp4
 !/ysyxSoC/*
 !/nemu/*
@@ -13,5 +17,4 @@ mill/
 !init.sh
 !/fceux-am
 .vscode/nvboard
-!/am-kernels
 !打字游戏是如何工作的
