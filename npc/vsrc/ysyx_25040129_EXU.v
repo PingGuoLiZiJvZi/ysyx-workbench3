@@ -46,8 +46,7 @@ module ysyx_25040129_EXU (
 	input is_req_ready_from_lsu,
 	input fence_i_in_exu,
 	output fence_i_out_exu,
-	input [31:0] satp_in_exu,
-	output [31:0] satp_out_exu,
+
 	output is_data_forward_valid_from_exu
 );	
 
@@ -62,7 +61,6 @@ module ysyx_25040129_EXU (
 assign pc_out_exu = pc;
 assign inst_out_exu = inst_in_exu;
 `endif
-assign satp_out_exu = satp_in_exu;
 assign csr_write_addr_out_exu = csr_write_addr_in_exu;
 assign fence_i_out_exu = fence_i_in_exu ;
 assign is_req_valid_to_lsu = (is_req_valid_from_idu && is_req_ready_from_lsu);

@@ -64,7 +64,6 @@ static long load_img()
 
 	fseek(fp, 0, SEEK_SET);
 	int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
-	printf("ret = %d\n", ret);
 	assert(ret == 1);
 
 	fclose(fp);
@@ -144,7 +143,7 @@ void init_monitor(int argc, char *argv[])
 	long img_size = load_img();
 
 	/* Initialize differential testing. */
-	// cpu.mstatus = (1 << 7); // set MPP to 0b11
+	cpu.mstatus = 0x1800; // set MPP to 0b11
 						  // set priv to MPP
 	init_difftest(diff_so_file, img_size, difftest_port);
 

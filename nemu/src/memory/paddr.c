@@ -44,27 +44,7 @@ static void out_of_bound(paddr_t addr)
 	panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
 		  addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 }
-void xv6_make_ramdisk()
-{
-	// if(is_set) return;
-	// is_set = 1;
-	FILE *fp = fopen("/home/pglzjz/xv6-rv32/fs.img", "rb");
-	if (!fp)
-	{
-		printf("Can not open fs.img\n");
-		return;
-	}
-	// 把fs.img加载到内存的0x86000000处
-	fseek(fp, 0, SEEK_END);
-	size_t size = ftell(fp);
-	printf("fs.img size = %lu\n", size);
-	assert(size >= 1000 * 1024);
-	fseek(fp, 0, SEEK_SET);
-	int ret = fread(guest_to_host(0x86000000), size, 1, fp);
-	assert(ret == 1);
-	fclose(fp);
-	printf("Load fs.img to memory, size = %lu\n", size);
-}
+
 void init_mem()
 {
 #if defined(CONFIG_PMEM_MALLOC)
@@ -72,7 +52,6 @@ void init_mem()
 	assert(pmem);
 #endif
 	IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
-	xv6_make_ramdisk();
 	Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
@@ -83,6 +62,11 @@ word_t paddr_read(paddr_t addr, int len)
 	{
 
 		ret = pmem_read(addr, len);
+		// if (addr >= 0x82e66780 && addr <= 0x82e66790)
+		// {
+
+		// 	printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u,pc = %08x\n", addr, len, ret, ret, cpu.pc);
+		// }
 		IFDEF(CONFIG_MTRACE, if (addr > 0x83000000 && addr < 0x83050000) printf("paddr_read addr = %08x len = %d data = 0x%08x\t%010u\n", addr, len, ret, ret));
 		return ret;
 	}

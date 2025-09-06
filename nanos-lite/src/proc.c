@@ -3,7 +3,7 @@ extern int fg_pcb; // current foreground process index
 #define MAX_NR_PROC 4
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static const char *argv[] = {
-	"/bin/cat", "/usr/bin/wc",
+	"/bin/exec-test",
 	NULL};
 static const char *envp[] = {
 	NULL};
@@ -32,16 +32,16 @@ void hello_fun(void *arg)
 void init_proc()
 {
 
-	// context_uload(&pcb[0], "/bin/nterm", argv, envp);
-	// context_uload(&pcb[1], "/bin/bird", argv, envp);
-	context_uload(&pcb[2], "/bin/hello", argv, envp);
-	context_uload(&pcb[3], "/bin/sterm", argv, envp);
+	context_uload(&pcb[0], "/bin/nterm", argv, envp);
+	context_uload(&pcb[1], "/bin/bird", argv, envp);
+	context_uload(&pcb[2], "/bin/pal", argv, envp);
+	context_uload(&pcb[3], "/bin/hello", argv, envp);
 	switch_boot_pcb();
 	printf("Boot process initialized.\n");
 	yield();
 
 	Log("Initializing processes...");
-	// panic("testing context switch,so should not reach here!");
+	panic("testing context switch,so should not reach here!");
 	// load program here
 	naive_uload(NULL, "/bin/bmp-test");
 }
@@ -50,6 +50,6 @@ Context *schedule(Context *prev)
 {
 
 	current->cp = prev;
-	current = (current == &pcb[3] ? &pcb[2] : &pcb[3]);
+	current = (current == &pcb[3] ? &pcb[fg_pcb] : &pcb[3]);
 	return current->cp;
 }

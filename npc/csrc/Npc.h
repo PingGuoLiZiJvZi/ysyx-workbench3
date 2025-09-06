@@ -19,11 +19,9 @@ extern uint8_t pmem[];
 extern void init_disasm();
 extern void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 void nvboard_bind_all_pins(VysyxSoCFull *top);
-static char regs[32][8] = {
+static char regs[16][8] = {
 	"$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-	"s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-	"a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-	"s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
+	"s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5"};
 
 class Npc
 {
@@ -139,9 +137,9 @@ public:
 		// a value of type "void *" cannot be used to initialize an entity of type "void (*)(int)"
 		ref_difftest_init(port);
 		ref_difftest_memcpy(0, pmem, img_size, DIFFTEST_TO_REF);
-		uint32_t regs[33];
+		uint32_t regs[17];
 		memcpy(regs, regs_val, sizeof(regs_val));
-		regs[0] = 0x80000000;
+		regs[0] = 0x30000000;
 		ref_difftest_regcpy(regs, DIFFTEST_TO_REF);
 	}
 	void difftest_step()
@@ -158,7 +156,7 @@ public:
 		else
 		{
 			ref_difftest_exec(1);
-			uint32_t ref_regs[33];
+			uint32_t ref_regs[17];
 			ref_difftest_regcpy(ref_regs, DIFFTEST_TO_DUT);
 			if (regs_val[0] != ref_regs[0])
 			{
@@ -176,7 +174,6 @@ public:
 				{
 					printf("reg %s is different, ref %u, dut %u,pc = %x\n", regs[i], ref_regs[i + 1], regs_val[i + 1], regs_val[0]);
 					irbuf->print_iringbuf();
-					reg_display();
 					printf("\n");
 #ifdef WAVE
 					tfp->flush();
@@ -235,7 +232,7 @@ public:
 	int port = 0;
 	char message[64];
 	char disasm[32];
-	static uint32_t regs_val[33];
+	static uint32_t regs_val[17];
 	static uint32_t inst;
 	static bool is_device;
 	static bool wbu_state;

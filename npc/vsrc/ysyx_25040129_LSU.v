@@ -25,7 +25,6 @@ module ysyx_25040129_LSU (
 	output is_req_ready_to_exu,
 
 	input [31:0] mmem_write_data_in_lsu,
-	output [31:0] csrrw_csr_write_data_out_lsu, 
 		
 	//---------------读地址---------------
 	output [31:0] araddr,
@@ -71,8 +70,7 @@ module ysyx_25040129_LSU (
 	output is_branch_out_lsu,
 	input fence_i_in_lsu,
 	output fence_i_out_lsu,
-	input [31:0] satp_in_lsu,
-	output [31:0] satp_out_lsu,
+
 	output is_data_forward_valid_from_lsu
 );
 //---------------信号转发---------------
@@ -80,8 +78,6 @@ module ysyx_25040129_LSU (
 assign pc_out_lsu = pc_in_lsu;
 assign inst_out_lsu = inst_in_lsu;
 `endif
-assign csrrw_csr_write_data_out_lsu = (reg_write_in_lsu && csr_write_in_lsu) ? mmem_write_data_in_lsu : 32'hdeadbeef;
-assign satp_out_lsu = satp_in_lsu;
 assign csr_write_out_lsu = csr_write_in_lsu;
 assign fence_i_out_lsu = fence_i_in_lsu;
 assign reg_write_out_lsu = reg_write_in_lsu; 
@@ -257,9 +253,21 @@ always @(posedge clk) begin
 	if(state == IDLE && next_state == WAIT_WBU_READY)is_device <= 1'b0;
 	else if(state == IDLE && next_state != IDLE && next_state != WAIT_WBU_READY)begin
 		if(arvalid)begin
-			if(araddr >= `ysyx_25040129_VIRTUAL_ADDR && araddr < `ysyx_25040129_VIRTUAL_ADDR + `ysyx_25040129_VIRTUAL_SIZE)
+			if(araddr >= `ysyx_25040129_ROM_START && araddr < `ysyx_25040129_ROM_START + `ysyx_25040129_ROM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_SRAM_START && araddr < `ysyx_25040129_SRAM_START + `ysyx_25040129_SRAM_SIZE)
 				is_device <= 1'b0;
 			else if(araddr >= `ysyx_25040129_UART_REG_ADDR && araddr < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `ysyx_25040129_FLASH_START && araddr < `ysyx_25040129_FLASH_SIZE+`ysyx_25040129_FLASH_START)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_SPI_ADDR && araddr < `ysyx_25040129_SPI_ADDR + `ysyx_25040129_SPI_SIZE)
+				is_device <= 1'b1;
+			else if(araddr >= `ysyx_25040129_PSRAM_ADDR && araddr < `ysyx_25040129_PSRAM_ADDR + `ysyx_25040129_PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_SDRAM_ADDR && araddr < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(araddr >= `ysyx_25040129_GPIO_ADDR && araddr < `ysyx_25040129_GPIO_ADDR + `ysyx_25040129_GPIO_SIZE)
 				is_device <= 1'b1;
 			else if(araddr >= `ysyx_25040129_PS2_ADDR && araddr < `ysyx_25040129_PS2_ADDR + `ysyx_25040129_PS2_SIZE)
 				is_device <= 1'b1;
@@ -267,17 +275,27 @@ always @(posedge clk) begin
 				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
+				$error("XBAR: Invalid read address %h", araddr);
 			end
 		end
 		else if(awvalid) begin
 			if(awaddr >= `ysyx_25040129_UART_REG_ADDR && awaddr < `ysyx_25040129_UART_REG_ADDR + `ysyx_25040129_UART_REG_SIZE)
 				is_device <= 1'b1;
-			else if(awaddr >= `ysyx_25040129_VIRTUAL_ADDR && awaddr < `ysyx_25040129_VIRTUAL_ADDR + `ysyx_25040129_VIRTUAL_SIZE)
+			else if(awaddr >= `ysyx_25040129_SRAM_START && awaddr < `ysyx_25040129_SRAM_START + `ysyx_25040129_SRAM_SIZE)
 				is_device <= 1'b0;
+			else if(awaddr >= `ysyx_25040129_SPI_ADDR && awaddr < `ysyx_25040129_SPI_ADDR + `ysyx_25040129_SPI_SIZE)
+				is_device <= 1'b1;
+			else if(awaddr >= `ysyx_25040129_PSRAM_ADDR && awaddr < `ysyx_25040129_PSRAM_ADDR + `ysyx_25040129_PSRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `ysyx_25040129_SDRAM_ADDR && awaddr < `ysyx_25040129_SDRAM_ADDR + `ysyx_25040129_SDRAM_SIZE)
+				is_device <= 1'b0;
+			else if(awaddr >= `ysyx_25040129_GPIO_ADDR && awaddr < `ysyx_25040129_GPIO_ADDR + `ysyx_25040129_GPIO_SIZE)
+				is_device <= 1'b1;
 			else if(awaddr >= `ysyx_25040129_VGA_ADDR && awaddr < `ysyx_25040129_VGA_ADDR + `ysyx_25040129_VGA_SIZE)
 				is_device <= 1'b1;
 			else begin
 				is_device <= 1'b0;
+				$error("XBAR: Invalid write address %h", awaddr);
 			end
 		end
 		else begin 

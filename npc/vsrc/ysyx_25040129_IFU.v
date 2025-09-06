@@ -18,39 +18,22 @@ module ysyx_25040129_IFU (
 	input [31:0] rdata,
 	input [1:0]rresp,
 	input rvalid,
-	output rready,
-	//---------------satp及其冒险控制---------------
-	input [31:0] satp_in_ifu,
-	output [31:0] satp_out_ifu,
-	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_ifu_pip_idu,
-	input valid_csr_addr_write_ifu_pip_idu,
-	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_idu_pip_exu,
-	input valid_csr_addr_write_idu_pip_exu,
-	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_exu_pip_lsu,
-	input valid_csr_addr_write_exu_pip_lsu,
-	input [`ysyx_25040129_CSR_DIG-1:0] csr_addr_lsu_pip_wbu,
-	input valid_csr_addr_write_lsu_pip_wbu
+	output rready
 	);
-assign satp_out_ifu = satp_in_ifu;
 reg get_flush_signal_in_fetching;
 reg [31:0] flush_target_latch;
 reg [31:0] inst;
 reg[2:0] state;
 assign araddr = pc;
-assign arvalid = (state == WAIT_MMEM_READY)&& !raw;
+assign arvalid = (state == WAIT_MMEM_READY);
 assign rready = (state == WAIT_MMEM_REQ) || (state == WAIT_MMEM_READY && arready);
 localparam WAIT_MMEM_READY = 3'b000;
 localparam WAIT_MMEM_REQ = 3'b001;
 localparam WAIT_IDU_READY = 3'b010;
-//-------------------------数据冒险控制---------------------------------------------
-wire raw;
-assign raw = (csr_addr_ifu_pip_idu == `ysyx_25040129_SATP && valid_csr_addr_write_ifu_pip_idu) ||
-			 (csr_addr_idu_pip_exu == `ysyx_25040129_SATP && valid_csr_addr_write_idu_pip_exu) ||
-			 (csr_addr_exu_pip_lsu == `ysyx_25040129_SATP && valid_csr_addr_write_exu_pip_lsu) ||
-			 (csr_addr_lsu_pip_wbu == `ysyx_25040129_SATP && valid_csr_addr_write_lsu_pip_wbu);
-//---------------------------------------------------------------------------------
+
+
 //总线信号产生逻辑
-assign is_req_valid_to_idu = (state == WAIT_IDU_READY ||(state == WAIT_MMEM_READY && arready && rvalid)) && !pipeline_flush && !get_flush_signal_in_fetching && !raw;
+assign is_req_valid_to_idu = (state == WAIT_IDU_READY ||(state == WAIT_MMEM_READY && arready && rvalid)) && !pipeline_flush && !get_flush_signal_in_fetching;
 assign inst_to_idu = (state == WAIT_MMEM_READY && arready && rvalid) ? rdata : inst;
 //--------------------调试接口---------------------
 always @(posedge clk) begin
@@ -70,11 +53,9 @@ end
 // end
 //-------------------综合时直接删除-------------------
 // pc 更新逻辑
-// 冲突信号的存在目的是阻止IFU以错误的satp发起取指
-// 也就是，阻止state进入WAIT_MMEM_READY状态
 always @(posedge clk) begin
 	if(rst)begin
-		pc <= `ysyx_25040129_VIRTUAL_ADDR;
+		pc <= `ysyx_25040129_FLASH_START;
 		inst <= 32'b0; 
 		get_flush_signal_in_fetching <= 1'b0;
 		state <= WAIT_MMEM_READY;
@@ -82,7 +63,7 @@ always @(posedge clk) begin
 	else begin
 		case (state)
 			WAIT_MMEM_READY:begin
-				if(arready & !raw)begin
+				if(arready)begin
 					if(rvalid) begin
 						inst <= rdata;
 						if(pipeline_flush)begin
@@ -109,8 +90,8 @@ always @(posedge clk) begin
 						end
 						state <= WAIT_MMEM_REQ;
 					end
-				end
-			else state <= WAIT_MMEM_READY;
+					end
+				else state <= WAIT_MMEM_READY;
 			
 			end
 			WAIT_MMEM_REQ:begin

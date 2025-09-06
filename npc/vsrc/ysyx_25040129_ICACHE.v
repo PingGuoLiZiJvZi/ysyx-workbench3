@@ -1,5 +1,6 @@
 module ysyx_25040129_ICACHE #(
-	parameter BLOCK_NUM_DIG = 4//2^BLOCK_NUM_DIG = 16, // block number = 16
+	parameter BLOCK_SIZE_WORD_DIG = 2,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
+	parameter BLOCK_NUM_DIG = 1//2^BLOCK_NUM_DIG = 16, // block number = 16
 )(
 	//目前16指令缓存参数最佳为1 3
 	//8指令缓存参数最佳为2 1
@@ -29,42 +30,37 @@ module ysyx_25040129_ICACHE #(
 	output out_rready,
 	input out_rlast,
 	//---------------fence.i冲刷---------------
-	input fence_i,
-	/* verilator lint_off UNUSEDSIGNAL */
-	input [31:0] satp,
-	output [31:0] out_arsatp
-	/* verilator lint_on UNUSEDSIGNAL */
+	input fence_i
 );	
-	assign out_arsatp = satp; 
-	localparam BLOCK_SIZE_DIG = 2; //2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	reg [31:0] ifu_rdata_latch;
-	reg [19:0] satp_latch;
-	assign out_arlen = 0; 
-	assign out_arburst = 2'b00; 
+	localparam BLOCK_SIZE_WORD = 1 << BLOCK_SIZE_WORD_DIG; 
+	assign out_arlen = BLOCK_SIZE_WORD - 1; 
+	assign out_arburst = 2'b01; 
+	localparam BLOCK_SIZE_DIG = BLOCK_SIZE_WORD_DIG + 2;
 	// localparam BLOCK_SIZE = 1 << (BLOCK_SIZE_DIG);
 	localparam BLOCK_NUM = 1 << (BLOCK_NUM_DIG); 
 	// verilator lint_off UNUSED
 	reg [31:0] ifu_araddr_latch;
 	// verilator lint_on UNUSED
-	reg [31:0] cache_data[BLOCK_NUM-1:0]; 
-	reg [19:0] cache_satp[BLOCK_NUM-1:0]; 
+	reg [31:0] cache_data[BLOCK_NUM-1:0][BLOCK_SIZE_WORD-1:0]; 
 	reg [BLOCK_NUM-1:0]cache_valid;
-	reg [31:2+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
+	reg [31:BLOCK_SIZE_DIG+BLOCK_NUM_DIG] cache_tag[BLOCK_NUM-1:0];
 	reg [1:0] state;
+	reg [BLOCK_SIZE_WORD_DIG-1:0] burst_count;
 	//--------------------------------------------------------------------------------
 	wire [BLOCK_NUM_DIG-1:0] index;
 	wire [BLOCK_NUM_DIG-1:0] p_index;
+	wire [BLOCK_SIZE_WORD_DIG-1:0] offset;
+	wire [BLOCK_SIZE_WORD_DIG-1:0] p_offset;
 	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] tag;
 	wire [31-BLOCK_SIZE_DIG-BLOCK_NUM_DIG:0] p_tag;
-	wire [19:0] satp_addr;
-	wire [19:0] p_satp_addr;
 	//--------------------------------------------------------------------------------
 	assign p_index = ifu_araddr[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
+	assign p_offset = ifu_araddr[BLOCK_SIZE_WORD_DIG+1:2];
 	assign p_tag = ifu_araddr[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
 	assign index = ifu_araddr_latch[BLOCK_SIZE_DIG + BLOCK_NUM_DIG-1:BLOCK_SIZE_DIG];
+	assign offset = ifu_araddr_latch[BLOCK_SIZE_WORD_DIG+1:2];
 	assign tag = ifu_araddr_latch[31:BLOCK_SIZE_DIG + BLOCK_NUM_DIG];
-	assign satp_addr = satp_latch;
-	assign p_satp_addr = satp[31:12];
 	//--------------------------------------------------------------------------------
 	assign ifu_arready = (state == IDLE) && !fence_i;
 	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
@@ -87,7 +83,6 @@ module ysyx_25040129_ICACHE #(
 			ifu_araddr_latch <= 32'b0;
 			cache_valid <= {BLOCK_NUM{1'b0}};
 			fence_i_latch <= 1'b0;
-			satp_latch <= 20'b0;
 		end
 		else begin
 			case (state)
@@ -97,13 +92,13 @@ module ysyx_25040129_ICACHE #(
 					else begin
 					if(ifu_arvalid) begin
 						ifu_araddr_latch <= ifu_araddr;
-						satp_latch <= satp[31:12];
-						if(cache_valid[p_index] && cache_tag[p_index] == p_tag && cache_satp[p_index] == p_satp_addr) begin
-							ifu_rdata_latch <= cache_data[p_index];
+						if(cache_valid[p_index] && cache_tag[p_index] == p_tag) begin
+							ifu_rdata_latch <= cache_data[p_index][p_offset];
 							if(ifu_rready) state <= IDLE;
 							else state <= WAIT_IFU_READY; // 命中，直接返回数据
 						end else begin
 							state <= WAIT_OUT_READY; // 未命中，准备向外界请求数据
+							burst_count <= 0; 
 						end
 					end
 					end
@@ -122,10 +117,12 @@ module ysyx_25040129_ICACHE #(
 				WAIT_OUT_REQ:begin
 					if(fence_i)fence_i_latch <= 1'b1;
 					if(out_rvalid) begin
-						cache_data[index] <= out_rdata;
-						ifu_rdata_latch <= out_rdata;
+						cache_data[index][burst_count] <= out_rdata;
+						burst_count <= burst_count + 1;
+						if(burst_count == offset)begin
+							ifu_rdata_latch <= out_rdata;
+						end
 						if(out_rlast) begin
-							cache_satp[index] <= satp_addr;
 							cache_tag[index] <= tag;
 							cache_valid[index] <= 1'b1; //标记该cache块有效
 							state <= WAIT_IFU_READY;
@@ -141,7 +138,7 @@ module ysyx_25040129_ICACHE #(
 	assign out_rready = (state == WAIT_OUT_REQ);
 	assign ifu_rresp = `ysyx_25040129_OKAY;
 	assign ifu_rdata = (state == IDLE && ifu_arvalid && cache_valid[p_index] && cache_tag[p_index] == p_tag)?
-	                   cache_data[p_index] : ifu_rdata_latch;
+	                   cache_data[p_index][p_offset] : ifu_rdata_latch;
 	assign ifu_rvalid = (state == WAIT_IFU_READY) || (state == IDLE && ifu_arvalid && cache_valid[p_index] && cache_tag[p_index] == p_tag);
 	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
 	//31--------block_size_dig+block_num_dig-1--------------block_size_dig-1--------------0

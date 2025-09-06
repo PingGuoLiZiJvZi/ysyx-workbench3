@@ -34,26 +34,12 @@ word_t csrr(word_t csr)
 		return cpu.mtval;
 	case 0x180:
 		return cpu.satp;
-	case 0x105:
-		return cpu.stvec;
 	case 0x340:
 		return cpu.mscratch; // Added for RISC-V
-	case 0x100:
-		return cpu.sstatus; // Added for RISC-V
-	case 0xf14:
-		return 0; // mhartid; 目前单核
-	case 0x302:
-		return cpu.medeleg;
-	case 0x303:
-		return cpu.mideleg;
-	case 0x304:
-		return cpu.mie;
-	case 0x144:
-		return cpu.sip; // sip, added for RISC-V
-	case 0x104:
-		return cpu.sie; // sie, added for RISC-V
-	case 0x141:
-		return cpu.sepc; // sepc, added for RISC-V
+	case 0x114:
+		return 0x79737978;
+	case 0x514:
+		return 25040129;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -75,7 +61,6 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x341:
 		cpu.mepc = val;
-		printf("mepc set to %x\n", val);
 		break;
 	case 0x342:
 		cpu.mcause = val;
@@ -86,32 +71,8 @@ word_t csrw(word_t csr, word_t val)
 	case 0x180:
 		cpu.satp = val;
 		break;
-	case 0x105:
-		cpu.stvec = val;
-		break;
 	case 0x340:
 		cpu.mscratch = val; // Added for RISC-V
-		break;
-	case 0x100:
-		cpu.sstatus = val; // Added for RISC-V
-		break;
-	case 0x302:
-		cpu.medeleg = val;
-		break;
-	case 0x303:
-		cpu.mideleg = val;
-		break;
-	case 0x304:
-		cpu.mie = val;
-		break;
-	case 0x144:
-		cpu.sip = val; // sip, added for RISC-V
-		break;
-	case 0x104:
-		cpu.sie = val; // sie, added for RISC-V
-		break;
-	case 0x141:
-		cpu.sepc = val; // sepc, added for RISC-V
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);
@@ -214,7 +175,6 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 static int decode_exec(Decode *s)
 {
 	s->dnpc = s->snpc;
-
 #define INSTPAT_INST(s) ((s)->isa.inst)
 #define INSTPAT_MATCH(s, name, type, ... /* execute body */)             \
 	{                                                                    \
@@ -230,27 +190,18 @@ static int decode_exec(Decode *s)
 	// 有很多译码宏，灵活使用
 	// 实现32位rsicv指令集中的li指令，addi指令，jal指令 ret指令//jalr sw指令 mv指令 j指令的解码和执行
 	// li load immete 需要addi或者lui来实现
-
-	INSTPAT("00001?? ????? ????? 010 ????? 01011 11", amoswap.w, RR, {
-		word_t old = Mr(src1, 4);
-		Mw(src1, 4, src2);
-		R(rd) = old;
-		R(BITS(s->isa.inst, 24, 20)) = old;
-	});
-
-	INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, {});
-	INSTPAT("0000??? ????? 00000 000 00000 00011 11", fence, I, {});
-
 	INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr, I, {
 		R(rd) = s->pc + 4;
 		// printf("imm=%d\n", imm);
 		s->dnpc = (src1 + imm) & ~1;
 	});
-
+	INSTPAT("??????? ????? ????? ??? ????? 00011 11", fence, I, );
 	INSTPAT("??????? ????? ????? 111 ????? 00100 11", andi, I, R(rd) = src1 & imm);
 	INSTPAT("??????? ????? ????? 100 ????? 00100 11", xori, I, R(rd) = src1 ^ imm);
 	INSTPAT("??????? ????? ????? 110 ????? 00100 11", ori, I, R(rd) = src1 | imm);
-	INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw, S, Mw(src1 + imm, 4, src2));
+	INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw, S, {
+		Mw(src1 + imm, 4, src2);
+	});
 	//                1000 00010 010 11000 01000 11
 	INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw, I, R(rd) = Mr(src1 + imm, 4));
 	INSTPAT("??????? ????? ????? 001 ????? 00000 11", lh, I, R(rd) = SEXT((int16_t)Mr(src1 + imm, 2), 16));
@@ -263,9 +214,8 @@ static int decode_exec(Decode *s)
 		cpu.mstatus &= ~(1 << 3); // MIE = 0
 		cpu.mstatus &= ~(1 << 7); // MPIE = 0
 		cpu.mstatus |= MPIE << 3; // MPIE = MIE
-		cpu.CPL = (cpu.mstatus >> 11) & 3;
-		printf("CPL changed to %s\n", cpu.CPL == 0 ? "USER" : (cpu.CPL == 1 ? "SUPERVISOR" : "MACHINE"));
-		cpu.mstatus &= ~(3 << 11); // clear CPL
+		// printf("mret:end:mstatus = %x\n", cpu.mstatus);
+		// printf("mstatus restored to %x, there could be interrupt\n", cpu.mstatus);
 		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", cpu.mcause, s->dnpc));
 	});
 	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, { s->dnpc = isa_raise_intr(11, s->pc); });

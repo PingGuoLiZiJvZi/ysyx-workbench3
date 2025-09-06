@@ -23,7 +23,6 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
 	cpu.mstatus &= ~(1 << 3);
 	cpu.mstatus &= ~(1 << 7);
 	cpu.mstatus |= MIE << 7; // MIE = MIE
-	cpu.mstatus |= (((cpu.CPL) & 3) << 11);
 	// printf("mstatus set to %x,there should not be interrupt\n", cpu.mstatus);
 	cpu.mepc = epc;
 	// if (cpu.priv == 3)
@@ -38,7 +37,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc)
 
 word_t isa_query_intr()
 {
-	if ((cpu.mie & (1 << 7)) && (cpu.mstatus & (1 << 3)) && cpu.intr)
+	// if (cpu.mstatus != 0x1800)
+	// 	printf("cpu.intr = %d, mstatus = %x\n", cpu.intr, cpu.mstatus);
+	if (cpu.intr && (cpu.mstatus & (1 << 3)))
 	{
 		cpu.intr = false;
 		// printf("enabled interrupt, mstatus = %x\n", cpu.mstatus);

@@ -21,7 +21,7 @@ static Context *do_event(Event e, Context *c)
 			return schedule(c); // If syscall_id is -1, just yield to the scheduler
 		case SYS_exit:
 			CASE_LOG("Exit syscall called with code %d", c->GPR2);
-			// halt(c->GPR2);
+			halt(c->GPR2);
 			sys_exit(c->GPR2);
 			return c; // Terminate the process
 		case SYS_yield:

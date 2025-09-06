@@ -36,8 +36,6 @@
 	output is_req_valid_to_exu,
 	input is_req_ready_from_exu,
 	output reg fence_i,
-	input [31:0]satp_in_idu,
-	output [31:0] satp_out_idu,
 //---------------数据冒险控制--------------------
 	input [`ysyx_25040129_REGS_DIG-1:0] rd_idu_pip_exu,
 	input valid_rd_write_idu_pip_exu,
@@ -63,7 +61,6 @@
 `ifdef ysyx_25040129_DEBUG
 	assign inst_out_idu = inst;
 `endif
-	assign satp_out_idu = satp_in_idu;
 	wire is_src1_raw;
 	wire is_src2_raw;
 	wire is_csr_raw;
@@ -122,7 +119,7 @@
 //---------------我滴妈好长一段代码--------------------
 
 	assign pc_out_idu = pc; 
-	assign lsu_write_data_out_idu = (reg_write_out_idu && csr_write_out_idu) ? src1_in_idu_reg : src2_in_idu;
+	assign lsu_write_data_out_idu = src2_in_idu; 
 	assign is_req_ready_to_ifu = is_req_ready_from_exu && !raw; 
 	assign is_req_valid_to_exu = (is_req_valid_from_ifu && is_req_ready_from_exu && !raw);
 
@@ -134,7 +131,7 @@
 		end 
 		else if(opcode == `ysyx_25040129_I_TYPE_SYSTEM && funct3 == 3'b000 && inst[31:20]== `ysyx_25040129_MRET)begin
 			csr_read_id_out_idu = `ysyx_25040129_MEPC;
-			csr_write_id_out_idu = `ysyx_25040129_MVENDORID; 
+			csr_write_id_out_idu = `ysyx_25040129_CSR_ERROR; 
 		end
 		else begin
 		case(inst[31:20])
@@ -144,9 +141,7 @@
 		12'h305: csr_read_id_out_idu = `ysyx_25040129_MTVEC;
 		12'h341: csr_read_id_out_idu = `ysyx_25040129_MEPC;
 		12'h342: csr_read_id_out_idu = `ysyx_25040129_MCAUSE;
-		12'h180: csr_read_id_out_idu = `ysyx_25040129_SATP;
-		12'h340: csr_read_id_out_idu = `ysyx_25040129_MSCRATCH;
-		default: csr_read_id_out_idu = `ysyx_25040129_MVENDORID; 
+		default: csr_read_id_out_idu = `ysyx_25040129_CSR_ERROR; 
 		endcase
 		csr_write_id_out_idu = csr_read_id_out_idu;
 		end
@@ -158,9 +153,9 @@
 	assign funct7_5 = inst[30];
 	assign funct3 = inst[14:12];
 	assign opcode = inst[6:0];
-	assign rd_out_idu = inst[11:7];
-	assign src1_id = inst[19:15];
-	assign src2_id = inst[24:20];
+	assign rd_out_idu = inst[10:7];
+	assign src1_id = inst[18:15];
+	assign src2_id = inst[23:20];
 //---------------调试信号---------------
 // always @(posedge clk) begin
 // 	`ifdef ysyx_25040129_DEBUG
@@ -296,10 +291,8 @@
 					end
 					3'b001:begin
 						csr_write_out_idu = 1'b1;
-						is_csrr = 1'b1;
-						reg_write_out_idu = 1'b1;
+						reg_write_out_idu = 1'b0;
 						is_src1_from_reg = 1'b1;
-						src1_out_idu = csr_in_idu; 
 						src2_out_idu= 32'b0; 
 						alu_opcode = `ysyx_25040129_ADD; 
 					end

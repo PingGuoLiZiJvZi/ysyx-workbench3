@@ -18,10 +18,6 @@
 
 #include <common.h>
 
-#define USER 0
-#define SUPERVISOR 1
-#define MACHINE 3
-
 typedef struct
 {
 	word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
@@ -33,18 +29,6 @@ typedef struct
 	word_t mtval;
 	word_t satp;
 	word_t mscratch;
-	word_t sstatus;
-	word_t stvec;
-	word_t scause;
-	word_t stval;
-	word_t sscratch;
-	word_t medeleg;
-	word_t mideleg;
-	word_t mie;
-	word_t sip;
-	word_t sie;
-	word_t sepc;
-	uint8_t CPL;
 	bool intr;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
