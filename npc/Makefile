@@ -45,7 +45,7 @@ include ../Makefile
 
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") 
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(FINAL_CORE) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing --autoflush
@@ -53,7 +53,7 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 
 npc_build:
 	$(call git_commit, "sim RTL") 
-	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
+	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(FINAL_CORE) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
 	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
 	--CFLAGS "-DIS_NPC=1" \
 	--timescale "1ns/1ns" --no-timing --autoflush
