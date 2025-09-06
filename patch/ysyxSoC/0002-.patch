@@ -1,0 +1,23 @@
+From adbf3d03f1db18a7f39db3ab5637bf1ea12d5d55 Mon Sep 17 00:00:00 2001
+From: 100014536-Zhou chenxi <213241017@seu.edu.cn>
+Date: Sat, 6 Sep 2025 03:29:40 -0400
+Subject: [PATCH 2/2] =?UTF-8?q?=E9=87=8D=E6=96=B0=E5=88=B6=E4=BD=9C?=
+ =?UTF-8?q?=E8=A1=A5=E4=B8=81?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ rocket-chip | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rocket-chip b/rocket-chip
+index d0c6b50f..31544d04 160000
+--- a/rocket-chip
++++ b/rocket-chip
+@@ -1 +1 @@
+-Subproject commit d0c6b50fdefcdbe121e9788433ea51f7efaf1d32
++Subproject commit 31544d0403c319c4035c36b3f567531fb34f349d
+-- 
+2.34.1
+
