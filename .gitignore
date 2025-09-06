@@ -4,6 +4,7 @@ am-kernels/
 nvboard/
 yosys-sta/
 ysyxSoC/
+!patch/ysyxSoC
 riscv-tests-am/
 *.mp4
 !/ysyxSoC/*
