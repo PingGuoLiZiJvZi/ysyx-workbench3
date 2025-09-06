@@ -1,3 +1,4 @@
+/* verilator lint_off DECLFILENAME */
 `ifdef ysyx_25040129_SIMULATE
 	`define ysyx_25040129_DEBUG 1
 	`define ysyx_25040129_DPI 1
@@ -87,4 +88,4 @@
 `define ysyx_25040129_PS2_ADDR 32'h10011000
 `define ysyx_25040129_PS2_SIZE 32'h00000008
 `define ysyx_25040129_VGA_ADDR 32'h21000000
-`define ysyx_25040129_VGA_SIZE 32'h140000
+`define ysyx_25040129_VGA_SIZE 32'h150000

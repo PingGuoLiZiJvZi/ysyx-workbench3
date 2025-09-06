@@ -9,6 +9,9 @@ THIS_DIR := $(NPC_HOME)
 BUILD_DIR =${THIS_DIR}/build
 OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
+FINAL_CORE = $(BUILD_DIR)/ysyx_25040129.v
+NETLIST = $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v
+CELLS = $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v
 
 override ARGS ?= 
 override ARGS += --log=$(BUILD_DIR)/npc-log.txt
@@ -44,7 +47,7 @@ include ../Makefile
 
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") 
-	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(VSRCS) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
+	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(FINAL_CORE) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
 	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing --autoflush
@@ -52,7 +55,7 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 
 npc_build:
 	$(call git_commit, "sim RTL") 
-	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(VSRCS) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
+	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(FINAL_CORE) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
 	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
 	--CFLAGS "-DIS_NPC=1" \
 	--timescale "1ns/1ns" --no-timing --autoflush
@@ -78,19 +81,31 @@ perf:
 sta:
 	$(MAKE) -C $(SOC_HOME)/../yosys-sta sta
 
-netlist_sim:
+sim-iverilog-netlist:
 	$(call git_commit, "sim netlist")
-	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	iverilog -g2012 $(THIS_DIR)/platform/iverilog.v $(CELLS) $(NETLIST) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
 sim-iverilog:
 	$(call git_commit, "sim RTL") 
-	iverilog $(THIS_DIR)/platform/iverilog.v $(VSRCS) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
+	iverilog $(THIS_DIR)/platform/iverilog.v $(FINAL_CORE) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
 	$(BUILD_DIR)\iverilog
 
 
 clean:
 	rm -rf $(BUILD_DIR)
-.PHONY: clean run perf npc_build npc_run npc_autorun autorun build npc_build
+
+
+verilog:
+	cat $(VSRCS) > $(FINAL_CORE)
+	
+
+
+
+
+
+
+
+.PHONY: clean run perf npc_build npc_run npc_autorun autorun build npc_build verilog
