@@ -39,8 +39,8 @@ SOC_VSRCS += $(SOC_HOME)/build/*.v
 CSRCS = ${THIS_DIR}/csrc/*.cpp
 CSRCS += ${THIS_DIR}/csrc/*.c
 
-LIBCAPSTONE = ~/ysyx-workbench/nemu/tools/capstone/repo/libcapstone.so.5
-CFLAGS += -I ~/ysyx-workbench/nemu/tools/capstone/repo/include
+LIBCAPSTONE = $(YSYX_HOME)/nemu/tools/libcapstone.so.5
+CFLAGS += -I $(YSYX_HOME)/nemu/tools/include
 
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 include ../Makefile
@@ -49,7 +49,7 @@ include ../Makefile
 build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) $(THIS_DIR)/platform/simulation.v $(FINAL_CORE) $(SOC_VSRCS) $(CSRCS) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
-	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
+	$(addprefix -LDFLAGS , $(LDFLAGS)) --LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I $(YSYX_HOME)/nemu/tools/include" --CFLAGS "-I $(NVBOARD_HOME)/usr/include" \
 	-I$(SOC_HOME)/perip/uart16550/rtl -I$(SOC_HOME)/perip/spi/rtl -I$(NPC_HOME)/vsrc \
 	--timescale "1ns/1ns" --no-timing --autoflush
 #run规则为调用sim
@@ -57,7 +57,7 @@ build: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 npc_build:
 	$(call git_commit, "sim RTL") 
 	$(VERILATOR) $(VERILATOR_CFLAGS) -Wall  $(THIS_DIR)/platform/simulation.v $(THIS_DIR)/platform/npc/*.v $(FINAL_CORE) $(CSRCS) $(THIS_DIR)/platform/npc/*.c \
-	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I ~/ysyx-workbench/nemu/tools/capstone/repo/include" \
+	--LDFLAGS "-lreadline" $(addprefix -CFLAGS , $(CXXFLAGS)) --CFLAGS "-I $(YSYX_HOME)/nemu/tools/include" \
 	--CFLAGS "-DIS_NPC=1" \
 	--timescale "1ns/1ns" --no-timing --autoflush
 
