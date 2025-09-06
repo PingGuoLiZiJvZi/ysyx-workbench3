@@ -34,7 +34,7 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 # project source
 VSRCS = ${THIS_DIR}/vsrc/*.v
 SOC_VSRCS = $(shell find ~/ysyx-workbench/ysyxSoC/perip -name "*.v")
-SOC_VSRCS += $(SOC_HOME)/build/*.v
+SOC_VSRCS += $(SOC_HOME)build/*.v
 CSRCS = ${THIS_DIR}/csrc/*.cpp
 CSRCS += ${THIS_DIR}/csrc/*.c
 
