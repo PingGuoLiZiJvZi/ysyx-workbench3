@@ -9,7 +9,55 @@ module ysyxSoCFull (
 	reg reset = 1;
 	reg [31:0] flash_mem [8*1024*1024-1:0];
 	reg [31:0] sdram_mem [32*1024*1024-1:0];
+	
+//-------------------读地址-----------------------
+wire [31:0] araddr;
+wire arvalid;
+wire arready;
+wire [7:0] arlen;
+wire [1:0] arburst;
+//-------------------读数据-----------------------
+reg [31:0] rdata;
+wire [1:0] rresp;
+wire rvalid;
+wire rready;
+reg rlast = 1'b0;
+//-------------------写地址-----------------------
+wire [31:0] awaddr;
+wire awvalid;
+wire awready;
+//-------------------写数据-----------------------
+wire [3:0] wstrb;
+wire [31:0] wdata;
+wire wvalid;
+wire wready;
+//-------------------写响应-----------------------
+wire [1:0] bresp;
+wire bvalid;
+wire bready;
+//-------------------DPI-C-----------------------
 
+wire [4:0] delay = 5'b1;
+localparam  R_IDLE = 3'b000;
+localparam  R_READING = 3'b001;
+localparam  R_WAIT_R_READY = 3'b010;
+
+localparam  W_IDLE = 3'b000;
+localparam  W_WAIT_AW_VALID = 3'b001; 
+localparam  W_WAIT_W_VALID = 3'b010;
+localparam  W_WRITING = 3'b100;
+localparam  W_WAIT_B_READY = 3'b101;
+/* verilator lint_off UNUSEDSIGNAL */
+reg [31:0] read_addr_store;
+reg [7:0] read_len_store;
+reg [31:0] write_addr_store;
+reg [31:0] write_data_store;
+reg [3:0] write_strb_store;
+/* verilator lint_on UNUSEDSIGNAL */
+reg [2:0] r_state;
+reg [2:0] w_state;
+reg [7:0] r_len_cnt;
+wire [31:0] strb;
 always #1 clock = ~clock;
 initial begin
 	// $dumpfile("top.vcd");
@@ -84,54 +132,7 @@ ysyx_25040129 u_top (
     .io_slave_rdata    (/* unused */),
     .io_slave_rresp    (/* unused */),
     .io_slave_rlast    (/* unused */));
-//-------------------读地址-----------------------
-wire [31:0] araddr;
-wire arvalid;
-wire arready;
-wire [7:0] arlen;
-wire [1:0] arburst;
-//-------------------读数据-----------------------
-reg [31:0] rdata;
-wire [1:0] rresp;
-wire rvalid;
-wire rready;
-reg rlast = 1'b0;
-//-------------------写地址-----------------------
-wire [31:0] awaddr;
-wire awvalid;
-wire awready;
-//-------------------写数据-----------------------
-wire [3:0] wstrb;
-wire [31:0] wdata;
-wire wvalid;
-wire wready;
-//-------------------写响应-----------------------
-wire [1:0] bresp;
-wire bvalid;
-wire bready;
-//-------------------DPI-C-----------------------
 
-wire [4:0] delay = 5'b1;
-localparam  R_IDLE = 3'b000;
-localparam  R_READING = 3'b001;
-localparam  R_WAIT_R_READY = 3'b010;
-
-localparam  W_IDLE = 3'b000;
-localparam  W_WAIT_AW_VALID = 3'b001; 
-localparam  W_WAIT_W_VALID = 3'b010;
-localparam  W_WRITING = 3'b100;
-localparam  W_WAIT_B_READY = 3'b101;
-/* verilator lint_off UNUSEDSIGNAL */
-reg [31:0] read_addr_store;
-reg [7:0] read_len_store;
-reg [31:0] write_addr_store;
-reg [31:0] write_data_store;
-reg [3:0] write_strb_store;
-/* verilator lint_on UNUSEDSIGNAL */
-reg [2:0] r_state;
-reg [2:0] w_state;
-reg [7:0] r_len_cnt;
-wire [31:0] strb;
 
 assign strb = {{8{write_strb_store[3]}}, {8{write_strb_store[2]}}, {8{write_strb_store[1]}}, {8{write_strb_store[0]}}};
 always @(posedge clock) begin
