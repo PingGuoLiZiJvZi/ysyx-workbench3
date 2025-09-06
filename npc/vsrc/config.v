@@ -1,3 +1,4 @@
+/* verilator lint_off DECLFILENAME */
 `ifdef ysyx_25040129_SIMULATE
 	`define ysyx_25040129_DEBUG 1
 	`define ysyx_25040129_DPI 1
