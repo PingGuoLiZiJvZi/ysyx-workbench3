@@ -74,7 +74,7 @@ npc_run: npc_build
 	${BIN}
 
 npc_autorun: npc_build
-	printf "c\nq\n" |${BIN}
+	${BIN} --batch
 
 
 #perf需要做两件事：1. 在sta目录下调用make sta，生成综合报告；2. 在microbench目录下调用make run ARCH=riscv32e-ysyxsoc,生成性能报告
