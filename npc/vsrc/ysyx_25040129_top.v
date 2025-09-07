@@ -240,12 +240,13 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//--------------------------------------------------------------------------
 	wire fence_i_out_exu;
 	wire [31:0] data_forward_from_exu;
+	wire [31:0] result_out_exu;
 	assign data_forward_from_exu = result_out_exu;
 	wire is_data_forward_valid_from_exu;
 
 	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_exu;
 	wire [31:0] lsu_write_data_out_exu;
-	wire [31:0] result_out_exu;
+
 	wire [31:0] branch_target_out_exu;
 	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu;
 	wire [2:0] lsu_read_out_exu;
@@ -277,6 +278,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//--------------------------------------------------------------------------
 wire is_data_forward_valid_from_lsu;
 	wire [31:0] data_forward_from_lsu;
+	wire [31:0] result_out_lsu;
 	assign data_forward_from_lsu = result_out_lsu;
 	`ifdef ysyx_25040129_DEBUG
 	wire [31:0] debug_pc_from_exu_to_lsu_pip;
@@ -322,24 +324,13 @@ wire is_data_forward_valid_from_lsu;
 
 
 	wire [31:0] branch_target_out_lsu;
-	wire [31:0] result_out_lsu;
+	
 
 	wire is_req_valid_from_lsu_to_wbu;
 	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
 
 	//--------------------------------------------------------------------------
-	//-----------------流水线冲刷/重置pc-----------------
-	`ifdef ysyx_25040129_DEBUG
-	wire [31:0] debug_pc_from_lsu_to_wbu;
-	wire [31:0] debug_pc_from_lsu_to_wbu_pip;
-	wire [31:0] debug_inst_from_lsu_to_wbu;
-	wire [31:0] debug_inst_from_lsu_to_wbu_pip;
-	`endif
-	wire pipeline_flush_signal;
-	wire [31:0] flush_reset_pc;
-	assign pipeline_flush_signal = is_req_valid_from_lsu_to_wbu && 
-		(is_branch_out_lsu || ecall_out_lsu || mret_out_lsu || fence_i_out_lsu );
-	assign flush_reset_pc = branch_target_out_lsu;
+	
 	//-----------------difftest适配-----------------
 	// `ifdef ysyx_25040129_DEBUG
 	// reg [31:0] difftest_pc;
@@ -372,7 +363,19 @@ wire is_data_forward_valid_from_lsu;
 	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu;
 	wire reg_write_out_wbu;
 	//--------------------------------------------------------------------------
-	
+	//-----------------流水线冲刷/重置pc-----------------
+	`ifdef ysyx_25040129_DEBUG
+	wire [31:0] debug_pc_from_lsu_to_wbu;
+	wire [31:0] debug_pc_from_lsu_to_wbu_pip;
+	wire [31:0] debug_inst_from_lsu_to_wbu;
+	wire [31:0] debug_inst_from_lsu_to_wbu_pip;
+	`endif
+	wire pipeline_flush_signal;
+	wire [31:0] flush_reset_pc;
+	assign pipeline_flush_signal = is_req_valid_from_lsu_to_wbu && 
+		(is_branch_out_lsu || ecall_out_lsu || mret_out_lsu || fence_i_out_lsu );
+	assign flush_reset_pc = branch_target_out_lsu;
+	//------------------------------------------------------
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
 		.rst(rst),
