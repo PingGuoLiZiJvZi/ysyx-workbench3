@@ -150,7 +150,9 @@ int Sdb::sdb_mainloop()
 	printf("Welcome to NPC!\n");
 	if(is_batch_mode){
 		printf("Batch mode enabled. Program will run without interactive prompts.\n");
-		run(-1);
+		while(1){
+			npc.step_top();
+		}
 		return 0;
 	}
 	for (char *str; (str = rl_gets()) != NULL;)
