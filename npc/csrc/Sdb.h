@@ -88,6 +88,7 @@ private:
 	Wpool wpool;
 	Iringbuf iringbuf;
 	Elf elf;
+	bool is_batch_mode = false;
 	char *log_file = NULL;
 	char *diff_so_file = NULL;
 	char *img_file = NULL;

@@ -148,6 +148,11 @@ int Sdb::cmd_help(char *args)
 int Sdb::sdb_mainloop()
 {
 	printf("Welcome to NPC!\n");
+	if(is_batch_mode){
+		printf("Batch mode enabled. Program will run without interactive prompts.\n");
+		run(-1);
+		return 0;
+	}
 	for (char *str; (str = rl_gets()) != NULL;)
 	{
 		char *str_end = str + strlen(str);
@@ -206,6 +211,7 @@ int Sdb::parse_args(int argc, char **argv)
 		{"diff", required_argument, NULL, 'd'},
 		{"port", required_argument, NULL, 'p'},
 		{"help", no_argument, NULL, 'h'},
+		{"batch", no_argument, NULL, 'b'},
 		{0, 0, NULL, 0},
 	};
 	int o;
@@ -224,6 +230,9 @@ int Sdb::parse_args(int argc, char **argv)
 			break;
 		case 'd':
 			diff_so_file = optarg;
+			break;
+		case 'b':
+			is_batch_mode = true;
 			break;
 		case 1:
 			img_file = optarg;

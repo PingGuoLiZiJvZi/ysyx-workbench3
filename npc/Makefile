@@ -68,7 +68,7 @@ run: build
 	${BIN}
 
 autorun: build
-	printf "c\nq\n" > /dev/tty && ${BIN} < /dev/tty
+	${BIN} -b
 
 npc_run: npc_build
 	${BIN}
