@@ -1,6 +1,6 @@
 /* verilator lint_off DECLFILENAME */
 `ifdef ysyx_25040129_SIMULATE
-	`define ysyx_25040129_DEBUG 1
+	// `define ysyx_25040129_DEBUG 1
 	`define ysyx_25040129_DPI 1
 	// `define ysyx_25040129_GENERATE_PC_QUEUE 1
 	// `define ysyx_25040129_GENERATE_LOAD_STORE_QUEUE 1
