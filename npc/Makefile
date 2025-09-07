@@ -1,7 +1,7 @@
 TOPNAME = ysyxSoCFull
 NXDC_FILES = constr/top.nxdc
 VERILATOR = verilator
-VERILATOR_CFLAGS += --cc --exe --build -j  0 -O3 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
+VERILATOR_CFLAGS += --cc --exe --build -j  0 -O1 -Wwarn-LATCH -Wwarn-MULTIDRIVEN --trace --top-module ysyxSoCFull \
 	--Mdir build/obj_dir
 
 THIS_DIR := $(NPC_HOME)
@@ -11,7 +11,8 @@ OBJ_DIR = $(THIS_DIR)/build/obj_dir
 BIN = $(OBJ_DIR)/V$(TOPNAME)
 FINAL_CORE = $(BUILD_DIR)/ysyx_25040129.v
 
-SOC_HOME = $(YSYX_HOME)/ysyxSoC
+# SOC_HOME = $(YSYX_HOME)/ysyxSoC
+SOC_HOME = /home/pglzjz/store/ysyxSoC
 
 NETLIST = $(SOC_HOME)/../yosys-sta/result/ysyx_25040129-500MHz/ysyx_25040129.netlist.syn.v
 CELLS = $(SOC_HOME)/../yosys-sta/nangate45/sim/cells.v
