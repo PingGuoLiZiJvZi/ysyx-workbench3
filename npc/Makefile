@@ -68,9 +68,7 @@ run: build
 	${BIN}
 
 autorun: build
-	ARGS="${ARGS} --batch" 
-	BIN := $(BIN) $(ARGS) $(IMG)
-	${BIN}
+	${BIN} --batch
 
 npc_run: npc_build
 	${BIN}

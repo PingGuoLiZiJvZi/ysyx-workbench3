@@ -233,10 +233,10 @@ int Sdb::parse_args(int argc, char **argv)
 			break;
 		case 'b':
 			is_batch_mode = true;
-			break;
+			return 0;
 		case 1:
 			img_file = optarg;
-			return 0;
+			break;
 		default:
 			printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
 			printf("\t-l,--log=FILE           output log to FILE\n");
