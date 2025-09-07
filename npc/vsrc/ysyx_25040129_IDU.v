@@ -72,7 +72,7 @@
 	reg is_src1_from_reg;
 	reg is_src2_from_reg;
 	wire [31:0] src1_in_idu;
-	wire [31:0] src2_in_idu
+	wire [31:0] src2_in_idu;
 	//------------------------------------------------------------------------------
 	wire src1_raw_with_exu;
 	wire use_src1_from_exu;
