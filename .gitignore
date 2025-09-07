@@ -19,4 +19,4 @@ riscv-tests-am/
 !init.sh
 !/fceux-am
 .vscode/nvboard
-!打字游戏是如何工作的
+!打字游戏是如何工作的/nvboard

@@ -1,0 +1,42 @@
+From f871f452e2cdf821f16a72dbb87e06912f613abe Mon Sep 17 00:00:00 2001
+From: 100014536-Zhou chenxi <213241017@seu.edu.cn>
+Date: Sun, 7 Sep 2025 05:05:31 -0400
+Subject: [PATCH 3/3] =?UTF-8?q?=E6=B5=8B=E8=AF=95=E8=B6=85=E6=97=B6?=
+ =?UTF-8?q?=E5=8E=9F=E5=9B=A0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ bsp/abstract-machine/integrate-am-apps.py | 1 +
+ bsp/abstract-machine/src/uart.c           | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/bsp/abstract-machine/integrate-am-apps.py b/bsp/abstract-machine/integrate-am-apps.py
+index bb86a95b1..8968df387 100644
+--- a/bsp/abstract-machine/integrate-am-apps.py
++++ b/bsp/abstract-machine/integrate-am-apps.py
+@@ -11,6 +11,7 @@ app_dir_list = [
+   AM_KERNELS_HOME / "benchmarks" / "microbench",
+   AM_KERNELS_HOME / "kernels" / "typing-game",
+   AM_KERNELS_HOME / "kernels" / "snake",
++  AM_KERNELS_HOME / ".." / "fceux-am",
+ ]
+ 
+ if len(sys.argv) != 3:
+diff --git a/bsp/abstract-machine/src/uart.c b/bsp/abstract-machine/src/uart.c
+index 6bd371511..314895a43 100644
+--- a/bsp/abstract-machine/src/uart.c
++++ b/bsp/abstract-machine/src/uart.c
+@@ -42,7 +42,7 @@ static int _uart_putc(struct rt_serial_device *serial, char c)
+ 
+ static int _uart_getc(struct rt_serial_device *serial)
+ {
+-	static const char *p = "help\ndate\nversion\nfree\nps\npwd\nls\nmemtrace\nmemcheck\nutest_list\nam_hello ysyx\n";
++	static const char *p = "help\ndate\nversion\nfree\nps\npwd\nls\nmemtrace\nmemcheck\nutest_list\nam_hello ysyx\nam_microbench train\n";
+ 	if (*p != '\0')
+ 	{
+ 		return (*p++);
+-- 
+2.34.1
+
