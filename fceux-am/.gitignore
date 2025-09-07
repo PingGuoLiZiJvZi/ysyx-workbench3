@@ -13,7 +13,6 @@
 _*
 *~
 build/
-nes/gen/
-nes/rom/
 !nes/rom/README.md
+!nes/rom/mario.nes
 !.gitignore

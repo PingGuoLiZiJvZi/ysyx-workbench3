@@ -124,7 +124,255 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	assign io_master_awsize = 3'b000; 
 	assign io_master_awburst = 2'b00;
 	assign io_master_wlast = 1'b1;
+	//-------------------------------------------------------------------------	
+	wire [31:0] araddr_to_rtc;
+	wire arvalid_to_rtc;
+	wire arready_from_rtc;
 
+	wire [31:0] rdata_from_rtc;
+	wire [1:0] rresp_from_rtc;
+	wire rvalid_from_rtc;
+	wire rready_to_rtc;
+	//--------------------------------------------------------------------------
+	wire [7:0] arlen_to_xbar;
+	wire [1:0] arburst_to_xbar;
+	wire rlast_from_xbar;
+	wire [2:0] arsize_to_xbar;
+	wire [31:0] araddr_to_xbar;
+	wire arvalid_to_xbar;
+	wire rready_to_xbar;
+	wire [31:0] rdata_from_xbar;
+	wire [1:0] rresp_from_xbar;
+	wire rvalid_from_xbar;
+	wire arready_from_xbar;
+	
+	/* verilator lint_off UNUSEDSIGNAL */
+	wire empty_awready;
+	wire empty_wready;
+	wire empty_bvalid;
+	wire [1:0] empty_bresp;
+	/* verilator lint_on UNUSEDSIGNAL */
+	//--------------------------------------------------------------------------
+	wire [7:0] arlen_from_icache;
+	wire [1:0] arburst_from_icache;
+	wire [31:0] araddr_from_icache;
+	wire arvalid_from_icache;
+	wire arready_to_icache;
+	wire [31:0] rdata_to_icache;
+	wire [1:0] rresp_to_icache;
+	wire rvalid_to_icache;
+	wire rready_from_icache;
+	wire rlast_to_icache;
+	//--------------------------------------------------------------------------
+	wire is_jalr_out_idu;
+	wire is_req_valid_from_idu_to_exu;
+	wire is_req_ready_from_exu_to_idu;
+	wire [31:0] src1_in_idu;
+	wire [31:0] src2_in_idu;
+	wire [31:0] csr_in_idu;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_read_id_out_idu;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_write_id_out_idu;
+	wire [31:0] src1_out_idu;
+	wire [31:0] src2_out_idu;
+	wire [31:0] lsu_write_data_out_idu;
+	wire [`ysyx_25040129_REGS_DIG-1:0] src1_id_out_idu;
+	wire [`ysyx_25040129_REGS_DIG-1:0] src2_id_out_idu;
+	
+	wire [31:0] imm;
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_idu;
+	wire [3:0] alu_opcode;
+	wire reg_write_out_idu;
+	wire [1:0] lsu_write_out_idu;
+	wire [2:0] lsu_read_out_idu;
+	wire ecall_out_idu;
+	wire is_jump_out_idu;
+	wire ebreak_out_idu;
+	wire mret_out_idu;
+	wire [31:0] pc_out_idu;
+	wire csr_write_out_idu;
+	wire fence_i_out_idu;
+	`ifdef ysyx_25040129_DEBUG
+	wire [31:0] debug_inst_out_idu;
+	wire [31:0] debug_inst_out_idu_pip;
+	`endif
+	//--------------------------------------------------------------------------
+
+	wire [31:0] pc_from_ifu;
+
+	wire [31:0] inst_to_idu;
+
+	wire [31:0] araddr_from_ifu;
+	wire arvalid_from_ifu;
+	wire rready_to_ifu;
+
+	wire [31:0] rdata_to_ifu;
+	wire [1:0] rresp_to_ifu;
+	wire rvalid_to_ifu;
+	wire rready_from_ifu;
+	wire is_req_ready_from_idu_to_ifu;
+	wire is_req_valid_from_ifu_to_idu;
+	//--------------------------------------------------------------------------
+	wire is_req_ready_from_pipline_exu_to_idu;
+	wire is_req_valid_from_pipeline_idu_to_exu;
+	wire [31:0] pc_from_idu_pip;
+	wire [31:0] src1_out_idu_pip;
+	wire [31:0] src2_out_idu_pip;
+	wire [31:0] imm_pip;
+	wire [31:0] lsu_write_data_out_idu_pip;
+	wire [3:0] alu_opcode_pip;
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_idu_pip;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_write_id_out_idu_pip;
+	wire is_jalr_out_idu_pip;
+	wire is_jump_out_idu_pip;
+	wire reg_write_out_idu_pip;
+	wire csr_write_out_idu_pip;
+	wire [1:0] lsu_write_out_idu_pip;
+	wire [2:0] lsu_read_out_idu_pip;
+	wire ecall_out_idu_pip;
+	wire ebreak_out_idu_pip;
+	wire mret_out_idu_pip;
+	wire fence_i_out_idu_pip;
+	//--------------------------------------------------------------------------
+	wire [31:0] pc_from_ifu_pip;
+	wire [31:0] inst_to_idu_pip;
+	wire is_req_valid_from_pipeline_ifu_to_idu;
+	wire is_req_ready_from_pipeline_idu_to_ifu;
+	//--------------------------------------------------------------------------
+	wire fence_i_out_exu;
+	wire [31:0] data_forward_from_exu;
+	assign data_forward_from_exu = result_out_exu;
+	wire is_data_forward_valid_from_exu;
+
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_exu;
+	wire [31:0] lsu_write_data_out_exu;
+	wire [31:0] result_out_exu;
+	wire [31:0] branch_target_out_exu;
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu;
+	wire [2:0] lsu_read_out_exu;
+	wire [1:0] lsu_write_out_exu;
+
+	wire is_branch_out_exu;
+	wire csr_write_out_exu;
+	wire ecall_out_exu;
+	wire mret_out_exu;
+	wire reg_write_out_exu;
+	wire is_req_valid_from_exu_to_lsu;
+	wire is_req_ready_from_lsu_to_exu;
+	wire is_req_valid_from_pipeline_exu_to_lsu;
+	wire is_req_ready_from_pipeline_lsu_to_exu;
+	//--------------------------------------------------------------------------
+	wire [2:0] lsu_read_out_exu_pip;
+	wire [1:0] lsu_write_out_exu_pip;
+	wire [31:0] branch_target_out_exu_pip;
+	wire [31:0] result_out_exu_pip;
+	wire [31:0] lsu_write_data_out_exu_pip;
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu_pip;
+	wire ecall_out_exu_pip;
+	wire mret_out_exu_pip;
+	wire is_branch_out_exu_pip;
+	wire csr_write_out_exu_pip;
+	wire reg_write_out_exu_pip;
+	wire fence_i_out_exu_pip;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_exu_pip;
+	//--------------------------------------------------------------------------
+wire is_data_forward_valid_from_lsu;
+	wire [31:0] data_forward_from_lsu;
+	assign data_forward_from_lsu = result_out_lsu;
+	`ifdef ysyx_25040129_DEBUG
+	wire [31:0] debug_pc_from_exu_to_lsu_pip;
+	wire [31:0] debug_pc_from_exu_to_lsu;
+	wire [31:0] debug_inst_from_exu_to_lsu_pip;
+	wire [31:0] debug_inst_from_exu_to_lsu;
+	`endif 
+	`ifdef ysyx_25040129_DEBUG
+	wire debug_is_device_lsu_to_wbu;
+	wire debug_is_device_lsu_to_wbu_pip;
+	`endif
+	wire fence_i_out_lsu;
+	wire reg_write_out_lsu;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_lsu;
+	wire csr_write_out_lsu;
+	wire [31:0] araddr_from_lsu;
+	wire arvalid_from_lsu;
+	wire [2:0] arsize_from_lsu;
+	wire rready_to_lsu;
+
+	wire [31:0] rdata_to_lsu;
+	wire [1:0] rresp_to_lsu;
+	wire rvalid_to_lsu;
+	wire rready_from_lsu;
+
+	wire [31:0] awaddr_from_lsu;
+	wire awvalid_from_lsu;
+	wire awready_to_lsu;
+
+	wire [3:0] wstrb_from_lsu;
+	wire [31:0] wdata_from_lsu;
+	wire wvalid_from_lsu;
+	wire wready_to_lsu;
+
+	wire [1:0] bresp_to_lsu;
+	wire bvalid_to_lsu;
+	wire bready_from_lsu;
+
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_lsu;
+	wire mret_out_lsu;
+	wire ecall_out_lsu;
+	wire is_branch_out_lsu;
+
+
+	wire [31:0] branch_target_out_lsu;
+	wire [31:0] result_out_lsu;
+
+	wire is_req_valid_from_lsu_to_wbu;
+	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
+
+	//--------------------------------------------------------------------------
+	//-----------------流水线冲刷/重置pc-----------------
+	`ifdef ysyx_25040129_DEBUG
+	wire [31:0] debug_pc_from_lsu_to_wbu;
+	wire [31:0] debug_pc_from_lsu_to_wbu_pip;
+	wire [31:0] debug_inst_from_lsu_to_wbu;
+	wire [31:0] debug_inst_from_lsu_to_wbu_pip;
+	`endif
+	wire pipeline_flush_signal;
+	wire [31:0] flush_reset_pc;
+	assign pipeline_flush_signal = is_req_valid_from_lsu_to_wbu && 
+		(is_branch_out_lsu || ecall_out_lsu || mret_out_lsu || fence_i_out_lsu );
+	assign flush_reset_pc = branch_target_out_lsu;
+	//-----------------difftest适配-----------------
+	// `ifdef ysyx_25040129_DEBUG
+	// reg [31:0] difftest_pc;
+	// reg [31:0] flush_latch;
+	// always @(posedge clk) begin
+	// 	flush_latch <= pipeline_flush_signal? flush_reset_pc : 32'h0;
+	// end
+	// 	always @(posedge is_req_valid_from_pipeline_lsu_to_wbu) begin
+	// 		difftest_pc <= (flush_latch != 32'h0)? flush_latch : debug_pc_from_lsu_to_wbu_pip + 4;
+	// 	end
+	// 	always @(*) begin
+	// 		update_pc(difftest_pc);
+	// 	end
+	// `endif
+	//------------------------------------------------------
+	//--------------------------------------------------------------------------
+	wire is_req_valid_from_pipeline_lsu_to_wbu;
+	wire is_req_ready_from_pipeline_wbu_to_lsu;
+	wire [31:0] result_out_lsu_pip;
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_lsu_pip;
+	wire reg_write_out_lsu_pip;
+	wire csr_write_out_lsu_pip;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_lsu_pip;
+	//--------------------------------------------------------------------------
+	wire [31:0]data_forward_from_wbu;
+	wire is_data_forward_valid_from_wbu;
+	wire [31:0] result_out_wbu;
+	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_wbu;
+	wire csr_write_out_wbu;
+	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu;
+	wire reg_write_out_wbu;
+	//--------------------------------------------------------------------------
+	
 	ysyx_25040129_XBAR u_ysyx_25040129_XBAR(
 		.clk(clk),
 		.rst(rst),
@@ -190,14 +438,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rtc_rvalid(rvalid_from_rtc),
 		.rtc_rready(rready_to_rtc)
 	);
-	wire [31:0] araddr_to_rtc;
-	wire arvalid_to_rtc;
-	wire arready_from_rtc;
-
-	wire [31:0] rdata_from_rtc;
-	wire [1:0] rresp_from_rtc;
-	wire rvalid_from_rtc;
-	wire rready_to_rtc;
+	
 
 	ysyx_25040129_CLINT u_ysyx_25040129_CLINT (
 		.clk(clk),
@@ -253,24 +494,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rready(rready_to_xbar),
 		.rlast(rlast_from_xbar)
 	);	
-	wire [7:0] arlen_to_xbar;
-	wire [1:0] arburst_to_xbar;
-	wire rlast_from_xbar;
-	wire [2:0] arsize_to_xbar;
-	wire [31:0] araddr_to_xbar;
-	wire arvalid_to_xbar;
-	wire rready_to_xbar;
-	wire [31:0] rdata_from_xbar;
-	wire [1:0] rresp_from_xbar;
-	wire rvalid_from_xbar;
-	wire arready_from_xbar;
-	
-	/* verilator lint_off UNUSEDSIGNAL */
-	wire empty_awready;
-	wire empty_wready;
-	wire empty_bvalid;
-	wire [1:0] empty_bresp;
-	/* verilator lint_on UNUSEDSIGNAL */
+
 	ysyx_25040129_ICACHE u_ysyx_25040129_ICACHE (
 		.clk(clk),
 		.rst(rst),
@@ -297,16 +521,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_rlast(rlast_to_icache),
 		.fence_i(fence_i_out_lsu)
 	);
-	wire [7:0] arlen_from_icache;
-	wire [1:0] arburst_from_icache;
-	wire [31:0] araddr_from_icache;
-	wire arvalid_from_icache;
-	wire arready_to_icache;
-	wire [31:0] rdata_to_icache;
-	wire [1:0] rresp_to_icache;
-	wire rvalid_to_icache;
-	wire rready_from_icache;
-	wire rlast_to_icache;
+	
 	ysyx_25040129_IFU u_ysyx_25040129_IFU (
 		.pc(pc_from_ifu),
 		.pipeline_flush(pipeline_flush_signal),
@@ -330,20 +545,6 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.rready(rready_from_ifu)
 	);
 
-	wire [31:0] pc_from_ifu;
-
-	wire [31:0] inst_to_idu;
-
-	wire [31:0] araddr_from_ifu;
-	wire arvalid_from_ifu;
-	wire rready_to_ifu;
-
-	wire [31:0] rdata_to_ifu;
-	wire [1:0] rresp_to_ifu;
-	wire rvalid_to_ifu;
-	wire rready_from_ifu;
-	wire is_req_ready_from_idu_to_ifu;
-	wire is_req_valid_from_ifu_to_idu;
 
 	ysyx_25040129_PIPELINE #(64) u_ysyx_25040129_PIPELINE_IFU_TO_IDU(
 		.clk(clk),
@@ -358,11 +559,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.out_ready(is_req_ready_from_idu_to_ifu),
 		.out_data({pc_from_ifu_pip, inst_to_idu_pip})
 	);
-	wire [31:0] pc_from_ifu_pip;
-	wire [31:0] inst_to_idu_pip;
-	wire is_req_valid_from_pipeline_ifu_to_idu;
-	wire is_req_ready_from_pipeline_idu_to_ifu;
-
+	
 	ysyx_25040129_IDU u_ysyx_25040129_IDU (
 		.inst(inst_to_idu_pip),
 		.pc(pc_from_ifu_pip),
@@ -425,37 +622,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.wbu_forward_data(data_forward_from_wbu),
 		.is_wbu_forward_valid(is_data_forward_valid_from_wbu)
 	);
-	wire is_jalr_out_idu;
-	wire is_req_valid_from_idu_to_exu;
-	wire is_req_ready_from_exu_to_idu;
-	wire [31:0] src1_in_idu;
-	wire [31:0] src2_in_idu;
-	wire [31:0] csr_in_idu;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_read_id_out_idu;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_write_id_out_idu;
-	wire [31:0] src1_out_idu;
-	wire [31:0] src2_out_idu;
-	wire [31:0] lsu_write_data_out_idu;
-	wire [`ysyx_25040129_REGS_DIG-1:0] src1_id_out_idu;
-	wire [`ysyx_25040129_REGS_DIG-1:0] src2_id_out_idu;
 	
-	wire [31:0] imm;
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_idu;
-	wire [3:0] alu_opcode;
-	wire reg_write_out_idu;
-	wire [1:0] lsu_write_out_idu;
-	wire [2:0] lsu_read_out_idu;
-	wire ecall_out_idu;
-	wire is_jump_out_idu;
-	wire ebreak_out_idu;
-	wire mret_out_idu;
-	wire [31:0] pc_out_idu;
-	wire csr_write_out_idu;
-	wire fence_i_out_idu;
-	`ifdef ysyx_25040129_DEBUG
-	wire [31:0] debug_inst_out_idu;
-	wire [31:0] debug_inst_out_idu_pip;
-	`endif
 
 	ysyx_25040129_PIPELINE #(184
 	`ifdef ysyx_25040129_DEBUG
@@ -492,27 +659,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		})
 	);
 
-	wire is_req_ready_from_pipline_exu_to_idu;
-	wire is_req_valid_from_pipeline_idu_to_exu;
-	wire [31:0] pc_from_idu_pip;
-	wire [31:0] src1_out_idu_pip;
-	wire [31:0] src2_out_idu_pip;
-	wire [31:0] imm_pip;
-	wire [31:0] lsu_write_data_out_idu_pip;
-	wire [3:0] alu_opcode_pip;
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_idu_pip;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_write_id_out_idu_pip;
-	wire is_jalr_out_idu_pip;
-	wire is_jump_out_idu_pip;
-	wire reg_write_out_idu_pip;
-	wire csr_write_out_idu_pip;
-	wire [1:0] lsu_write_out_idu_pip;
-	wire [2:0] lsu_read_out_idu_pip;
-	wire ecall_out_idu_pip;
-	wire ebreak_out_idu_pip;
-	wire mret_out_idu_pip;
-	wire fence_i_out_idu_pip;
-
+	
 	ysyx_25040129_REG u_ysyx_25040129_REG (
 		.clk(clk),
 		.rst(rst),
@@ -585,28 +732,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 		.is_data_forward_valid_from_exu(is_data_forward_valid_from_exu)
 	);
-	wire fence_i_out_exu;
-	wire [31:0] data_forward_from_exu;
-	assign data_forward_from_exu = result_out_exu;
-	wire is_data_forward_valid_from_exu;
-
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_exu;
-	wire [31:0] lsu_write_data_out_exu;
-	wire [31:0] result_out_exu;
-	wire [31:0] branch_target_out_exu;
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu;
-	wire [2:0] lsu_read_out_exu;
-	wire [1:0] lsu_write_out_exu;
-
-	wire is_branch_out_exu;
-	wire csr_write_out_exu;
-	wire ecall_out_exu;
-	wire mret_out_exu;
-	wire reg_write_out_exu;
-	wire is_req_valid_from_exu_to_lsu;
-	wire is_req_ready_from_lsu_to_exu;
-	wire is_req_valid_from_pipeline_exu_to_lsu;
-	wire is_req_ready_from_pipeline_lsu_to_exu;
+	
 	ysyx_25040129_PIPELINE #(114
 	`ifdef ysyx_25040129_DEBUG
 		+ 64
@@ -640,20 +766,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`endif
 		})
 	);
-	wire [2:0] lsu_read_out_exu_pip;
-	wire [1:0] lsu_write_out_exu_pip;
-	wire [31:0] branch_target_out_exu_pip;
-	wire [31:0] result_out_exu_pip;
-	wire [31:0] lsu_write_data_out_exu_pip;
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu_pip;
-	wire ecall_out_exu_pip;
-	wire mret_out_exu_pip;
-	wire is_branch_out_exu_pip;
-	wire csr_write_out_exu_pip;
-	wire reg_write_out_exu_pip;
-	wire fence_i_out_exu_pip;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_exu_pip;
-
+	
 	ysyx_25040129_LSU u_ysyx_25040129_LSU (
 		.clk(clk),
 		.rst(rst),
@@ -732,58 +845,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	//2. 抛出异常相关
 	//3. fence.i指令
 	//4. 发生数据冒险
-	wire is_data_forward_valid_from_lsu;
-	wire [31:0] data_forward_from_lsu;
-	assign data_forward_from_lsu = result_out_lsu;
-	`ifdef ysyx_25040129_DEBUG
-	wire [31:0] debug_pc_from_exu_to_lsu_pip;
-	wire [31:0] debug_pc_from_exu_to_lsu;
-	wire [31:0] debug_inst_from_exu_to_lsu_pip;
-	wire [31:0] debug_inst_from_exu_to_lsu;
-	`endif 
-	`ifdef ysyx_25040129_DEBUG
-	wire debug_is_device_lsu_to_wbu;
-	wire debug_is_device_lsu_to_wbu_pip;
-	`endif
-	wire fence_i_out_lsu;
-	wire reg_write_out_lsu;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_lsu;
-	wire csr_write_out_lsu;
-	wire [31:0] araddr_from_lsu;
-	wire arvalid_from_lsu;
-	wire [2:0] arsize_from_lsu;
-	wire rready_to_lsu;
-
-	wire [31:0] rdata_to_lsu;
-	wire [1:0] rresp_to_lsu;
-	wire rvalid_to_lsu;
-	wire rready_from_lsu;
-
-	wire [31:0] awaddr_from_lsu;
-	wire awvalid_from_lsu;
-	wire awready_to_lsu;
-
-	wire [3:0] wstrb_from_lsu;
-	wire [31:0] wdata_from_lsu;
-	wire wvalid_from_lsu;
-	wire wready_to_lsu;
-
-	wire [1:0] bresp_to_lsu;
-	wire bvalid_to_lsu;
-	wire bready_from_lsu;
-
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_lsu;
-	wire mret_out_lsu;
-	wire ecall_out_lsu;
-	wire is_branch_out_lsu;
-
-
-	wire [31:0] branch_target_out_lsu;
-	wire [31:0] result_out_lsu;
-
-	wire is_req_valid_from_lsu_to_wbu;
-	wire is_req_ready_from_wbu_to_lsu;//从LSU发出的信号，应该具备冲刷流水线的能力
-
+	
 	ysyx_25040129_PIPELINE #(41
 	`ifdef ysyx_25040129_DEBUG
 		+ 65
@@ -816,40 +878,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		`endif
 		csr_addr_out_lsu_pip})
 	);
-	//-----------------流水线冲刷/重置pc-----------------
-	`ifdef ysyx_25040129_DEBUG
-	wire [31:0] debug_pc_from_lsu_to_wbu;
-	wire [31:0] debug_pc_from_lsu_to_wbu_pip;
-	wire [31:0] debug_inst_from_lsu_to_wbu;
-	wire [31:0] debug_inst_from_lsu_to_wbu_pip;
-	`endif
-	wire pipeline_flush_signal;
-	wire [31:0] flush_reset_pc;
-	assign pipeline_flush_signal = is_req_valid_from_lsu_to_wbu && 
-		(is_branch_out_lsu || ecall_out_lsu || mret_out_lsu || fence_i_out_lsu );
-	assign flush_reset_pc = branch_target_out_lsu;
-	//-----------------difftest适配-----------------
-	// `ifdef ysyx_25040129_DEBUG
-	// reg [31:0] difftest_pc;
-	// reg [31:0] flush_latch;
-	// always @(posedge clk) begin
-	// 	flush_latch <= pipeline_flush_signal? flush_reset_pc : 32'h0;
-	// end
-	// 	always @(posedge is_req_valid_from_pipeline_lsu_to_wbu) begin
-	// 		difftest_pc <= (flush_latch != 32'h0)? flush_latch : debug_pc_from_lsu_to_wbu_pip + 4;
-	// 	end
-	// 	always @(*) begin
-	// 		update_pc(difftest_pc);
-	// 	end
-	// `endif
-	//------------------------------------------------------
-	wire is_req_valid_from_pipeline_lsu_to_wbu;
-	wire is_req_ready_from_pipeline_wbu_to_lsu;
-	wire [31:0] result_out_lsu_pip;
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_lsu_pip;
-	wire reg_write_out_lsu_pip;
-	wire csr_write_out_lsu_pip;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_lsu_pip;
+
+	
 
 	ysyx_25040129_WBU u_ysyx_25040129_WBU (
 		`ifdef ysyx_25040129_DEBUG
@@ -874,15 +904,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 		.wbu_forward_data(data_forward_from_wbu)
 
 	);
-	wire [31:0]data_forward_from_wbu;
-	wire is_data_forward_valid_from_wbu;
-	wire [31:0] result_out_wbu;
-	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_wbu;
-	wire csr_write_out_wbu;
-	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu;
-	wire reg_write_out_wbu;
-		
-	
+
 
 endmodule/*verilator lint_on DECLFILENAME*/
 
