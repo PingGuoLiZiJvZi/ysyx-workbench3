@@ -217,7 +217,6 @@ int Sdb::parse_args(int argc, char **argv)
 	int o;
 	while ((o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1)
 	{
-		printf("option %c\n", o);
 		switch (o)
 		{
 		case 'e':
