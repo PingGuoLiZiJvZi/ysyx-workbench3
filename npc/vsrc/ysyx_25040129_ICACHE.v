@@ -32,6 +32,10 @@ module ysyx_25040129_ICACHE #(
 	//---------------fence.i冲刷---------------
 	input fence_i
 );	
+	localparam IDLE = 2'b00;
+	localparam WAIT_IFU_READY = 2'b01;
+	localparam WAIT_OUT_READY = 2'b10;
+	localparam WAIT_OUT_REQ = 2'b11;
 	reg [31:0] ifu_rdata_latch;
 	localparam BLOCK_SIZE_WORD = 1 << BLOCK_SIZE_WORD_DIG; 
 	assign out_arlen = BLOCK_SIZE_WORD - 1; 
@@ -66,10 +70,7 @@ module ysyx_25040129_ICACHE #(
 	// 还是采用直接映射模式，支持更大块大小，并使用突发传输减少缺失代价
 	//31--------block_size_dig+block_num_dig-1--------------block_size_dig-1--------------0
 	//---tag--------------------------------------index-----------------------offset------
-	localparam IDLE = 2'b00;
-	localparam WAIT_IFU_READY = 2'b01;
-	localparam WAIT_OUT_READY = 2'b10;
-	localparam WAIT_OUT_REQ = 2'b11;
+
 	`ifdef ysyx_25040129_DEBUG
 	always @(posedge clk) begin
 		icache_count_inc({6'b0,state},ifu_arvalid, cache_valid[p_index] && cache_tag[p_index] == p_tag);
