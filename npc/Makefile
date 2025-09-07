@@ -68,8 +68,7 @@ run: build
 	${BIN}
 
 autorun: build
-	@echo ${BIN}
-	${BIN} -b
+	${BIN} --batch
 
 npc_run: npc_build
 	${BIN}
