@@ -58,6 +58,9 @@
 	input [31:0] wbu_forward_data,
 	input is_wbu_forward_valid
 );
+	wire  funct7_5;
+	wire [2:0] funct3;
+	wire [6:0] opcode;
 `ifdef ysyx_25040129_DEBUG
 	assign inst_out_idu = inst;
 `endif
@@ -69,35 +72,39 @@
 	reg is_src1_from_reg;
 	reg is_src2_from_reg;
 	wire [31:0] src1_in_idu;
-	wire [31:0] src2_in_idu;
+	wire [31:0] src2_in_idu
+	//------------------------------------------------------------------------------
+	wire src1_raw_with_exu;
+	wire use_src1_from_exu;
+	wire src2_raw_with_exu;
+	wire use_src2_from_exu;
+	//------------------------------------------------------------------------------
+	wire src1_raw_with_lsu;
+	wire use_src1_from_lsu;
+	wire src2_raw_with_lsu;
+	wire use_src2_from_lsu;
+	//------------------------------------------------------------------------------
+	wire src1_raw_with_wbu;
+	wire use_src1_from_wbu;
+	wire src2_raw_with_wbu;
+	wire use_src2_from_wbu;
+	//-------------------------------------------------------------------------------
 	assign src1_in_idu = use_src1_from_exu ? exu_forward_data : (use_src1_from_lsu ? lsu_forward_data : (use_src1_from_wbu ? wbu_forward_data : src1_in_idu_reg));
 	assign src2_in_idu = use_src2_from_exu ? exu_forward_data : (use_src2_from_lsu ? lsu_forward_data : (use_src2_from_wbu ? wbu_forward_data : src2_in_idu_reg));
 	//----------------------------------exu数据前递控制--------------------------------
-	wire src1_raw_with_exu;
 	assign src1_raw_with_exu = ((rd_idu_pip_exu == src1_id) && valid_rd_write_idu_pip_exu)&& (|src1_id);
-	wire use_src1_from_exu;
 	assign use_src1_from_exu = is_exu_forward_valid && src1_raw_with_exu;
-	wire src2_raw_with_exu;
 	assign src2_raw_with_exu = ((rd_idu_pip_exu == src2_id) && valid_rd_write_idu_pip_exu)&& (|src2_id);
-	wire use_src2_from_exu;
 	assign use_src2_from_exu = is_exu_forward_valid && src2_raw_with_exu;
 	//-------------------------------LSU数据前递控制-----------------------------------
-	wire src1_raw_with_lsu;
 	assign src1_raw_with_lsu = ((rd_exu_pip_lsu == src1_id) && valid_rd_write_exu_pip_lsu)&& (|src1_id);
-	wire use_src1_from_lsu;
 	assign use_src1_from_lsu =  src1_raw_with_lsu && is_lsu_forward_valid;
-	wire src2_raw_with_lsu;
 	assign src2_raw_with_lsu = ((rd_exu_pip_lsu == src2_id) && valid_rd_write_exu_pip_lsu)&& (|src2_id);
-	wire use_src2_from_lsu;
 	assign use_src2_from_lsu =  src2_raw_with_lsu && is_lsu_forward_valid;
 	//-------------------------------WBU数据前递控制-----------------------------------
-	wire src1_raw_with_wbu;
 	assign src1_raw_with_wbu = ((rd_lsu_pip_wbu == src1_id) && valid_rd_write_lsu_pip_wbu)&& (|src1_id);
-	wire use_src1_from_wbu;
 	assign use_src1_from_wbu =  src1_raw_with_wbu && is_wbu_forward_valid;
-	wire src2_raw_with_wbu;
 	assign src2_raw_with_wbu = ((rd_lsu_pip_wbu == src2_id) && valid_rd_write_lsu_pip_wbu)&& (|src2_id);
-	wire use_src2_from_wbu;
 	assign use_src2_from_wbu =  src2_raw_with_wbu && is_wbu_forward_valid;
 	//---------------------------------------------------------------------------------
 	assign is_src1_raw = is_src1_from_reg && (|src1_id) && (
@@ -147,9 +154,6 @@
 		end
 	end
 	//-----------------------------------------------------
-	wire  funct7_5;
-	wire [2:0] funct3;
-	wire [6:0] opcode;
 	assign funct7_5 = inst[30];
 	assign funct3 = inst[14:12];
 	assign opcode = inst[6:0];

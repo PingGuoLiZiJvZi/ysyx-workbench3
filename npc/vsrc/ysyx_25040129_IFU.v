@@ -20,6 +20,9 @@ module ysyx_25040129_IFU (
 	input rvalid,
 	output rready
 	);
+localparam WAIT_MMEM_READY = 3'b000;
+localparam WAIT_MMEM_REQ = 3'b001;
+localparam WAIT_IDU_READY = 3'b010;	
 reg get_flush_signal_in_fetching;
 reg [31:0] flush_target_latch;
 reg [31:0] inst;
@@ -27,9 +30,7 @@ reg[2:0] state;
 assign araddr = pc;
 assign arvalid = (state == WAIT_MMEM_READY);
 assign rready = (state == WAIT_MMEM_REQ) || (state == WAIT_MMEM_READY && arready);
-localparam WAIT_MMEM_READY = 3'b000;
-localparam WAIT_MMEM_REQ = 3'b001;
-localparam WAIT_IDU_READY = 3'b010;
+
 
 
 //总线信号产生逻辑
