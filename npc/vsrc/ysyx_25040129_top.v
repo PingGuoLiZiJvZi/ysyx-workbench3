@@ -764,7 +764,7 @@ wire is_data_forward_valid_from_lsu;
 		.in_data({lsu_read_out_exu, lsu_write_out_exu, branch_target_out_exu,
 			result_out_exu, lsu_write_data_out_exu, rd_out_exu,ecall_out_exu,
 			mret_out_exu, is_branch_out_exu, csr_write_out_exu,
-			reg_write_out_exu, fence_i_out_exu,csr_addr_out_exu,ebraek_out_exu
+			reg_write_out_exu, fence_i_out_exu,csr_addr_out_exu,ebreak_out_exu
 		`ifdef ysyx_25040129_DEBUG
 			, debug_pc_from_exu_to_lsu
 			, debug_inst_from_exu_to_lsu
