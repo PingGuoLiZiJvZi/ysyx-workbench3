@@ -1,3 +1,5 @@
+
+
 module ysyx_25040129_ICACHE #(
 	parameter BLOCK_SIZE_WORD_DIG = 2,//2^BLOCK_SIZE_DIG = 4, // block size = 4B //最多开到3
 	parameter BLOCK_NUM_DIG = 1//2^BLOCK_NUM_DIG = 16, // block number = 16
