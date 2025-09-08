@@ -36,8 +36,10 @@ always @(*) begin
 	update_pc(pc_in_wbu);
 end
 `endif 
-`ifdef ysyx_25040129_DPI
-	if (ebreak_in_wbu)ebreak_trigger();
+
+always @(*) begin
+	`ifdef ysyx_25040129_DPI
+	if (ebreak_in_wbu) ebreak_trigger();
 	`endif
 	`ifdef __ICARUS__
 	if (ebreak_in_wbu) begin
@@ -52,6 +54,8 @@ end
 		end
 		end
 	`endif
+end
+
 assign wbu_forward_data = result_in_wbu;
 assign is_data_forward_valid_from_wbu = is_req_valid_from_lsu ;
 assign is_req_ready_to_lsu = is_req_valid_from_lsu;
