@@ -24,6 +24,7 @@ module ysyx_25040129_WBU (
 	wire ebreak_in_wbu,
 	`ifdef __ICARUS__
 	wire [31:0] a0_in_wbu,
+	`endif
 	output is_data_forward_valid_from_wbu,
 	output [31:0] wbu_forward_data
 );
