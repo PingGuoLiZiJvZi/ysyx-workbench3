@@ -677,7 +677,9 @@ wire is_data_forward_valid_from_lsu;
 		.rst(rst),
 		.rd(rd_out_wbu),
 		.reg_write(reg_write_out_wbu),
+		`ifdef __ICARUS__
 		.a0(a0_in_wbu),
+		`endif
 		.result(result_out_wbu),
 		.src1_id(src1_id_out_idu),
 		.src2_id(src2_id_out_idu),
