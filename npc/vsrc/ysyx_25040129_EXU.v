@@ -27,7 +27,7 @@ module ysyx_25040129_EXU (
 	input mret_in_exu,
 	input reg_write_in_exu,
 
-	output ebraek_out_exu,
+	output ebreak_out_exu,
 	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu,
 	output csr_write_out_exu,
 	output [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr_out_exu, 
@@ -71,7 +71,7 @@ reg is_branch;
 assign lsu_write_data_out_exu =  lsu_write_data_in_exu; // 如果是写请求，则将计算结果传递出去，否则传递计算结果
 assign rd_out_exu = rd_in_exu;
 
-assign ebraek_out_exu = ebreak_in_exu; // 直接传递EBREAK信号
+assign ebreak_out_exu = ebreak_in_exu; // 直接传递EBREAK信号
 assign is_branch_out_exu = is_jump_in_exu || is_branch; 
 assign branch_target_out_exu =(is_jalr_in_exu || mret_in_exu)? src1 + src2 : pc + imm; 
 assign lsu_read_out_exu = lsu_read_in_exu; // 直接传递MEM阶段的读请求
