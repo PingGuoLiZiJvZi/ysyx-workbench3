@@ -27,6 +27,7 @@ module ysyx_25040129_EXU (
 	input mret_in_exu,
 	input reg_write_in_exu,
 
+	output ebreak_out_exu,
 	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu,
 	output csr_write_out_exu,
 	output [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr_out_exu, 
@@ -61,6 +62,7 @@ module ysyx_25040129_EXU (
 assign pc_out_exu = pc;
 assign inst_out_exu = inst_in_exu;
 `endif
+assign ebreak_out_exu = ebreak_in_exu ;
 assign csr_write_addr_out_exu = csr_write_addr_in_exu;
 assign fence_i_out_exu = fence_i_in_exu ;
 assign is_req_valid_to_lsu = (is_req_valid_from_idu && is_req_ready_from_lsu);
@@ -83,15 +85,6 @@ assign is_data_forward_valid_from_exu =  (lsu_read_in_exu == `ysyx_25040129_NO_M
 always @(*) begin
 	result_out_exu = 32'b0;
 	is_branch = 1'b0; 
-	`ifdef ysyx_25040129_DPI
-	if (ebreak_in_exu)ebreak_trigger();
-	`endif
-	`ifdef ysyx_25040129_IVERILOG
-	if (ebreak_in_exu) begin
-		$display("EBREAK triggered at PC: %h", pc);
-		$finish(0);
-		end
-	`endif
 	case (alu_opcode)
 		`ysyx_25040129_ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc : pc+`ysyx_25040129_WORD_T):src1 + src2;
 		`ysyx_25040129_SUB: result_out_exu = src1 - src2;

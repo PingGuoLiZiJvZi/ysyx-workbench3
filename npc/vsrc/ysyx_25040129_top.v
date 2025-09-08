@@ -254,6 +254,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 
 	wire is_branch_out_exu;
 	wire csr_write_out_exu;
+	wire ebreak_out_exu;
 	wire ecall_out_exu;
 	wire mret_out_exu;
 	wire reg_write_out_exu;
@@ -268,6 +269,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire [31:0] result_out_exu_pip;
 	wire [31:0] lsu_write_data_out_exu_pip;
 	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu_pip;
+	wire ebreak_out_exu_pip;
 	wire ecall_out_exu_pip;
 	wire mret_out_exu_pip;
 	wire is_branch_out_exu_pip;
@@ -276,7 +278,7 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 	wire fence_i_out_exu_pip;
 	wire [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_exu_pip;
 	//--------------------------------------------------------------------------
-wire is_data_forward_valid_from_lsu;
+	wire is_data_forward_valid_from_lsu;
 	wire [31:0] data_forward_from_lsu;
 	wire [31:0] result_out_lsu;
 	assign data_forward_from_lsu = result_out_lsu;
@@ -318,10 +320,14 @@ wire is_data_forward_valid_from_lsu;
 	wire bready_from_lsu;
 
 	wire [`ysyx_25040129_REGS_DIG-1:0] rd_out_lsu;
+	wire ebreak_out_lsu;
+	wire ebreak_out_lsu_pip;
 	wire mret_out_lsu;
 	wire ecall_out_lsu;
 	wire is_branch_out_lsu;
-
+	`ifdef __ICARUS__
+	wire [31:0] a0;
+	`endif
 
 	wire [31:0] branch_target_out_lsu;
 	
@@ -668,6 +674,9 @@ wire is_data_forward_valid_from_lsu;
 		.rst(rst),
 		.rd(rd_out_wbu),
 		.reg_write(reg_write_out_wbu),
+		`ifdef __ICARUS__
+		.a0(a0),
+		`endif
 		.result(result_out_wbu),
 		.src1_id(src1_id_out_idu),
 		.src2_id(src2_id_out_idu),
@@ -713,6 +722,7 @@ wire is_data_forward_valid_from_lsu;
 		.mret_in_exu(mret_out_idu_pip),
 		.reg_write_in_exu(reg_write_out_idu_pip),
 
+		.ebreak_out_exu(ebreak_out_exu),
 		.rd_out_exu(rd_out_exu),
 		.csr_write_out_exu(csr_write_out_exu),
 		.csr_write_addr_out_exu(csr_addr_out_exu),
@@ -736,7 +746,7 @@ wire is_data_forward_valid_from_lsu;
 		.is_data_forward_valid_from_exu(is_data_forward_valid_from_exu)
 	);
 	
-	ysyx_25040129_PIPELINE #(114
+	ysyx_25040129_PIPELINE #(115
 	`ifdef ysyx_25040129_DEBUG
 		+ 64
 	`endif
@@ -750,7 +760,7 @@ wire is_data_forward_valid_from_lsu;
 
 		.in_data({lsu_read_out_exu, lsu_write_out_exu, branch_target_out_exu,
 			result_out_exu, lsu_write_data_out_exu, rd_out_exu,ecall_out_exu,
-			mret_out_exu, is_branch_out_exu, csr_write_out_exu,
+			mret_out_exu, is_branch_out_exu, csr_write_out_exu,ebreak_out_exu,
 			reg_write_out_exu, fence_i_out_exu,csr_addr_out_exu
 		`ifdef ysyx_25040129_DEBUG
 			, debug_pc_from_exu_to_lsu
@@ -761,7 +771,7 @@ wire is_data_forward_valid_from_lsu;
 		.out_ready(is_req_ready_from_lsu_to_exu),
 		.out_data({lsu_read_out_exu_pip, lsu_write_out_exu_pip, branch_target_out_exu_pip,
 			result_out_exu_pip, lsu_write_data_out_exu_pip, rd_out_exu_pip, ecall_out_exu_pip,
-			mret_out_exu_pip, is_branch_out_exu_pip, csr_write_out_exu_pip,
+			mret_out_exu_pip, is_branch_out_exu_pip, csr_write_out_exu_pip,ebreak_out_exu_pip,
 			reg_write_out_exu_pip, fence_i_out_exu_pip,csr_addr_out_exu_pip
 		`ifdef ysyx_25040129_DEBUG
 			, debug_pc_from_exu_to_lsu_pip
@@ -835,6 +845,8 @@ wire is_data_forward_valid_from_lsu;
 		.csr_addr_out_lsu(csr_addr_out_lsu),
 		.mret_in_lsu(mret_out_exu_pip),
 		.mret_out_lsu(mret_out_lsu),
+		.ebreak_in_lsu(ebreak_out_exu_pip),
+		.ebreak_out_lsu(ebreak_out_lsu),
 		.is_branch_in_lsu(is_branch_out_exu_pip),
 		.is_branch_out_lsu(is_branch_out_lsu),
 		.fence_i_in_lsu(fence_i_out_exu_pip),
@@ -849,7 +861,7 @@ wire is_data_forward_valid_from_lsu;
 	//3. fence.i指令
 	//4. 发生数据冒险
 	
-	ysyx_25040129_PIPELINE #(41
+	ysyx_25040129_PIPELINE #(42
 	`ifdef ysyx_25040129_DEBUG
 		+ 65
 	`endif
@@ -862,7 +874,7 @@ wire is_data_forward_valid_from_lsu;
 		.in_ready(is_req_ready_from_pipeline_wbu_to_lsu),
 
 		.in_data({result_out_lsu,rd_out_lsu,
-		reg_write_out_lsu,csr_write_out_lsu,
+		reg_write_out_lsu,csr_write_out_lsu,ebreak_out_lsu,
 		`ifdef ysyx_25040129_DEBUG
 		debug_pc_from_lsu_to_wbu,
 		debug_inst_from_lsu_to_wbu,
@@ -873,7 +885,7 @@ wire is_data_forward_valid_from_lsu;
 		.out_valid(is_req_valid_from_pipeline_lsu_to_wbu),
 		.out_ready(is_req_ready_from_wbu_to_lsu),
 		.out_data({result_out_lsu_pip,rd_out_lsu_pip,
-		reg_write_out_lsu_pip,csr_write_out_lsu_pip,
+		reg_write_out_lsu_pip,csr_write_out_lsu_pip,ebreak_out_lsu_pip,
 		`ifdef ysyx_25040129_DEBUG
 		debug_pc_from_lsu_to_wbu_pip,
 		debug_inst_from_lsu_to_wbu_pip,
@@ -902,7 +914,10 @@ wire is_data_forward_valid_from_lsu;
 		.csr_write_out_wbu(csr_write_out_wbu),
 		.csr_addr_out_wbu(csr_addr_out_wbu),
 		.reg_write_out_wbu(reg_write_out_wbu),
-
+		.ebreak_in_wbu(ebreak_out_lsu_pip),
+		`ifdef __ICARUS__
+		.a0(a0),
+		`endif
 		.is_data_forward_valid_from_wbu(is_data_forward_valid_from_wbu),
 		.wbu_forward_data(data_forward_from_wbu)
 

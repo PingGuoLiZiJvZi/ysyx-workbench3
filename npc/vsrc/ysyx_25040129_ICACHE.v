@@ -25,7 +25,9 @@ module ysyx_25040129_ICACHE #(
 	output [1:0] out_arburst, 
 	//---------------读数据---------------
 	input [31:0] out_rdata,
+	/* verilator lint_off UNUSEDSIGNAL */
 	input [1:0] out_rresp,
+	/* verilator lint_on UNUSEDSIGNAL */
 	input out_rvalid,
 	output out_rready,
 	input out_rlast,

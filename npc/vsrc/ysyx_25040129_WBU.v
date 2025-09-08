@@ -21,7 +21,10 @@ module ysyx_25040129_WBU (
 	output csr_write_out_wbu, 
 	output [`ysyx_25040129_CSR_DIG-1:0] csr_addr_out_wbu, 
 	output reg_write_out_wbu,
-
+	input ebreak_in_wbu,
+	`ifdef __ICARUS__
+	input [31:0] a0,
+	`endif
 	output is_data_forward_valid_from_wbu,
 	output [31:0] wbu_forward_data
 );
@@ -33,6 +36,25 @@ always @(*) begin
 	update_pc(pc_in_wbu);
 end
 `endif 
+
+always @(*) begin
+	`ifdef ysyx_25040129_DPI
+	if (ebreak_in_wbu) ebreak_trigger();
+	`endif
+	`ifdef __ICARUS__
+	if (ebreak_in_wbu) begin
+		$display("EBREAK triggered");
+		if(a0 == 32'h0)begin
+			$display("HIT GOOD TRAP");
+			$finish(0);
+		end
+		else begin
+			$display("HIT BAD TRAP");
+			$fatal;
+		end
+	end
+	`endif
+end
 assign wbu_forward_data = result_in_wbu;
 assign is_data_forward_valid_from_wbu = is_req_valid_from_lsu ;
 assign is_req_ready_to_lsu = is_req_valid_from_lsu;
