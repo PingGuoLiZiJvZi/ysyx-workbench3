@@ -62,6 +62,7 @@ always #1 clock = ~clock;
 initial begin
 	// $dumpfile("top.vcd");
     // $dumpvars(0,ysyxSoCFull);
+	$display("Start simulation");
 	$readmemh("build/program.hex", flash_mem);
 	$display("ysyxSoCFull: flash memory loaded");
 	repeat(10) @(posedge clock);
@@ -159,6 +160,7 @@ always @(posedge clock) begin
 					`endif
 				end else begin
 					$error("ysyxSoCFull: read addr %h out of range", araddr);
+					$fatal;
 				end
 
 				if(arlen == 0)
@@ -189,6 +191,7 @@ always @(posedge clock) begin
 						`endif
 					end else begin
 						$error("ysyxSoCFull: read addr %h out of range", read_addr_store + 4);
+						$fatal;
 					end
 
 					r_len_cnt <= r_len_cnt + 1;
@@ -239,6 +242,7 @@ always @(posedge clock) begin
 				$fflush();
 			end else begin
 				$error("ysyxSoCFull: write addr %h out of range", write_addr_store);
+				$fatal;
 			end
 
 			w_state <= W_WAIT_B_READY;

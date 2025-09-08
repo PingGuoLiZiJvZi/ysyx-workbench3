@@ -86,9 +86,17 @@ always @(*) begin
 	`ifdef ysyx_25040129_DPI
 	if (ebreak_in_exu)ebreak_trigger();
 	`endif
-	`ifdef ysyx_25040129_IVERILOG
+	`ifdef __ICARUS__
 	if (ebreak_in_exu) begin
 		$display("EBREAK triggered at PC: %h", pc);
+		if(rd == 4'd10 && result_out_exu == 32'b0)begin
+		$display("HIT GOOD TRAP");
+		$finish(0);
+		end
+		else begin
+			$display("HIT BAD TRAP");
+			$fatal;
+		end
 		$finish(0);
 		end
 	`endif

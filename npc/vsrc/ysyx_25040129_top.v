@@ -28,6 +28,8 @@ import "DPI-C" function void record_load_store(int addr, int is_load);
 /* verilator lint_off UNDRIVEN */
 	input clock,
 	input reset,
+  // --------------- iverilog 测试接口 -----------------
+
   // --------------- master -----------------
   input  io_interrupt,
 
