@@ -27,6 +27,7 @@ module ysyx_25040129_EXU (
 	input mret_in_exu,
 	input reg_write_in_exu,
 
+	output ebraek_out_exu,
 	output [`ysyx_25040129_REGS_DIG-1:0] rd_out_exu,
 	output csr_write_out_exu,
 	output [`ysyx_25040129_CSR_DIG-1:0] csr_write_addr_out_exu, 
@@ -70,6 +71,7 @@ reg is_branch;
 assign lsu_write_data_out_exu =  lsu_write_data_in_exu; // 如果是写请求，则将计算结果传递出去，否则传递计算结果
 assign rd_out_exu = rd_in_exu;
 
+assign ebraek_out_exu = ebreak_in_exu; // 直接传递EBREAK信号
 assign is_branch_out_exu = is_jump_in_exu || is_branch; 
 assign branch_target_out_exu =(is_jalr_in_exu || mret_in_exu)? src1 + src2 : pc + imm; 
 assign lsu_read_out_exu = lsu_read_in_exu; // 直接传递MEM阶段的读请求
@@ -83,24 +85,6 @@ assign is_data_forward_valid_from_exu =  (lsu_read_in_exu == `ysyx_25040129_NO_M
 always @(*) begin
 	result_out_exu = 32'b0;
 	is_branch = 1'b0; 
-	`ifdef ysyx_25040129_DPI
-	if (ebreak_in_exu)ebreak_trigger();
-	`endif
-	`ifdef __ICARUS__
-	if (ebreak_in_exu) begin
-		$display("EBREAK triggered at PC: %h", pc);
-		if(rd_out_exu == 4'd10 && result_out_exu == 32'b0)begin
-		$display("HIT GOOD TRAP");
-		$finish(0);
-		end
-		else begin
-			$display("EBREAK triggered but not a good trap, rd = %d, result = %h", rd_out_exu, result_out_exu);
-			$display("HIT BAD TRAP");
-			$fatal;
-		end
-		$finish(0);
-		end
-	`endif
 	case (alu_opcode)
 		`ysyx_25040129_ADD: result_out_exu = (is_jalr_in_exu)?(ecall_in_exu ? pc : pc+`ysyx_25040129_WORD_T):src1 + src2;
 		`ysyx_25040129_SUB: result_out_exu = src1 - src2;

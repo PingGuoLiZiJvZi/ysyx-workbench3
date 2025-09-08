@@ -56,6 +56,9 @@ module ysyx_25040129_LSU (
 	input ecall_in_lsu,
 	output ecall_out_lsu,
 
+	input ebreak_in_lsu,
+	output ebreak_out_lsu,
+
 	input reg_write_in_lsu,
 	output reg_write_out_lsu,
 	input [`ysyx_25040129_REGS_DIG-1:0] rd_in_lsu,
@@ -78,6 +81,7 @@ module ysyx_25040129_LSU (
 assign pc_out_lsu = pc_in_lsu;
 assign inst_out_lsu = inst_in_lsu;
 `endif
+assign ebreak_out_exu = ebreak_in_lsu;
 assign csr_write_out_lsu = csr_write_in_lsu;
 assign fence_i_out_lsu = fence_i_in_lsu;
 assign reg_write_out_lsu = reg_write_in_lsu; 
