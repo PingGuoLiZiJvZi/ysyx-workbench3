@@ -92,6 +92,7 @@ sim-iverilog-netlist:
 	$(BUILD_DIR)\iverilog
 
 sim-iverilog: verilog 
+	@echo iverilog target for $(ARCH)
 	$(call git_commit, "sim RTL") 
 	iverilog $(THIS_DIR)/platform/iverilog.v $(FINAL_CORE) $(THIS_DIR)/platform/iverilog/ysyxSoCFull.v -o $(BUILD_DIR)\iverilog  
 	python3 py/bin2hex.py $(IMG) $(BUILD_DIR)\program.hex
