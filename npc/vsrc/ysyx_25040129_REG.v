@@ -8,14 +8,14 @@ module ysyx_25040129_REG (
 	input [`ysyx_25040129_REGS_DIG-1:0] src2_id,
 	input reg_write,
 	`ifdef __ICARUS__
-	output [31:0] a0;
+	output [31:0] a0,
 	`endif
 	input [31:0] result,
 	output [31:0] src1,
 	output [31:0] src2
 );
 	reg [31:0] regs[15:1];
-	
+
 	`ifdef __ICARUS__
 	assign a0 = regs[10];
 	`endif
