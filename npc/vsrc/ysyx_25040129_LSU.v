@@ -81,7 +81,7 @@ module ysyx_25040129_LSU (
 assign pc_out_lsu = pc_in_lsu;
 assign inst_out_lsu = inst_in_lsu;
 `endif
-assign ebreak_out_exu = ebreak_in_lsu;
+assign ebreak_out_lsu = ebreak_in_lsu;
 assign csr_write_out_lsu = csr_write_in_lsu;
 assign fence_i_out_lsu = fence_i_in_lsu;
 assign reg_write_out_lsu = reg_write_in_lsu; 
