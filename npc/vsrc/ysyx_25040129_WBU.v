@@ -41,13 +41,12 @@ end
 	`endif
 	`ifdef __ICARUS__
 	if (ebreak_in_wbu) begin
-		$display("EBREAK triggered at PC: %h", pc);
+		$display("EBREAK triggered");
 		if(a0_in_wbu == 32'b0)begin
 		$display("HIT GOOD TRAP");
 		$finish(0);
 		end
 		else begin
-			$display("EBREAK triggered but not a good trap, rd = %d, result = %h", rd_out_exu, result_out_exu);
 			$display("HIT BAD TRAP");
 			$fatal;
 		end
