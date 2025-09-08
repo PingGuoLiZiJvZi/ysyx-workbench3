@@ -89,7 +89,7 @@ always @(*) begin
 	`ifdef __ICARUS__
 	if (ebreak_in_exu) begin
 		$display("EBREAK triggered at PC: %h", pc);
-		if(rd == 4'd10 && result_out_exu == 32'b0)begin
+		if(rd_out_exu == 4'd10 && result_out_exu == 32'b0)begin
 		$display("HIT GOOD TRAP");
 		$finish(0);
 		end
