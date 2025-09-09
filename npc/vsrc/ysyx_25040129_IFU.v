@@ -92,9 +92,13 @@ always @(posedge clk) begin
 							flush_target_latch <= pipeline_flush_target;
 						end
 						state <= WAIT_MMEM_REQ;
+						end
 					end
-					end
-				else state <= WAIT_MMEM_READY;
+				else begin
+					 state <= WAIT_MMEM_READY;
+					 get_flush_signal_in_fetching <= 1'b1;
+					 flush_target_latch <= pipeline_flush_target;
+				end
 			
 			end
 			WAIT_MMEM_REQ:begin
