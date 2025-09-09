@@ -63,6 +63,7 @@ __attribute__((section("loader"), naked, used)) void _loader()
 	{
 		*p = 0;
 	}
+	asm volatile("fence.i\n");
 	_trm_init();
 	// should not reach here
 	while (1)
@@ -78,6 +79,7 @@ __attribute__((section("entry"), naked, used)) void _start()
 	{
 		_loader_vma[i] = _loader_lma[i];
 	}
+	asm volatile("fence.i\n");
 	_loader();
 	while (1)
 		;

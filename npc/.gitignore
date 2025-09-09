@@ -12,3 +12,5 @@ log.*
 build/
 obj_dir/*
 obj_dir
+top.vcd
+top.fst*
