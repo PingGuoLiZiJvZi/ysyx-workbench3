@@ -17,6 +17,11 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+const char cpl_name[][20] = {
+	"U-mode",
+	"S-mode",
+	"HS-mode",
+	"M-mode"};
 word_t csrr(word_t csr)
 {
 	csr = csr & 0xFFF;
@@ -36,10 +41,12 @@ word_t csrr(word_t csr)
 		return cpu.satp;
 	case 0x105:
 		return cpu.stvec;
+	case 0x142:
+		return cpu.scause;
 	case 0x340:
-		return cpu.mscratch; // Added for RISC-V
+		return cpu.mscratch;
 	case 0x100:
-		return cpu.sstatus; // Added for RISC-V
+		return cpu.sstatus;
 	case 0xf14:
 		return 0; // mhartid; 目前单核
 	case 0x302:
@@ -49,11 +56,15 @@ word_t csrr(word_t csr)
 	case 0x304:
 		return cpu.mie;
 	case 0x144:
-		return cpu.sip; // sip, added for RISC-V
+		return cpu.sip;
+	case 0x140:
+		return cpu.sscratch;
+	case 0x143:
+		return cpu.stval;
 	case 0x104:
-		return cpu.sie; // sie, added for RISC-V
+		return cpu.sie;
 	case 0x141:
-		return cpu.sepc; // sepc, added for RISC-V
+		return cpu.sepc;
 	default:
 		printf("csr = 0x%x\n", csr);
 		printf("pc = 0x%x\n", cpu.pc);
@@ -75,7 +86,6 @@ word_t csrw(word_t csr, word_t val)
 		break;
 	case 0x341:
 		cpu.mepc = val;
-		printf("mepc set to %x\n", val);
 		break;
 	case 0x342:
 		cpu.mcause = val;
@@ -89,29 +99,40 @@ word_t csrw(word_t csr, word_t val)
 	case 0x105:
 		cpu.stvec = val;
 		break;
+	case 0x142:
+		cpu.scause = val;
+		break;
 	case 0x340:
-		cpu.mscratch = val; // Added for RISC-V
+		cpu.mscratch = val;
 		break;
 	case 0x100:
-		cpu.sstatus = val; // Added for RISC-V
+		cpu.sstatus = val;
 		break;
 	case 0x302:
+		printf("medeleg set to %x\n", val);
 		cpu.medeleg = val;
 		break;
 	case 0x303:
+		printf("mideleg set to %x\n", val);
 		cpu.mideleg = val;
 		break;
 	case 0x304:
 		cpu.mie = val;
 		break;
 	case 0x144:
-		cpu.sip = val; // sip, added for RISC-V
+		cpu.sip = val;
+		break;
+	case 0x140:
+		cpu.sscratch = val;
+		break;
+	case 0x143:
+		cpu.stval = val;
 		break;
 	case 0x104:
-		cpu.sie = val; // sie, added for RISC-V
+		cpu.sie = val;
 		break;
 	case 0x141:
-		cpu.sepc = val; // sepc, added for RISC-V
+		cpu.sepc = val;
 		break;
 	default:
 		printf("csr = 0x%x\n", csr);
@@ -237,7 +258,7 @@ static int decode_exec(Decode *s)
 		R(rd) = old;
 		R(BITS(s->isa.inst, 24, 20)) = old;
 	});
-
+	INSTPAT("0001001 ????? ????? 000 00000 11100 11", sfence.vma, I, {});
 	INSTPAT("0000000 00000 00000 001 00000 00011 11", fence.i, I, {});
 	INSTPAT("0000??? ????? 00000 000 00000 00011 11", fence, I, {});
 
@@ -264,11 +285,36 @@ static int decode_exec(Decode *s)
 		cpu.mstatus &= ~(1 << 7); // MPIE = 0
 		cpu.mstatus |= MPIE << 3; // MPIE = MIE
 		cpu.CPL = (cpu.mstatus >> 11) & 3;
-		printf("CPL changed to %s\n", cpu.CPL == 0 ? "USER" : (cpu.CPL == 1 ? "SUPERVISOR" : "MACHINE"));
-		cpu.mstatus &= ~(3 << 11); // clear CPL
+		// printf("mret: restored to %s with pc = %x\n", cpl_name[cpu.CPL], s->dnpc);
 		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", cpu.mcause, s->dnpc));
 	});
-	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, { s->dnpc = isa_raise_intr(11, s->pc); });
+	INSTPAT("0001000 00010 00000 000 00000 11100 11", sret, I, {
+		// printf("sret: :beg:sstatus = %x, sepc = %x, scause = %d\n", cpu.sstatus, cpu.sepc, cpu.scause);
+		s->dnpc = cpu.sepc;
+		word_t SPIE = (cpu.sstatus >> 5) & 1;
+		cpu.sstatus &= ~(1 << 1); // SIE = 0
+		cpu.sstatus &= ~(1 << 5); // SPIE = 0
+		cpu.sstatus |= SPIE << 1; // SPIE = SIE
+		cpu.CPL = (cpu.sstatus >> 8) & 3;
+		// printf("sret: restored to %s with pc = %x\n", cpl_name[cpu.CPL], s->dnpc);
+		IFDEF(CONFIG_ETRACE, printf("error %d return to %x\n", cpu.scause, s->dnpc));
+	});
+	INSTPAT("??????? ????? ????? 000 ????? 11100 11", ecall, I, {
+		switch (cpu.CPL)
+		{
+		case 3:
+			s->dnpc = isa_raise_intr(11, s->pc);
+			break;
+		case 1:
+			s->dnpc = isa_raise_intr(9, s->pc);
+			break;
+		case 0:
+			s->dnpc = isa_raise_intr(8, s->pc);
+			break;
+		default:
+			assert(0);
+		}
+	});
 	INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrw, I, R(rd) = csrw(imm, src1));
 	INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrr, I, R(rd) = csrr(imm););
 	INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc, U, R(rd) = s->pc + imm);

@@ -15,7 +15,8 @@
 
 #include <utils.h>
 #include <device/map.h>
-
+#include <fcntl.h>
+#include <unistd.h>
 /* http://en.wikibooks.org/wiki/Serial_Programming/8250_UART_Programming */
 // NOTE: this is compatible to 16550
 
@@ -28,7 +29,10 @@ static void serial_putc(char ch)
 	MUXDEF(CONFIG_TARGET_AM, putch(ch), putc(ch, stderr));
 	fflush(stderr);
 }
-
+static uint8_t serial_getc()
+{
+	return getc(stdin);
+}
 static void serial_io_handler(uint32_t offset, int len, bool is_write)
 {
 	assert(len == 1);
@@ -39,7 +43,9 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write)
 		if (is_write)
 			serial_putc(serial_base[0]);
 		else
-			panic("do not support read");
+		{
+			serial_base[0] = serial_getc();
+		}
 		break;
 	default:
 		break;
@@ -49,6 +55,9 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write)
 void init_serial()
 {
 	serial_base = new_space(8);
+	int flags_in = fcntl(STDIN_FILENO, F_GETFL);
+	int ret = fcntl(STDIN_FILENO, F_SETFL, flags_in | O_NONBLOCK);
+	assert(ret != -1);
 #ifdef CONFIG_HAS_PORT_IO
 	add_pio_map("serial", CONFIG_SERIAL_PORT, serial_base, 8, serial_io_handler);
 #else

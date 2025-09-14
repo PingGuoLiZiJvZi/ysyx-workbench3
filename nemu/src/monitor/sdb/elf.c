@@ -12,7 +12,8 @@ static char ignore_vec[][20]={
 	"memset",
 	"kfree",
 	"uartputc",
-	"consputc"
+	"consputc",
+	"walk"
 };
 int is_ignore(char *name){
 	for(int i=0; i<sizeof(ignore_vec)/sizeof(ignore_vec[0]); i++){
