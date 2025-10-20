@@ -10,7 +10,10 @@ void putch(char ch)
 {
 	outb(SERIAL_PORT, ch);
 }
-
+unsigned char getch()
+{
+	return 0xff;
+}
 void halt(int code)
 {
 
