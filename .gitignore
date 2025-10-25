@@ -4,6 +4,7 @@ am-kernels/
 nvboard/
 yosys-sta/
 ysyxSoC/
+/fceux-am
 !patch/ysyxSoC
 riscv-tests-am/
 *.mp4
@@ -17,6 +18,5 @@ riscv-tests-am/
 !README.md
 !.gitignore
 !init.sh
-!/fceux-am
 .vscode/nvboard
 !打字游戏是如何工作的/nvboard
