@@ -39,26 +39,18 @@ word_t map_to_rom_and_ram(word_t addr)
 }
 word_t vaddr_ifetch(vaddr_t addr, int len)
 {
-	addr = map_to_rom_and_ram(addr);
+	addr = trans_check(addr, len, 0);
 	return paddr_read(addr, len);
 }
 
 word_t vaddr_read(vaddr_t addr, int len)
 {
-	if (addr >= 0xa5000000 && addr < 0xa8000000)
-	{
-		return 0xdeadbeef;
-	}
-	addr = map_to_rom_and_ram(addr);
+	addr = trans_check(addr, len, 0);
 	return paddr_read(addr, len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data)
 {
-	if (addr >= 0xa5000000 && addr < 0xa8000000)
-	{
-		return;
-	}
-	addr = map_to_rom_and_ram(addr);
+	addr = trans_check(addr, len, 0);
 	paddr_write(addr, len, data);
 }

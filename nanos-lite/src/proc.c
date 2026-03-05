@@ -50,6 +50,8 @@ Context *schedule(Context *prev)
 {
 
 	current->cp = prev;
-	current = (current == &pcb[3] ? &pcb[fg_pcb] : &pcb[3]);
+	static int cnt = 0;
+	cnt++;
+	current = cnt % 100 ? &pcb[fg_pcb] : &pcb[3];
 	return current->cp;
 }

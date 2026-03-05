@@ -62,7 +62,7 @@ int fs_open(const char *pathname, int flags, int mode)
 			return i; // Return the index as the file descriptor
 		}
 	}
-	// return -1;
+	return -1;
 	// if want to enable file finding, please uncomment this line
 	// for the convenience of debugging, we will panic here
 	panic("open: file '%s' at address %p not found,memory coverage may be wrong", pathname, pathname);
